@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Carbon\Carbon;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -21,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     public $timestamps = false;
 
-    protected $fillable = ['categoryid', 'affiliateID', 'referenceID', 'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
+    protected $fillable = ['id','categoryid', 'affiliateID',  'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
 
     protected $hidden = ['otp', 'otp_expires_at'];
 
@@ -60,5 +61,17 @@ class User extends Authenticatable implements JWTSubject
                 'status' => 1, // Active user status
             ],
         );
+    }
+
+    protected $dates = ['appLogin', 'dateUpdated']; // Add your date fields here
+
+    public function getAppLoginAttribute($value)
+    {
+        return Carbon::parse($value)->format('d M, Y, g:i A'); // '10 May, 2025, 4:30 PM'
+    }
+
+    public function getDateUpdatedAttribute($value)
+    {
+        return Carbon::parse($value)->format('d M, Y, g:i A'); // '10 May, 2025, 4:30 PM'
     }
 }

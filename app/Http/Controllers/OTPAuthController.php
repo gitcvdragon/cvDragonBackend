@@ -155,7 +155,6 @@ class OTPAuthController extends Controller
 
     public function handleLinkedinCallback()
     {
-
         $linkedInUser = Socialite::driver('linkedin')->stateless()->user();
 
         dd( $linkedInUser);
