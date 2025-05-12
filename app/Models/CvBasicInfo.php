@@ -10,7 +10,7 @@ class CvBasicInfo extends Model
     use HasFactory;
 
     // Define the table name (optional, Laravel defaults to 'cv_basic_infos')
-    protected $table = 'cv_basic_info';
+    protected $table = 'cv-basic-info';
 
     // Define the primary key (optional, Laravel defaults to 'id')
     protected $primaryKey = 'id';

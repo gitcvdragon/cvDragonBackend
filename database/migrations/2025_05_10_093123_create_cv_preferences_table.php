@@ -11,26 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_preferences', function (Blueprint $table) {
+        Schema::create('cv-preference', function (Blueprint $table) {
             $table->increments('prefid');
             $table->bigInteger('id');
             $table->tinyInteger('passport')->nullable();
-            $table->string('passportDetails', 100);
+            $table->string('passportDetails', 100)->nullable();
             $table->tinyInteger('recommendations')->nullable();
-            $table->string('preferredLocation', 50);
-            $table->tinyInteger('canRelocate');
-            $table->string('noticePeriod', 20);
-            $table->tinyInteger('canJoin');
-            $table->string('expectedCTC', 100);
-            $table->tinyInteger('isNegotiate');
+            $table->string('preferredLocation', 50)->nullable();
+            $table->tinyInteger('canRelocate')->nullable();
+            $table->string('noticePeriod', 20)->nullable();
+            $table->tinyInteger('canJoin')->nullable();
+            $table->string('expectedCTC', 100)->nullable();
+            $table->tinyInteger('isNegotiate')->nullable();
             $table->tinyInteger('declaration')->nullable();
-            $table->string('signature', 200);
+            $table->string('signature', 200)->nullable();
             $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
-            $table->tinyInteger('proofRead');
-            $table->date('proofReadDate');
-            $table->tinyInteger('status');
-            $table->bigInteger('refID');
+            $table->tinyInteger('proofRead')->nullable();
+            $table->date('proofReadDate')->nullable();
+            $table->tinyInteger('status')->nullable();
+            $table->bigInteger('refID')->nullable();
         });
+
     }
 
     /**
@@ -38,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_preferences');
+        Schema::dropIfExists('cv-preference');
     }
 };

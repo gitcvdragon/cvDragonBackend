@@ -11,23 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_basic_info', function (Blueprint $table) {
+        Schema::create('cv-basic-info', function (Blueprint $table) {
             $table->id(); // id bigint primary key
             $table->string('cvFullName', 100)->collation('utf8mb4_bin');
-            $table->tinyInteger('verified');
-            $table->string('nationality', 50)->collation('utf8_unicode_ci');
-            $table->string('gender', 50)->collation('utf8_unicode_ci');
+            $table->tinyInteger('verified')->nullable();
+            $table->string('nationality', 50)->collation('utf8_unicode_ci')->nullable();;
+            $table->string('gender', 50)->collation('utf8_unicode_ci')->nullable();;
             $table->date('dateBirth')->nullable();
-            $table->string('maritalStatus', 20)->collation('utf8_unicode_ci');
-            $table->string('facebookLink', 200)->collation('utf8_unicode_ci');
-            $table->string('linkedinLink', 200)->collation('utf8_unicode_ci');
-            $table->string('twitterLink', 200)->collation('utf8_unicode_ci');
-            $table->string('blogLink', 200)->collation('utf8_unicode_ci');
+            $table->string('maritalStatus', 20)->collation('utf8_unicode_ci')->nullable();;
+            $table->string('facebookLink', 200)->collation('utf8_unicode_ci')->nullable();;
+            $table->string('linkedinLink', 200)->collation('utf8_unicode_ci')->nullable();;
+            $table->string('twitterLink', 200)->collation('utf8_unicode_ci')->nullable();;
+            $table->string('blogLink', 200)->collation('utf8_unicode_ci')->nullable();;
             $table->timestamp('dateCreated')->useCurrent()->useCurrentOnUpdate();
-            $table->tinyInteger('proofRead');
-            $table->date('proofReadDate');
+            $table->tinyInteger('proofRead')->nullable();;
+            $table->date('proofReadDate')->nullable();;
             $table->smallInteger('status');
-            $table->bigInteger('refID');
+            $table->bigInteger('refID')->nullable();;
         });
     }
 
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_basic_info');
+        Schema::dropIfExists('cv-basic-info');
     }
 };

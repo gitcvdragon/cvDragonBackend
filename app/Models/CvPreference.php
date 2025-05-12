@@ -9,7 +9,7 @@ class CvPreference extends Model
 {
     use HasFactory;
 
-    protected $table = 'cv_preferences'; // Table name
+    protected $table = 'cv-preference'; // Table name
 
     protected $primaryKey = 'prefid'; // Primary key field
 

@@ -9,7 +9,7 @@ class CvEducation extends Model
 {
     use HasFactory;
 
-    protected $table = 'cv_education';
+    protected $table = 'cv-education';
 
     protected $primaryKey = 'eduid';
 

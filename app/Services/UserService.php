@@ -23,47 +23,9 @@ class UserService
         };
     }
 
-    // public function urlImport(string $url): array
-    // {
-    //     $response = Http::get($url);
-    //     return $response->json() ?? [];
-    // }
-
-    // public function urlExport(array $data): string
-    // {
-    //     return urlencode(json_encode($data));
-    // }
-
-    // public function sendWelcomeEmail(string $fullName, ?string $email, string $id, string $authkey): void
-    // {
-    //     if (!$email) return;
-
-    //     $contents = $this->urlExport([
-    //         'name' => $fullName,
-    //         'email' => $email
-    //     ]);
-
-    //     $url = config('services.email.url') . "?id={$id}&authkey={$authkey}&data=registration&contents={$contents}";
-
-    //     Http::get($url);
-    // }
-
-    // public function sendWelcomeWhatsApp(string $fullName, string $countryCode, ?string $phoneNumber, string $id): void
-    // {
-    //     if (!$phoneNumber) return;
-
-    //     $fullWAData = [
-    //         'phoneNumber' => $countryCode . $phoneNumber,
-    //         'userName' => $fullName,
-    //         'headerImage' => 'https://cvdragon.com/data/facebook/resources/whycvDragon.jpg',
-    //     ];
-
-    //     $contents = $this->urlExport($fullWAData);
-
-    //     $url = config('services.whatsapp.url') . "?entryID=105486032380156&id={$id}&authkey=1&WATemplate=welcomemessage&contents={$contents}";
-
-    //     Http::get($url);
-    // }
-
-   
+    public function urlImport(string $url): array
+    {
+        $response = Http::get($url);
+        return $response->json() ?? [];
+    }
 }

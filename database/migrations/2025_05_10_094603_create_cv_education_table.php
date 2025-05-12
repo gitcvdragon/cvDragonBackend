@@ -11,23 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_education', function (Blueprint $table) {
+        Schema::create('cv-education', function (Blueprint $table) {
             $table->increments('eduid');
-            $table->bigInteger('id')->primary();
+            $table->bigInteger('id');
             $table->string('category', 10);
-            $table->string('institute', 100);
-            $table->string('location', 100);
-            $table->string('university', 100);
-            $table->string('specialization', 100);
-            $table->string('grade', 50);
-            $table->string('score', 50);
+            $table->string('institute', 100)->nullable();
+            $table->string('location', 100)->nullable();
+            $table->string('university', 100)->nullable();
+            $table->string('specialization', 100)->nullable();
+            $table->string('grade', 50)->nullable();
+            $table->string('score', 50)->nullable();
             $table->string('year', 4)->nullable();
             $table->tinyInteger('visibility')->default(1);
             $table->timestamp('created')->useCurrent()->onUpdate(DB::raw('CURRENT_TIMESTAMP'));
-            $table->tinyInteger('proofRead');
-            $table->date('proofReadDate');
-            $table->tinyInteger('status');
-            $table->bigInteger('refID');
+            $table->tinyInteger('proofRead')->nullable();
+            $table->date('proofReadDate')->nullable();
+            $table->tinyInteger('status')->nullable();
+            $table->bigInteger('refID')->nullable();
             $table->timestamps();
         });
     }
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_education');
+        Schema::dropIfExists('cv-education');
     }
 };

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->bigInteger('referenceID')->nullable();
             $table->string('socialType', 100)->nullable();
             $table->string('socialid', 100)->nullable();
-            $table->string('authKey', 100)->nullable();
+            $table->string('authKey')->nullable();
             $table->string('socialToken', 800)->nullable();
             $table->string('username', 100)->nullable();
             $table->string('usermobile', 20)->nullable();

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('cvprofilesection', function (Blueprint $table) {
+         Schema::create('create-cvprofilesection', function (Blueprint $table) {
             $table->id('psid'); // Primary Index
             $table->integer('cvid');
             $table->bigInteger('id');
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('showName', 255);
             $table->timestamp('dateCreated')->useCurrent()->onUpdate(\DB::raw('CURRENT_TIMESTAMP'));
             $table->tinyInteger('status');
-            
+                        
             $table->index('cvid');
             $table->index('section');
             $table->index('status');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cvprofilesection');
+        Schema::dropIfExists('create-cvprofilesection');
     }
 };

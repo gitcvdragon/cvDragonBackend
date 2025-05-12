@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('cv_introduction', function (Blueprint $table) {
+        Schema::create('cv-introduction', function (Blueprint $table) {
             $table->bigIncrements('id'); // ID column (primary key)
             $table->bigInteger('introid')->unsigned(); // introid column
             $table->text('introduction'); // introduction column
@@ -29,6 +29,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_introduction');
+        Schema::dropIfExists('cv-introduction');
     }
 };

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('create_cvprofile', function (Blueprint $table) {
+        Schema::create('create-cvprofile', function (Blueprint $table) {
             $table->unsignedBigInteger('cvid')->primary();
             $table->unsignedBigInteger('id');
             $table->string('profileName', 100)->nullable();
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('create_cvprofile');
+        Schema::dropIfExists('create-cvprofile');
     }
 };

@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('user_basic', function (Blueprint $table) {
+        Schema::create('user-basic', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('fullName', 100)->nullable(); // Allow NULL for fullName
             $table->string('emailAddress', 200)->nullable(); // Allow NULL for emailAddress

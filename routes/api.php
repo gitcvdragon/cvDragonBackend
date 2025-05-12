@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\{OTPAuthController, UserController};
+use App\Http\Controllers\{AppConfigController, OTPAuthController, UserController};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']); 
 Route::post('verify-otp', [OTPAuthController::class, 'verifyOtp']);
-Route::get('/auth/google', [OTPAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [OTPAuthController::class, 'handleGoogleCallback']);
+// Route::get('/auth/google', [OTPAuthController::class, 'redirectToGoogle']);
+// Route::get('/auth/google/callback', [OTPAuthController::class, 'handleGoogleCallback']);
 
 Route::post('/create-user', [UserController::class, 'createUser']);
+Route::get('/get-config', [AppConfigController::class, 'getConfig']);

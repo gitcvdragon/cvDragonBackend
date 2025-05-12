@@ -10,7 +10,7 @@ class CvIntroduction extends Model
     use HasFactory;
 
     // Define the table name explicitly (optional if the table name is the plural form of the model)
-    protected $table = 'cv_introduction';
+    protected $table = 'cv-introduction';
 
     // Define the primary key (optional if the primary key is 'id')
     protected $primaryKey = 'id';

@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Services\UserService;
 use App\Traits\ApiResponseTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -21,18 +23,38 @@ class UserController extends Controller
 
     public function createUser(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'contents' => 'required|array',
+            'contents.fullName' => 'required|string|max:255',
+            'contents.emailAddress' => 'required|email|unique:users,userEmail',
+            'phoneNumber' => 'required|digits:10',
+            'countryCode' => 'required|string|max:5',
+            'sectionType' => 'nullable|integer',
+            'affiliateID' => 'nullable|string|max:255',
+            'socialType' => 'required|integer|in:0,1,2',
+            'socialid' => 'required|string|max:255',
+            'playerID' => 'nullable|string|max:255',
+            'location' => 'required|string|max:255',
+            'fullAddress' => 'required|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first(), 'Validation failed');
+        }
+
+        $data = $validator->validated();
+
         DB::beginTransaction();
 
         try {
             $data = $request->all();
 
-            $id = now()->timestamp . rand(1, 10000);
-            $authkey = md5(microtime() . rand());
+            $id = now()->timestamp . rand(1, 1000);
+            $userauthKey = md5(microtime() . rand());
             $date = now()->toDateTimeString();
             $profileName = 'First Profile';
 
-         
-            //$contents = $this->userService->urlImport($data['contents']);
+            $contents = $data['contents'];
             $fullName = ucwords(strtolower($contents['fullName'] ?? ''));
             $email = $contents['emailAddress'] ?? null;
             $phone = $data['phoneNumber'] ?? null;
@@ -48,7 +70,7 @@ class UserController extends Controller
                 'appLogin' => Carbon::now(),
                 'socialType' => $data['socialType'],
                 'socialid' => $data['socialid'],
-                'authkey' => $authkey ?? null,
+                'authKey' => $userauthKey ?? null,
                 'username' => $id,
                 'playerID' => $data['playerID'],
                 'userEmail' => $email,
@@ -56,13 +78,13 @@ class UserController extends Controller
                 'status' => 1,
                 'dateUpdated' => Carbon::now(),
             ]);
-           
+
             DB::table('user-basic')->insert([
                 'id' => $id,
-                'fullName' => $fullName,
-                'emailAddress' => $email,
-                'countryCode' => $countryCode,
-                'phoneNumber' => $phone,
+                'fullName' => $fullName ?? null,
+                'emailAddress' => $email ?? null,
+                'countryCode' => $countryCode ?? null,
+                'phoneNumber' => $phone ?? null,
                 'profileImageUrl' => '',
                 'dateCreated' => $date,
                 'status' => 1,
@@ -70,41 +92,61 @@ class UserController extends Controller
 
             DB::table('cv-contact')->insert([
                 'id' => $id,
-                'phoneNumber' => $phone,
-                'emailAddress' => $email,
-                'location' => '',
+                'phoneNumber' => $phone ?? null,
+                'emailAddress' => $email ?? null,
+                'location' => $data['location'] ?? null,
+                'fullAddress' => $data['fullAddress'] ?? null,
                 'status' => 1,
             ]);
 
-            // DB::table('cv-preference')->insert(['id' => $id, 'status' => 1]);
-            // DB::table('cv-basic-info')->insert(['id' => $id, 'cvFullName' => $fullName, 'status' => 1]);
-            // DB::table('cv-introduction')->insert(['id' => $id, 'status' => 1]);
+            DB::table('cv-preference')->insert(['id' => $id, 'status' => 1]);
+            DB::table('cv-basic-info')->insert(['id' => $id, 'cvFullName' => $fullName, 'status' => 1]);
+            DB::table('cv-introduction')->insert(['id' => $id, 'status' => 1]);
 
-            // foreach (['classX' => 1, 'classXII' => 2, 'graduation' => 3, 'diploma' => 4] as $category => $refID) {
-            //     DB::table('cv-education')->insert([
-            //         'id' => $id,
-            //         'category' => $category,
-            //         'refID' => $refID,
-            //         'status' => 1,
-            //     ]);
-            // }
+            $educationRefMap = [
+                'classX' => 1,
+                'classXII' => 2,
+                'graduation' => 3,
+                'diploma' => 4,
+            ];
 
-            // $uniqueSections = array_values(array_unique($sections));
-            // $cvProfileID = DB::table('create-cvprofile')->insertGetId([
-            //     'id' => $id,
-            //     'profileName' => $profileName,
-            //     'sections' => json_encode($uniqueSections),
-            //     'status' => 1,
-            // ]);
+            $educationLevels = $data['educationLevels'] ?? [];
 
-            // foreach ($uniqueSections as $section) {
-            //     DB::table('create-cvprofilesection')->insertOrIgnore([
-            //         'cvid' => $cvProfileID,
-            //         'id' => $id,
-            //         'section' => $section,
-            //         'status' => 1,
-            //     ]);
-            // }
+            $educationEntries = collect($educationLevels)->map(function ($education) use ($id, $educationRefMap) {
+                return [
+                    'id' => $id,
+                    'category' => $education['category'] ?? null,
+                    'refID' => $educationRefMap[$education['category']] ?? null,
+                    'institute' => $education['institute'] ?? null,
+                    'location' => $education['location'] ?? null,
+                    'university' => $education['university'] ?? null,
+                    'specialization' => $education['specialization'] ?? null,
+                    'grade' => $education['grade'] ?? null,
+                    'score' => $education['score'] ?? null,
+                    'year' => $education['year'] ?? null,
+                    'visibility' => isset($education['visibility']) ? (int)$education['visibility'] : 1,
+                    'status' => 1,
+                ];
+            })->toArray();
+            DB::table('cv-education')->insert($educationEntries);
+
+
+            $uniqueSections = array_values(array_unique($sections));
+            $cvProfileID = DB::table('create-cvprofile')->insertGetId([
+                'id' => $id,
+                'profileName' => $profileName,
+                'sections' => json_encode($uniqueSections),
+                'status' => 1,
+            ]);
+
+            foreach ($uniqueSections as $section) {
+                DB::table('create-cvprofilesection')->insertOrIgnore([
+                    'cvid' => $cvProfileID,
+                    'id' => $id,
+                    'section' => $section,
+                    'status' => 1,
+                ]);
+            }
 
             // foreach ($sections as $section) {
             //     DB::table('create-cvsection')->insertOrIgnore([
@@ -114,15 +156,27 @@ class UserController extends Controller
             //     ]);
             // }
 
+            // if ($email) {
+            //     Http::get(env('EMAIL_API_URL'), [
+            //         'id' => $id,
+            //         'authkey' => $authkey,
+            //         'data' => 'registration',
+            //         'contents' => urlencode(json_encode([
+            //             'name' => $fullName,
+            //             'email' => $email
+            //         ]))
+            //     ]);
+            // }
+
             // External actions
             // $this->sendNotification_firstTime($id);
             // $this->sendNotificationToAdmin('New App Registration', $fullName, $id);
             //$this->userService->sendWelcomeEmail($fullName, $email, $id, $authkey);
-            // $this->userService->sendWelcomeWhatsApp($fullName, $countryCode, $phone, $id);
+            // $this->userService->sendWelcomeWhatsApp($fullName, $countryCode, $phone, $id);onse('User creation failed', 500, $e->getMessage());
 
             DB::commit();
 
-            return $this->successResponse([['id' => $id, 'authkey' => $authkey]], 'User created successfully.');
+            return $this->successResponse([['id' => $id, 'authkey' => $userauthKey]], 'User created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->errorResponse('User creation failed', 500, $e->getMessage());

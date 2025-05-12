@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CvContact extends Model
 {
-    protected $table = 'cv_contact'; // table name
+    protected $table = 'cv-contact'; // table name
 
     public $timestamps = false; // because we're using a custom 'created' column
 

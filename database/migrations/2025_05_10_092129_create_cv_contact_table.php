@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_contact', function (Blueprint $table) {
+        Schema::create('cv-contact', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('phoneNumber', 50)->nullable();
             $table->string('emailAddress', 50);
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_contact');
+        Schema::dropIfExists('cv-contact');
     }
 };
