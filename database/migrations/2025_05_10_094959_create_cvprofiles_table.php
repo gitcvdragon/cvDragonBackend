@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->bigInteger('intro'); // Intro field
             $table->tinyInteger('isPublic'); // Public status
             $table->tinyInteger('progressReport'); // Progress report
-            $table->timestamp('dateUpdated')->useCurrent()->nullable()->onUpdate(current_timestamp()); // Date updated
+            $table->timestamp('dateUpdated')->useCurrent()->nullable(); // Date updated
             $table->smallInteger('status'); // Status field });
         });
     }

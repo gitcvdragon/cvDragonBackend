@@ -21,5 +21,6 @@ Route::post('verify-otp', [OTPAuthController::class, 'verifyOtp']);
 // Route::get('/auth/google', [OTPAuthController::class, 'redirectToGoogle']);
 // Route::get('/auth/google/callback', [OTPAuthController::class, 'handleGoogleCallback']);
 
-Route::post('/create-user', [UserController::class, 'createUser']);
-Route::get('/get-config', [AppConfigController::class, 'getConfig']);
+Route::post('/create-user', [UserController::class, 'saveUserProfile']);
+Route::post('/get-config', [AppConfigController::class, 'getConfig']);
+Route::post('/verify-user-social', [UserController::class, 'verifyUserSocial']);

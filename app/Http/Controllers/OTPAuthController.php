@@ -71,19 +71,44 @@ class OTPAuthController extends Controller
         }
 
         // Step 4: OTP is valid, now authenticate the user (or create a new user)
-        $user = User::findOrCreateUser($request->identifier);
+        $user = User::where('email', $request->identifier)->orWhere('phone', $request->identifier)->first();
+        $userauthKey = md5(microtime() . rand());
+        if ($user) {
 
-        // Step 5: Generate a JWT token for the user
-        $token = JWTAuth::fromUser($user);
+            $userauthKey = md5(microtime() . rand());
+            $userId = auth::users()->id;
+            $token = JWTAuth::fromUser($user);
+            return $this->successResponse(
+            [
+                'token' => $token,
+                'userId' => $userId,
+                'userauthKey' => $userauthKey
+            ],
+            'OTP verified successfully!!',
+        );
+        } else {
 
-        // Step 6: Return success response with token and user data
-        return $this->successResponse(
+            $id = now()->timestamp . rand(1, 1000);
+            $userauthKey = md5(microtime() . rand());
+            $profileName = 'First Profile';
+            $email = $contents['emailAddress'] ?? null;
+            $phone = $data['phoneNumber'] ?? null;
+            
+            $user = User::create([
+                'email' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
+                'phone' => is_numeric($request->identifier) ? $request->identifier : null,
+            ]);
+            $token = JWTAuth::fromUser($user);
+
+            return $this->successResponse(
             [
                 'token' => $token,
                 'user' => $user,
             ],
             'OTP verified successfully',
         );
+
+        }
     }
 
     // Method to Generate Google OAuth Redirect URL.Generates and returns the Google OAuth login URL via Socialite.
@@ -157,10 +182,9 @@ class OTPAuthController extends Controller
     {
         $linkedInUser = Socialite::driver('linkedin')->stateless()->user();
 
-        dd( $linkedInUser);
+        dd($linkedInUser);
         try {
             // Retrieve the user information from LinkedIn
-            
 
             // Attempt to find the user by their social ID
             $existingUser = User::where('socialid', $linkedInUser->getId())->first();

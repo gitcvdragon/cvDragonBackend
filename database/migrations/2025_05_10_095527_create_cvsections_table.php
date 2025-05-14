@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('cvsections', function (Blueprint $table) {
             $table->id('id');  // BigInt Primary key
             $table->integer('section')->index();  // Index for section
-            $table->integer('sectionid')->autoIncrement()->index();  // Index for sectionid
+            $table->integer('sectionid')->index();  // Index for sectionid
             $table->integer('contentAdded', false, true)->length(6);
             $table->integer('contentStatus');
             $table->timestamp('dateCreated')->useCurrent()->useCurrentOnUpdate();
