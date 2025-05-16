@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('authKey')->nullable();
             $table->string('socialToken', 800)->nullable();
             $table->string('username', 100)->nullable();
+            $table->string('gender', 10)->nullable();
             $table->string('usermobile', 20)->nullable();
             $table->string('userEmail', 100)->nullable();
             $table->string('userPassword', 100)->nullable();

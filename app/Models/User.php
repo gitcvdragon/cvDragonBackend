@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     public $timestamps = false;
 
-    protected $fillable = ['id','categoryid', 'affiliateID',  'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
+    protected $fillable = ['id','categoryid', 'affiliateID',  'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'gender', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
 
     protected $hidden = ['otp', 'otp_expires_at'];
 
@@ -63,8 +63,6 @@ class User extends Authenticatable implements JWTSubject
         );
     }
 
-    protected $dates = ['appLogin', 'dateUpdated']; // Add your date fields here
-
     public function getAppLoginAttribute($value)
     {
         return Carbon::parse($value)->format('d M, Y, g:i A'); // '10 May, 2025, 4:30 PM'
@@ -73,5 +71,35 @@ class User extends Authenticatable implements JWTSubject
     public function getDateUpdatedAttribute($value)
     {
         return Carbon::parse($value)->format('d M, Y, g:i A'); // '10 May, 2025, 4:30 PM'
+    }
+
+    public function userBasic()
+    {
+        return $this->hasOne(UserBasic::class, 'user_id', 'id');
+    }
+
+    public function cvProfile()
+    {
+        return $this->hasOne(CreateCvprofile::class, 'user_id', 'id');
+    }
+
+    public function cvSkill()
+    {
+        return $this->hasMany(CVSkill::class, 'user_id', 'id');
+    }
+
+    public function cvTechnical()
+    {
+        return $this->hasMany(CvTechnical::class, 'user_id', 'id');
+    }
+
+    public function cvLanguages()
+    {
+        return $this->hasMany(CvLanguages::class, 'user_id', 'id');
+    }
+
+    public function cvInterest()
+    {
+        return $this->hasMany(CvInterest::class, 'user_id', 'id');
     }
 }

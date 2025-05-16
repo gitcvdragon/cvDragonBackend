@@ -12,7 +12,10 @@ return new class extends Migration {
     {
         Schema::create('user-basic', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('fullName', 100)->nullable(); // Allow NULL for fullName
+            $table->string('gender', 10)->nullable(); // Allow NULL for fullName
             $table->string('emailAddress', 200)->nullable(); // Allow NULL for emailAddress
             $table->integer('countryCode')->nullable(); // Allow NULL for countryCode
             $table->unsignedBigInteger('phoneNumber')->nullable(); // Allow NULL for phoneNumber
@@ -60,7 +63,9 @@ return new class extends Migration {
             $table->integer('showFeatureFAQs')->nullable(); // Allow NULL for showFeatureFAQs
             $table->integer('showFeatureReorder')->nullable(); // Allow NULL for showFeatureReorder
             $table->integer('showOptionFeedback')->nullable(); // Allow NULL for showOptionFeedback
-            $table->dateTime('dateCreated')->nullable(); // Allow NULL for dateCreated
+            $table->softDeletes(); // adds deleted_at column
+            $table->timestamps(); 
+            
         });
     }
 

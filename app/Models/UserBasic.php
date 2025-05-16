@@ -11,8 +11,12 @@ class UserBasic extends Model
 
     protected $table = 'user-basic';
 
-    protected $fillable = ['id', 'fullName', 'emailAddress', 'countryCode', 'phoneNumber', 'profileImageUrl', 'profileVideoURL', 'publicProfileStatus', 'publicProfile', 'publicProfileDesign', 'iconList', 'showFAQ', 'showKey', 'showDatabase', 'DND', 'DNE', 'DNW', 'notiHelp', 'notiDesign', 'notiPlacement', 'notiOther', 'showMobile', 'showProfile', 'showEmail', 'sendEmailStatus', 'isInternational', 'showDelete', 'showWizard', 'wizardProfile', 'wizardWorkExp', 'wizardEducationProfile', 'wizardWorkProfile', 'wizardEducationSpecialization', 'wizardWorkSpecialization', 'showFeatureFreeSubscription', 'showFeatureReview', 'showFeatureInstitute', 'showFeatureMyResume', 'showFeatureNotification', 'showFeatureWorkshops', 'showFeatureKC', 'showFeaturePublicProfile', 'showFeatureJobs', 'showFeatureResources', 'showFeatureTips', 'showFeatureArticles', 'showFeatureFAQs', 'showFeatureReorder', 'showOptionFeedback', 'dateCreated', 'status'];
+    protected $fillable = ['user_id', 'fullName', 'gender', 'emailAddress', 'countryCode', 'phoneNumber', 'profileImageUrl', 'profileVideoURL', 'publicProfileStatus', 'publicProfile', 'publicProfileDesign', 'iconList', 'showFAQ', 'showKey', 'showDatabase', 'DND', 'DNE', 'DNW', 'notiHelp', 'notiDesign', 'notiPlacement', 'notiOther', 'showMobile', 'showProfile', 'showEmail', 'sendEmailStatus', 'isInternational', 'showDelete', 'showWizard', 'wizardProfile', 'wizardWorkExp', 'wizardEducationProfile', 'wizardWorkProfile', 'wizardEducationSpecialization', 'wizardWorkSpecialization', 'showFeatureFreeSubscription', 'showFeatureReview', 'showFeatureInstitute', 'showFeatureMyResume', 'showFeatureNotification', 'showFeatureWorkshops', 'showFeatureKC', 'showFeaturePublicProfile', 'showFeatureJobs', 'showFeatureResources', 'showFeatureTips', 'showFeatureArticles', 'showFeatureFAQs', 'showFeatureReorder', 'showOptionFeedback', 'dateCreated', 'status'];
 
-     // Disable timestamps if not using created_at / updated_at
-    public $timestamps = false;
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
 }

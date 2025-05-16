@@ -11,8 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cvprofiles', function (Blueprint $table) {
-            $table->bigIncrements('cvid'); // Auto-increment primary key
-            $table->bigInteger('id'); // Regular field
+            $table->id(); // Auto-increment primary key
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('profileName', 100); // Profile name
             $table->string('sections', 255); // Sections
             $table->string('sectionOrder', 255); // Section order
@@ -23,8 +24,9 @@ return new class extends Migration {
             $table->bigInteger('intro'); // Intro field
             $table->tinyInteger('isPublic'); // Public status
             $table->tinyInteger('progressReport'); // Progress report
-            $table->timestamp('dateUpdated')->useCurrent()->nullable(); // Date updated
             $table->smallInteger('status'); // Status field });
+             $table->softDeletes(); // adds deleted_at column
+            $table->timestamps(); 
         });
     }
 

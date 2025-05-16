@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->text('interest');
-            $table->tinyInteger('status');
+            $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
             $table->timestamps();
         });
     }

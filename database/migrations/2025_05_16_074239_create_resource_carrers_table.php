@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv-technical', function (Blueprint $table) {
+        Schema::create('resource_carrers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('technical', 250)->collation('latin1_swedish_ci');
-            $table->tinyInteger('status');
+            $table->string('title', 100);
+            $table->smallInteger('status')->default(1)->comment('1 = Active, 0 = Inactive');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv-technical');
+        Schema::dropIfExists('resource_carrers');
     }
 };

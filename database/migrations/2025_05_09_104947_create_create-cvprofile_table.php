@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('create-cvprofile', function (Blueprint $table) {
-            $table->unsignedBigInteger('cvid')->primary();
-            $table->unsignedBigInteger('id');
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('profileName', 100)->nullable();
             $table->string('sections', 255)->nullable();
             $table->string('sectionOrder', 255)->nullable();
@@ -24,8 +25,8 @@ return new class extends Migration
             $table->unsignedBigInteger('intro')->nullable();
             $table->tinyInteger('isPublic')->default(0);
             $table->tinyInteger('progressReport')->default(0);
-            $table->timestamp('dateUpdated')->useCurrent()->nullable();
-            $table->smallInteger('status')->default(1);
+            $table->tinyInteger('status')->default(1)->comment('1=active,0=inactive');
+            $table->timestamps();
         });
     }
 

@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CvTechnical extends Model
+class ResourceCarrer extends Model
 {
     use HasFactory;
 
-     protected $table = 'cv-technical';
+    protected $table = 'resource_carrers';
+
     protected $fillable = [
-        'user_id',
-        'technical',
+        'title',
         'status',
+        'description',
     ];
 
-    public function user()
+    public function courses()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Course::class, 'resource_carrer_id');
     }
 }

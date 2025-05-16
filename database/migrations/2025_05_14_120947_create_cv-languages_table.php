@@ -13,17 +13,15 @@ return new class extends Migration
     {
         Schema::create('cv-languages', function (Blueprint $table) {
             $table->id(); // Auto-increment id
-            $table->unsignedBigInteger('refID');
             $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
             $table->string('language', 50)->collation('latin1_swedish_ci');
             $table->tinyInteger('readLanguage');
             $table->tinyInteger('writeLanguage');
             $table->tinyInteger('speakLanguage');
-            $table->tinyInteger('status');
+           $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
 
             $table->index('id');
-            $table->unique(['refID', 'user_id', 'language', 'status'], 'unique_language_per_user');
-        
             $table->timestamps();
         });
     }

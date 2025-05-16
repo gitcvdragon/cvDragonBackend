@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\{CVSkill, User};
+use App\Models\{CreateCvuserprofile, CvImages, CvInterest, CvLanguages, CVSkill, CvTechnical, User};
 use App\Services\UserService;
 use App\Traits\ApiResponseTrait;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -21,74 +18,172 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    // public function saveUserProfile(Request $request)
-    // {
-    //     // Step 1: Validate user profile data
-    //     $request->validate([
-    //         'full_name' => 'required|string|max:255',
-    //         'gender' => 'required|in:male,female,other',
-    //         'category' => 'required|string|in:student,fresher,experience',
-    //         'course' => 'nullable|string|max:255',
-    //         'specialization' => 'nullable|string|max:255',
-    //         'skills' => 'array', // Validate as an array
-    //         'technical_skills' => 'array', // Validate as an array
-    //         'interests' => 'array', // Validate as an array
-    //         'languages' => 'array', // Validate as an array
-    //         'images' => 'array', // Validate as an array
-    //     ]);
+    //This API updates the authenticated user's name and gender in both the users and user_basic tables. It validates that both fields are provided and valid, and returns a success message upon completion. The request must include a valid Bearer token for authentication.
+    public function updateNameAndGender(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|string|max:100',
+                'gender' => 'required|in:male,female,other',
+            ],
+            [
+                'name.required' => 'Name is required.',
+                'gender.required' => 'Gender is required.',
+                'gender.in' => 'Gender must be one of: male, female, or other.',
+            ],
+        );
 
-    //     // Step 2: Retrieve the authenticated user
-    //     // $user = auth()->user();
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
 
+        $user = auth()->user();
 
-    //     // Step 3: Update the user's profile data
-    //     $user->full_name = $request->full_name;
-    //     $user->gender = $request->gender;
-    //     $user->category = $request->category;
-    //     $user->course = $request->course;
-    //     $user->specialization = $request->specialization;
-    //     $user->save();
+        // Update users table
+        $user->username = $request->name;
+        $user->gender = $request->gender;
+        $user->save();
 
+        // Update user_basic table
+        if ($user->userBasic) {
+            $user->userBasic->fullName = $request->name;
+            $user->userBasic->gender = $request->gender;
+            $user->userBasic->save();
+        }
 
-    //     DB::table('user-basic')->insert([
-    //         'id' => $id,
-    //         'fullName' => $fullName ?? null,
-    //         'emailAddress' => $email ?? null,
-    //         'countryCode' => $countryCode ?? null,
-    //         'phoneNumber' => $phone ?? null,
-    //         'profileImageUrl' => '',
-    //         'dateCreated' => $date,
-    //         'status' => 1,
-    //     ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Name and gender updated successfully.',
+        ]);
+    }
 
-    //     // Step 4: Sync the additional sections like skills, technical skills, etc.
-    //     $this->syncSection(CVSkill::class, 'skills', $user->id, $request->skills);
-    //     // $this->syncSection(CVTechnical::class, 'technical_skills', $user->id, $request->technical_skills);
-    //     // $this->syncSection(CVInterest::class, 'interests', $user->id, $request->interests);
-    //     // $this->syncSection(CVLanguage::class, 'languages', $user->id, $request->languages);
-    //     // $this->syncSection(CVImage::class, 'images', $user->id, $request->images);
+    //This API allows an authenticated user to upload a profile image. The image is stored in the public disk, associated with the user in the cv_images table, and linked to the user's CV profile in the create_cvuserprofiles table. The image must be a JPEG or PNG and not exceed 2MB in size.
+    public function uploadProfileImage(Request $request)
+    {
+        $request->validate(
+            [
+                'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ],
+            [
+                'image.required' => 'Profile image is required.',
+                'image.image' => 'The uploaded file must be an image.',
+                'image.mimes' => 'Only jpeg, png, and jpg images are allowed.',
+                'image.max' => 'Image size should not exceed 2MB.',
+            ],
+        );
 
-    //     // Step 5: Return success response
-    //     return $this->successResponse(['user' => $user], 'User profile saved successfully.');
-    // }
+        $user = auth()->user();
 
-    // private function syncSection($modelClass, $key, $userId, $data)
-    // {
-    //     if (!is_array($data)) {
-    //         return;
-    //     }
+        // Upload image
+        $path = $request->file('image')->store('profile_image', 'public');
 
-    //     // Step 1: Delete old records
-    //     $modelClass::where('user_id', $userId)->delete();
+        // Save or update image record
+        $cvImage = CvImages::updateOrCreate(['user_id' => $user->id], ['image' => $path]);
+        CreateCvuserprofile::updateOrCreate(['profilePicture' => $cvImage->id], ['user_id' => $user->id]);
 
-    //     // Step 2: Insert new records for the given data
-    //     foreach ($data as $item) {
-    //         $modelClass::create([
-    //             'user_id' => $userId,
-    //             'value' => $item, // You can adjust this to match the correct column names of the related table
-    //         ]);
-    //     }
-    // }
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile image uploaded successfully.',
+        ]);
+    }
+
+    public function userSkillTechnicalLangInterestStore(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'skills' => 'nullable|array',
+                'skills.*' => 'string|max:255',
+
+                'technical_skills' => 'nullable|array',
+                'technical_skills.*' => 'string|max:255',
+
+               'languages' => 'nullable|array',
+                'languages.*' => 'string|max:255',
+                'readLanguage' => 'nullable|array',
+                'writeLanguage' => 'nullable|array',
+                'speakLanguage' => 'nullable|array',
+
+                'interests' => 'nullable|array',
+                'interests.*' => 'string|max:255',
+            ],
+            [
+                'skills.*.string' => 'Each skill must be a string.',
+                'technical_skills.*.string' => 'Each technical skill must be a string.',
+                'languages.*.string' => 'Each language must be a string.',
+                'interests.*.string' => 'Each interest must be a string.',
+            ],
+        );
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ],
+                422,
+            );
+        }
+
+        $user = auth()->user();
+
+        // Store Skills
+        if (!empty($request->skills)) {
+            foreach ($request->skills as $skill) {
+                CVSkill::create([
+                    'user_id' => $user->id,
+                    'skill' => $skill,
+                ]);
+            }
+        }
+
+        // Store Technical Skills
+        if (!empty($request->technical_skills)) {
+            foreach ($request->technical_skills as $tech) {
+                CvTechnical::create([
+                    'user_id' => $user->id,
+                    'technical' => $tech,
+                ]);
+            }
+        }
+
+        // Store Languages
+        if (!empty($request->languages)) {
+            foreach ($request->languages as $index => $lang) {
+                CvLanguages::create([
+                    'user_id' => $user->id,
+                    'language' => $lang,
+                    'readLanguage' => $request->readLanguage[$index],
+                    'writeLanguage' => $request->writeLanguage[$index],
+                    'speakLanguage' => $request->speakLanguage[$index],
+                ]);
+            }
+        }
+
+        // Store Interests
+        if (!empty($request->interests)) {
+            foreach ($request->interests as $interest) {
+                CvInterest::create([
+                    'user_id' => $user->id,
+                    'interest' => $interest,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Skills, technical skills, languages, and interests saved successfully.',
+        ]);
+    }
 
     // public function createUser(Request $request)
     // {
@@ -251,35 +346,5 @@ class UserController extends Controller
     //         DB::rollBack();
     //         return $this->errorResponse('User creation failed', 500, $e->getMessage());
     //     }
-    // }
-
-    // public function verifyUserSocial(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'socialid' => 'required|string',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return $this->validationErrorResponse($validator->errors()->first(), 'Validation failed!!');
-    //     }
-
-    //     $socialID = $request->input('socialid');
-
-    //     $user = User::where('socialid', $socialID)->where('status', 1)->first();
-
-    //     if (!$user) {
-    //         return $this->errorResponse('User not found or inactive', 404);
-    //     }
-
-    //     return $this->successResponse(
-    //         [
-    //             'id' => $user->id,
-    //             'authKey' => $user->authKey,
-    //             'categoryid' => $user->categoryid,
-    //             'dateUpdated' => $user->dateUpdated,
-    //             'playerID' => $user->playerID,
-    //         ],
-    //         'User found',
-    //     );
     // }
 }

@@ -14,6 +14,16 @@ class CvImages extends Model
     protected $fillable = [
         'user_id',
         'image',
-        'status',
+        'status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function CreateCvuserprofile()
+    {
+        return $this->hasMany(CreateCvuserprofile::class, 'profilePicture', 'id');
+    }
 }

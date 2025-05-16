@@ -13,8 +13,9 @@ return new class extends Migration {
         Schema::create('cv-images', function (Blueprint $table) {
             $table->id(); // AUTO_INCREMENT id
             $table->unsignedBigInteger('user_id');
-            $table->string('image', 100)->collation('latin1_swedish_ci');
-            $table->tinyInteger('status');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('image', 100);
+            $table->tinyInteger('status')->default(1)->comment('1=active,0=inactive');
 
             $table->index('id');
             $table->timestamps();
