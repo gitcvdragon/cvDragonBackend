@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,10 +12,11 @@ return new class extends Migration
     {
         Schema::create('resource-profiledesign', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('resource_profile_design_categorie_id');
+            $table->foreign('resource_profile_design_categorie_id', 'rpd_category_fk')->references('id')->on('resource_profile_design_categories')->onDelete('cascade');
             $table->string('designName', 100);
             $table->text('content');
             $table->integer('designPrice');
-            $table->string('category', 50);
             $table->tinyInteger('format')->default(1);
             $table->tinyInteger('isPrivate');
             $table->string('sections', 255);
@@ -52,8 +52,7 @@ return new class extends Migration
             $table->float('GenLine');
             $table->string('logo', 30);
             $table->string('template', 255);
-            $table->tinyInteger('status');
-            $table->date('lastUpdated');
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
             $table->timestamps();
         });
     }

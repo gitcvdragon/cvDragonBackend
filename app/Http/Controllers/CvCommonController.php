@@ -45,7 +45,7 @@ class CvCommonController extends Controller
                 [
                     'status' => false,
                     'message' => 'Validation failed.',
-                    'errors' => $validator->errors(),
+                    'errors' => $validator->errors()->first(),
                 ],
                 422,
             );
@@ -67,50 +67,48 @@ class CvCommonController extends Controller
         } elseif (in_array($experience, ['experience', 'women restarting career'])) {
             $fields = [['name' => 'industry', 'type' => 'select', 'label' => 'Select your industry'], ['name' => 'profile', 'type' => 'select', 'label' => 'Select your profile']];
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Fields loaded successfully.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'fields' => $fields,
             ],
-        ]);
+            'Fields loaded successfully.',
+        );
     }
 
     //Fetches all resource career categories along with their associated courses.
     public function getAllResourceCarrersWithCourses()
     {
         $data = ResourceCarrer::with(['courses'])->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Resource Carrers with Courses fetched successfully.',
-            'data' => $data,
-        ]);
+        return $this->successResponse(
+            [
+                'data' => $data,
+            ],
+            'Resource Carrers with Courses fetched successfully.',
+        );
     }
 
     //Retrieves a list of all courses and their related specializations.
     public function getAllCoursesWithSpecs()
     {
         $data = Course::with(['specializations'])->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Course with Specializations fetched successfully.',
-            'data' => $data,
-        ]);
+        return $this->successResponse(
+            [
+                'data' => $data,
+            ],
+            'Course with Specializations fetched successfully.',
+        );
     }
 
     //Returns all resource careers, each with their courses and the respective specializations for each course.
     public function getAllResourceCarrersWithCoursesandSpecs()
     {
         $data = ResourceCarrer::with(['courses.specializations'])->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Resource Carrers with Courses and Specializations fetched successfully.',
-            'data' => $data,
-        ]);
+        return $this->successResponse(
+            [
+                'data' => $data,
+            ],
+            'Resource Carrers with Courses and Specializations fetched successfully.',
+        );
     }
 
     public function getSkillsBySpecialization(Request $request)
@@ -131,7 +129,7 @@ class CvCommonController extends Controller
                 [
                     'status' => false,
                     'message' => 'Validation failed.',
-                    'errors' => $validator->errors(),
+                    'errors' => $validator->errors()->first(),
                 ],
                 422,
             );
@@ -152,15 +150,16 @@ class CvCommonController extends Controller
             },
         ])->find($request->specialization_id);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Skills fetched successfully.',
-            'data' => [
+        return $this->successResponse(
+            [
                 'skills' => $specialization->skills,
                 'technical_skills' => $specialization->technicalSkills,
                 'languages' => $specialization->languages,
                 'interests' => $specialization->interests,
             ],
-        ]);
+            'Skills fetched successfully.',
+        );
     }
+
+    
 }

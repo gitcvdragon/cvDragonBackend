@@ -8,4 +8,23 @@ use Illuminate\Database\Eloquent\Model;
 class CvProject extends Model
 {
     use HasFactory;
+
+    protected $table = 'cv-project';
+
+    protected $fillable = [
+        'user_id',
+        'organization',
+        'title',
+        'designation',
+        'location',
+        'duration',
+        'description',
+        'status',
+    ];
+
+    // Define the relationship with the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

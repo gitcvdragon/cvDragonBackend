@@ -25,4 +25,16 @@ class ResourceSection extends Model
         'idColumnName',
         'status',
     ];
+
+    public function masterCvSection()
+    {
+        return $this->belongsTo(MasterCvSection::class, 'master_cv_sections_id');
+    }
+
+    public function sectionQuestions()
+    {
+        return $this->hasMany(SectionQuestion::class, 'resource_section_id', 'id');
+    }
+
+   
 }

@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('color')->nullable();
             $table->integer('ordering')->nullable();
             $table->unsignedTinyInteger('status')->default(1)->comment('Status: 1 = active, 0 = inactive');
+            $table->timestamps();
         });
     }
 

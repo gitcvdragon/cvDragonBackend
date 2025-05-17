@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CvCoCurricularActivities extends Model
+class CvIntroduction extends Model
 {
     use HasFactory;
 
-    protected $table = 'cv-co-curricular-activities';
+    // Define the table name explicitly (optional if the table name is the plural form of the model)
+    protected $table = 'cv-introduction';
 
+
+    // Define the fillable properties (to allow mass-assignment)
     protected $fillable = [
         'user_id',
+        'introduction',
         'title',
-        'description',
         'status',
     ];
 
@@ -23,4 +26,7 @@ class CvCoCurricularActivities extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+
+
 }

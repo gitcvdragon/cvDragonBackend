@@ -11,11 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('resource-section', function (Blueprint $table) {
-            $table->integer('section')->primary();
-            $table->integer('master_cv_sections_id');
-            $table->tinyInteger('main');
+            $table->id();
+            $table->unsignedBigInteger('master_cv_sections_id');
+            $table->foreign('master_cv_sections_id')->references('id')->on('master_cv_sections')->onDelete('cascade'); 
             $table->integer('orderSection');
             $table->tinyInteger('defaultSection')->default(1)->comment('1 = Default, 0 = Custom');
+            $table->tinyInteger('main');
             $table->text('sectionContent')->nullable();
             $table->text('sectionContentApp')->nullable();
             $table->text('sectionInfoApp')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration {
             $table->string('sectionTable', 20)->collation('latin1_swedish_ci');
             $table->string('idColumnName', 225)->collation('latin1_swedish_ci');
             $table->smallInteger('status')->default(1)->comment('1 = Active, 0 = Inactive');
+            $table->timestamps();
         });
     }
 

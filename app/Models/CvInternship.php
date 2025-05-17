@@ -12,8 +12,8 @@ class CvInternship extends Model
      protected $table = 'cv-internship';
 
     protected $fillable = [
-        'organization',
         'user_id',
+        'organization',
         'title',
         'designation',
         'duration',
@@ -21,4 +21,10 @@ class CvInternship extends Model
         'description',
         'status',
     ];
+
+    // Define the relationship with the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

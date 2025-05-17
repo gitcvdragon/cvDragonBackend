@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_projects', function (Blueprint $table) {
+        Schema::create('cv-project', function (Blueprint $table) {
             $table->id(); // id INT AUTO_INCREMENT PRIMARY KEY
-            $table->integer('workid');
-            $table->string('organization', 150)->collation('latin1_swedish_ci');
             $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('organization', 150)->collation('latin1_swedish_ci');
             $table->string('title', 100)->collation('latin1_swedish_ci');
             $table->string('designation', 50)->collation('latin1_swedish_ci');
             $table->string('duration', 20)->collation('latin1_swedish_ci');
             $table->string('location', 50)->collation('latin1_swedish_ci');
             $table->text('description')->collation('latin1_swedish_ci');
-            $table->smallInteger('status');
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_projects');
+        Schema::dropIfExists('cv-project');
     }
 };

@@ -59,6 +59,12 @@ class UserController extends Controller
             $user->userBasic->save();
         }
 
+         if ($user->cvBasicInfo) {
+            $user->cvBasicInfo->cvFullName = $request->name;
+            $user->cvBasicInfo->gender = $request->gender;
+            $user->cvBasicInfo->save();
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Name and gender updated successfully.',

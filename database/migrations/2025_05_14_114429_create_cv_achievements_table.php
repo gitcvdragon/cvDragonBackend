@@ -12,12 +12,12 @@ return new class extends Migration {
     {
         Schema::create('cv-achievements', function (Blueprint $table) {
             $table->id(); // id as primary key
-            $table->unsignedBigInteger('user_id'); // user_id Index
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('achievement', 255)->collation('latin1_swedish_ci'); // achievement Index
             $table->year('year'); // year Index
-            $table->text('description')->collation('latin1_swedish_ci');            
-            $table->tinyInteger('status');
-            // Indexes
+            $table->text('description')->collation('latin1_swedish_ci'); 
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
             $table->index('user_id');
             $table->index('achievement');
             $table->index('year');

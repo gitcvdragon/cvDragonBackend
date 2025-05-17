@@ -4,20 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('cv-co-curricular-activities', function (Blueprint $table) {
-            $table->id(); // AUTO_INCREMENT
-            $table->unsignedBigInteger('user_id'); // Primary composite
-            $table->string('title', 100)->collation('latin1_swedish_ci'); // Primary composite
+            $table->id(); 
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('title', 100)->collation('latin1_swedish_ci'); 
             $table->text('description')->collation('latin1_swedish_ci');
-            $table->smallInteger('status');
-
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active');
             $table->index('id');
             $table->timestamps();
         });

@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     public $timestamps = false;
 
-    protected $fillable = ['id','categoryid', 'affiliateID',  'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'gender', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
+    protected $fillable = ['id', 'categoryid', 'affiliateID', 'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'gender', 'usermobile', 'userEmail', 'userPassword', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion', 'webLoginFlag', 'webLogin', 'appLogin', 'openCount', 'dateUpdated', 'status'];
 
     protected $hidden = ['otp', 'otp_expires_at'];
 
@@ -101,5 +101,70 @@ class User extends Authenticatable implements JWTSubject
     public function cvInterest()
     {
         return $this->hasMany(CvInterest::class, 'user_id', 'id');
+    }
+
+    public function cvBasicInfo()
+    {
+        return $this->hasMany(CvBasicInfo::class, 'user_id', 'id');
+    }
+
+    public function cvIntroduction()
+    {
+        return $this->hasMany(CvIntroduction::class, 'user_id', 'id');
+    }
+
+    public function cvAcademicProjects()
+    {
+        return $this->hasMany(CvAcademicProjects::class, 'user_id', 'id');
+    }
+
+    public function cvProject()
+    {
+        return $this->hasMany(CvProject::class, 'user_id', 'id');
+    }
+
+    public function cvPoa()
+    {
+        return $this->hasMany(CvPoa::class, 'user_id', 'id');
+    }
+
+    public function cvCoCurricularActivities()
+    {
+        return $this->hasMany(CvCoCurricularActivities::class, 'user_id', 'id');
+    }
+
+    public function cvPresentations()
+    {
+        return $this->hasMany(CvPresentations::class, 'user_id', 'id');
+    }
+
+    public function cvInternship()
+    {
+        return $this->hasMany(CvInternship::class, 'user_id', 'id');
+    }
+
+    public function cvTrainings()
+    {
+        return $this->hasMany(CvTrainings::class, 'user_id', 'id');
+    }
+
+    public function cvPublications()
+    {
+        return $this->hasMany(CvPublications::class, 'user_id', 'id');
+    }
+
+    public function cvAchievements()
+    {
+        return $this->hasMany(CvAchievement::class, 'user_id', 'id');
+    }
+
+    public function cvAssociation()
+    {
+        return $this->hasMany(CvAssociation::class, 'user_id', 'id');
+    }
+
+    public function cvVolunteer()
+    {
+        return $this->hasMany(CvVolunteer::class, 'user_id', 'id');
     }
 }

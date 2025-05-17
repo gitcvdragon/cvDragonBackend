@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_trainings', function (Blueprint $table) {
+        Schema::create('cv-trainings', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
             $table->string('training', 100)->collation('latin1_swedish_ci');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_trainings');
+        Schema::dropIfExists('cv-trainings');
     }
 };

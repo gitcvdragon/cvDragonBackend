@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CreateCvprofile;
+use App\Models\CvBasicInfo;
 use App\Models\User;
 use App\Models\UserBasic;
 use Illuminate\Http\Request;
@@ -59,7 +60,7 @@ class OTPAuthController extends Controller
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^[0-9]{6,15}$/', $value)) {
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^[0-9]{10}$/', $value)) {
                         $fail('The identifier must be a valid email address or mobile number.');
                     }
                 },
@@ -118,16 +119,23 @@ class OTPAuthController extends Controller
                 'usermobile' => is_numeric($request->identifier) ? $request->identifier : null,
                 'categoryid' => $userCategory,
             ]);
+
             UserBasic::create([
                 'user_id' => $user->id,
                 'showWizard' => 1,
                 'emailAddress' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
                 'phoneNumber' => is_numeric($request->identifier) ? $request->identifier : null,
             ]);
+
             CreateCvprofile::create([
                 'user_id' => $user->id,
                 'profileName' => 'First Profile',
             ]);
+
+            CvBasicInfo::create([
+                'user_id' => $user->id,
+            ]);
+
             $token = JWTAuth::fromUser($user);
 
             return $this->successResponse(
@@ -141,10 +149,7 @@ class OTPAuthController extends Controller
         }
     }
 
-    //     If social_id and social_token are provided:
-
-    // The system checks for a matching entry in the users table.
-    // Upon successful match, user is authenticated.
+    //If social_id and social_token are provided: The system checks for a matching entry in the users table. Upon successful match, user is authenticated.
 
     public function socialLogin(Request $request)
     {
@@ -196,8 +201,6 @@ class OTPAuthController extends Controller
                 'Social login successful!!',
             );
         } else {
-
-
             // New user registration
             $user = User::create([
                 'socialid' => $social_id,
@@ -206,8 +209,8 @@ class OTPAuthController extends Controller
                 'socialType' => $social_type,
             ]);
 
-             $user = User::with('userBasic')->find($user->id);
-             $showWizard = $user->userBasic ? $user->userBasic->showWizard : null;
+            $user = User::with('userBasic')->find($user->id);
+            $showWizard = $user->userBasic ? $user->userBasic->showWizard : null;
 
             UserBasic::create([
                 'user_id' => $user->id,
@@ -221,6 +224,10 @@ class OTPAuthController extends Controller
                 'profileName' => 'First Profile',
             ]);
 
+            CvBasicInfo::create([
+                'user_id' => $user->id,
+            ]);
+
             $token = JWTAuth::fromUser($user);
 
             return $this->successResponse(
@@ -230,7 +237,7 @@ class OTPAuthController extends Controller
                     'userCategory' => $userCategory,
                     'showWizard' => $showWizard
                 ],
-                'Social login successful and new user created!!',
+                'Social login successfull and New user created!!',
             );
         }
     }

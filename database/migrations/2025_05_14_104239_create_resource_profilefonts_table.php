@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('downloadTime');
             $table->tinyInteger('web');
             $table->tinyInteger('app');
-            $table->tinyInteger('status');
+           $table->unsignedTinyInteger('status')->default(1)->comment('Status: 1 = active, 0 = inactive');
             $table->timestamps();
         });
     }

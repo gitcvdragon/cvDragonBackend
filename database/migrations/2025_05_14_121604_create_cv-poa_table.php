@@ -10,14 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('cv-introduction', function (Blueprint $table) {
-            $table->id();
+        Schema::create('cv-poa', function (Blueprint $table) {
+            $table->id(); // id INT AUTO_INCREMENT PRIMARY KEY
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->text('introduction'); 
-            $table->string('title', 255); 
-            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
-            $table->timestamps(); 
+            $table->string('title', 100)->collation('latin1_swedish_ci');
+            $table->text('description')->collation('latin1_swedish_ci');
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active');
+
+            $table->index('id');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv-introduction');
+        Schema::dropIfExists('cv-poa');
     }
 };

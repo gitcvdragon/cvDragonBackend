@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('languages', function (Blueprint $table) {
+        Schema::create('resource_profile_design_categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('specialization_id');
-            $table->foreign('specialization_id')->references('id')->on('specializations')->onDelete('cascade'); 
             $table->string('title', 200);
+            $table->string('slug', 200);
+            $table->string('icon', 200);
             $table->smallInteger('status')->default(1)->comment('1 = Active, 0 = Inactive');
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('languages');
+        Schema::dropIfExists('resource_profile_design_categories');
     }
 };

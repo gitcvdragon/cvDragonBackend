@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('cv-volunteer', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('organization', 50)->collation('latin1_swedish_ci');
             $table->string('cause', 50)->collation('latin1_swedish_ci');
             $table->string('role', 50)->collation('latin1_swedish_ci');
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->date('dateLeaving')->nullable();
             $table->tinyInteger('present');
             $table->text('description')->collation('latin1_swedish_ci');
-            $table->tinyInteger('status');
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
             $table->timestamps();
         });
     }
