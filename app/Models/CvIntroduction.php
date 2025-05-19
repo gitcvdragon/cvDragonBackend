@@ -15,7 +15,7 @@ class CvIntroduction extends Model
 
     // Define the fillable properties (to allow mass-assignment)
     protected $fillable = [
-        'user_id',
+        'id',
         'introduction',
         'title',
         'status',
@@ -24,7 +24,7 @@ class CvIntroduction extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 
 

@@ -12,7 +12,7 @@ class CvLanguages extends Model
      protected $table = 'cv-languages';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'language',
         'readLanguage',
         'writeLanguage',
@@ -22,6 +22,6 @@ class CvLanguages extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }

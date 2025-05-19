@@ -11,7 +11,7 @@ class CVSkill extends Model
 
     protected $table = 'cv-skills';
     protected $fillable = [
-        'user_id',
+        'id',
         'skill',
         'description',
         'status',
@@ -19,6 +19,6 @@ class CVSkill extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }

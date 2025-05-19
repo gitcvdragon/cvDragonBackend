@@ -14,7 +14,7 @@ class CvAchievement extends Model
     public $timestamps = false; // custom timestamp column used instead
 
     protected $fillable = [
-        'user_id',
+        'id',
         'achievement',
         'year',
         'description',
@@ -24,6 +24,6 @@ class CvAchievement extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

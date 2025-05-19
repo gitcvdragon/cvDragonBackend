@@ -12,18 +12,18 @@ class CvImages extends Model
     protected $table = 'cv-images';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'image',
         'status'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function CreateCvuserprofile()
     {
-        return $this->hasMany(CreateCvuserprofile::class, 'profilePicture', 'id');
+        return $this->hasMany(CreateCvuserprofile::class, 'profilePicture', 'imageid');
     }
 }

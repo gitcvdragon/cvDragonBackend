@@ -11,13 +11,13 @@ class CvTechnical extends Model
 
      protected $table = 'cv-technical';
     protected $fillable = [
-        'user_id',
+        'id',
         'technical',
         'status',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }

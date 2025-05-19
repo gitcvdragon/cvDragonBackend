@@ -11,25 +11,17 @@ class CvContact extends Model
 
     public $timestamps = false; // because we're using a custom 'created' column
 
-    protected $primaryKey = 'id';
-
     protected $fillable = [
+        'id',
         'phoneNumber',
         'emailAddress',
         'location',
         'fullAddress',
-        'created',
-        'proofRead',
-        'proofReadDate',
         'status',
-        'refID',
     ];
 
-    protected $casts = [
-        'created' => 'datetime',
-        'proofReadDate' => 'date',
-        'proofRead' => 'boolean',
-        'status' => 'integer',
-        'refID' => 'integer',
-    ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
 }

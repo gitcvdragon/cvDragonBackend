@@ -10,8 +10,9 @@ class CreateCvuserprofile extends Model
     protected $table = 'create-cvprofile'; // Explicitly define table name
 
     protected $fillable = [
-        'user_id',
+        'id',
         'profileName',
+        'sections',
         'sectionOrder',
         'design',
         'font',
@@ -25,7 +26,7 @@ class CreateCvuserprofile extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id', 'id');
     }
 
     public function cvImages()

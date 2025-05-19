@@ -11,7 +11,7 @@ class CvTrainings extends Model
 
     protected $table = 'cv-trainings';
     protected $fillable = [
-        'user_id',
+        'id',
         'training',
         'description',
         'number',
@@ -20,6 +20,6 @@ class CvTrainings extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

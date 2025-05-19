@@ -12,7 +12,7 @@ class CvAssociation extends Model
     protected $table = 'cv-association';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'organization',
         'position',
         'location',
@@ -26,6 +26,6 @@ class CvAssociation extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

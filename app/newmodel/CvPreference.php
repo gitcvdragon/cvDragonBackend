@@ -29,14 +29,17 @@ class CvPreference extends Model
         'declaration',
         'signature',
         'created',
-        'proofRead',
-        'proofReadDate',
         'status',
-        'refID',
     ];
 
     protected $casts = [
         'created' => 'datetime',
         'proofReadDate' => 'date',
     ];
+
+    // Define any relationships if needed
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
 }

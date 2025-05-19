@@ -14,7 +14,7 @@ class CvBasicInfo extends Model
 
     // Define which attributes are mass assignable
     protected $fillable = [
-        'user_id',
+        'id',
         'cvFullName',
         'verified',
         'nationality',
@@ -32,7 +32,7 @@ class CvBasicInfo extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 
 

@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('cv_social_links', function (Blueprint $table) {
             $table->id();
+            $table->string('user_id', 150);
             $table->string('link_name', 150);
+            $table->string('link', 150);
             $table->timestamps();
         });
     }

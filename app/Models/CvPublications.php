@@ -12,7 +12,7 @@ class CvPublications extends Model
     protected $table = 'cv-publications';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'title',
         'category',
         'description',
@@ -24,6 +24,6 @@ class CvPublications extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

@@ -12,13 +12,14 @@ class CvInterest extends Model
     protected $table = 'cv-interests';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'interest',
+        'level',
         'status',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }

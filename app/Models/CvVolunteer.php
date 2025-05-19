@@ -12,7 +12,7 @@ class CvVolunteer extends Model
     protected $table = 'cv-volunteer';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'organization',
         'cause',
         'role',
@@ -26,6 +26,6 @@ class CvVolunteer extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

@@ -12,7 +12,7 @@ class CvPoa extends Model
     protected $table = 'cv-poa';
 
     protected $fillable = [
-        'user_id',
+        'id',
         'title',
         'description',
         'status',
@@ -21,6 +21,6 @@ class CvPoa extends Model
     // Define the relationship with the User model
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

@@ -96,7 +96,7 @@ class CvSectionController extends Controller
         );
     }
 
-    public function getAllSectionDetails(Request $request)
+    public function getUserSectionDetails(Request $request)
     {
         $allSectionData = [];
         $text = "";
@@ -119,19 +119,27 @@ class CvSectionController extends Controller
             ->where('status', 1)
             ->first();
 
+        // Contact Details
+        $allSectionData['contact_details'] = DB::table('cv-contact')
+            ->where('id', $id)
+            ->where('status', 1)
+            ->first();
+
+        $allSectionData['social_links'] = DB::table('cv_social_links')
+            ->where('user_id', $id)
+            ->where('status', 1)
+            ->first();
+            
         // 2. Introduction
         $introduction = DB::table('cv-introduction')
-            ->select('introduction', 'title', 'id')
+            ->select('id', 'title','introduction')
             ->where('id', $id)
             ->where('status', 1)
             ->first();
 
         $allSectionData['introduction'] = $introduction;
-        if ($introduction) {
-            $text .= $introduction->introduction . " " . $introduction->title . " ";
-        }
 
-        // Sections with multiple records
+        //Sections with multiple records
         $sections = [
             'projects' => ['cv-project', ['projectid', 'description']],
             'academic_projects' => ['cv-academic-projects', ['academicid', 'description']],
@@ -148,15 +156,20 @@ class CvSectionController extends Controller
             'skills' => ['cv-skills', ['skillid', 'skill', 'description']],
             'interests' => ['cv-interests', ['interestid', 'interest', 'level']],
             'languages' => ['cv-languages', ['langid', 'language']],
+            'images' => ['cv-images', ['imageid', 'image', 'status']],
+            'preferences' => ['cv-preference', ['prefid', 'noticePeriod', 'expectedCTC']],
+            'education' => ['cv-education', ['eduid', 'category', 'specialization']],
+            'work_experience' => ['cv-work', ['workid', 'organization', 'designation']],
+            'patent' => ['cv-patent', ['patentid', 'patentOffice', 'patentStatus']],
         ];
 
         foreach ($sections as $key => [$table, $fields]) {
             $query = DB::table($table)
-                ->where('user_id', $id)
+                ->where('id', $id)
                 ->where('status', 1)
-                ->orderBy('created_at', 'desc');
+                ->orderBy('created', 'desc');
 
-            // Specific sort fields
+        //     // Specific sort fields
             if ($table === 'cv-trainings') $query->orderBy('number', 'desc');
             if ($table === 'cv-achievements') $query->orderBy('year', 'desc');
             if (in_array($table, ['cv-association', 'cv-volunteer'])) $query->orderBy('dateJoining', 'desc');
@@ -170,7 +183,6 @@ class CvSectionController extends Controller
         return $this->successResponse(
             [
                 'data' => $allSectionData,
-                'text' => trim($text),
             ],
             'All Sections Tabs are fetched successfully!!'
         );

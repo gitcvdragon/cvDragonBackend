@@ -27,9 +27,11 @@ class CvEducation extends Model
         'year',
         'visibility',
         'created',
-        'proofRead',
-        'proofReadDate',
         'status',
-        'refID',
     ];
+
+     public function user()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
 }

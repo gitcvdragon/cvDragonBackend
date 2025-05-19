@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\{AppConfigController, CvCommonController, CvDesignController, CvSectionController, OTPAuthController, UserController};
+use App\Http\Controllers\{AppConfigController, CvCommonController, CvDesignController, CvProfileController, CvSectionController, OTPAuthController, UserController};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,7 +32,7 @@ Route::get('/getSkillsBySpecialization', [CvCommonController::class, 'getSkillsB
 Route::post('/user-name-gender-update', [UserController::class, 'updateNameAndGender'])->middleware('auth:api');
 Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileImage'])->middleware('auth:api');
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
-Route::post('/user-sections-details', [CvSectionController::class, 'getAllSectionDetails']);
+Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails']);
 Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 
 
@@ -47,6 +47,9 @@ Route::get('/all-section-tabs', [CvSectionController::class, 'allSectionTabs']);
 Route::get('/profile-designs', [CvDesignController::class, 'allDesigns']);
 // Route::get('/profile-fonts', [CvDesignController::class, 'allProfileFonts']);
 // Route::get('/profile-colors', [CvDesignController::class, 'allProfileColors']);
+
+//Profile Design
+//  Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
 
 
 
