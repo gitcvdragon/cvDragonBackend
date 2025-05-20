@@ -12,21 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('create-cvprofile', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('profileName', 100)->nullable();
-            $table->string('sections', 255)->nullable();
-            $table->string('sectionOrder', 255)->nullable();
-            $table->integer('design')->nullable();
-            $table->integer('font')->nullable();
-            $table->integer('setting')->nullable();
-            $table->string('profilePicture', 100)->nullable();
-            $table->unsignedBigInteger('intro')->nullable();
-            $table->tinyInteger('isPublic')->default(0);
-            $table->tinyInteger('progressReport')->default(0);
-            $table->tinyInteger('status')->default(1)->comment('1=active,0=inactive');
-            $table->timestamps();
+            $table->bigIncrements('cvid');
+            $table->bigInteger('id'); 
+            $table->string('profileName', 100);
+            $table->string('sections', 255);
+            $table->string('sectionOrder', 255);
+            $table->integer('design');
+            $table->integer('font');
+            $table->integer('setting');
+            $table->string('profilePicture', 100);
+            $table->bigInteger('intro');
+            $table->tinyInteger('isPublic');
+            $table->tinyInteger('progressReport');
+            $table->timestamp('dateUpdated')->useCurrent()->useCurrentOnUpdate();
+            $table->smallInteger('status')->default(1)->comment('1=active, 0=inactive');
         });
     }
 

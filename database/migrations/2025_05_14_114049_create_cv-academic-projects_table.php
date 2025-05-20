@@ -11,14 +11,13 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-academic-projects', function (Blueprint $table) {
-            $table->id(); // id as primary key, int(11) AUTO_INCREMENT
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
+             $table->increments('academicid');
+            $table->bigInteger('id');
             $table->string('title', 100)->collation('latin1_swedish_ci');
             $table->text('description')->collation('latin1_swedish_ci');
+            $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
+            $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
             $table->unique(['user_id', 'title', 'status']);
-            $table->timestamps();
         });
     }
 

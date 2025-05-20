@@ -11,9 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-co-curricular-activities', function (Blueprint $table) {
-            $table->id(); 
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->increments('activityid');
+            $table->bigInteger('id');
             $table->string('title', 100)->collation('latin1_swedish_ci'); 
             $table->text('description')->collation('latin1_swedish_ci');
             $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active');

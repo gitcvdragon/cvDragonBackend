@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resource_profile_colors', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100);
-            $table->text('content');
-            $table->string('heading', 10);
-            $table->string('color1', 10)->nullable();
-            $table->string('color2', 10)->nullable();
-            $table->string('color3', 10)->nullable();
-            $table->string('color4', 10)->nullable();
+            $table->increments('settingid');
+            $table->string('name', 100)->collation('utf8mb4_unicode_ci');
+            $table->text('content')->collation('utf8mb4_unicode_ci');
+            $table->string('heading', 10)->collation('utf8mb4_unicode_ci');
+            $table->string('color1', 10)->nullable()->collation('utf8mb4_unicode_ci');
+            $table->string('color2', 10)->nullable()->collation('utf8mb4_unicode_ci');
+            $table->string('color3', 10)->nullable()->collation('utf8mb4_unicode_ci');
+            $table->string('color4', 10)->nullable()->collation('utf8mb4_unicode_ci');
             $table->integer('downloadTimes');
+            $table->index('name');
             $table->smallInteger('status')->default(1)->comment('1 = Active, 0 = Inactive');
             $table->timestamps();
         });

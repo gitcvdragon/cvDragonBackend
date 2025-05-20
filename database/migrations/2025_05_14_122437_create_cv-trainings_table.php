@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-trainings', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
+            $table->increments('trainingid');
+            $table->bigInteger('id');
             $table->string('training', 100)->collation('latin1_swedish_ci');
             $table->text('description')->collation('latin1_swedish_ci');
             $table->integer('number');
             $table->tinyInteger('status');
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

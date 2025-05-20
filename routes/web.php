@@ -17,8 +17,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome' );
 });
-Route::get('/auth/google', [OTPAuthController::class, 'redirectToGoogle'])->name('google.loginn');
-Route::get('/auth/google/callback', [OTPAuthController::class, 'handleGoogleCallback']);
-
-Route::get('/auth/linkdin', [OTPAuthController::class, 'redirectToLinkedin'])->name('linkdin.loginn');
-Route::get('/auth/linkdin-openid/callback', [OTPAuthController::class, 'handleLinkdinCallback']);

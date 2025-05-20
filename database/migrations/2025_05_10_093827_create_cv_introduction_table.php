@@ -11,13 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-introduction', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->increments('introid');
+            $table->bigInteger('id');
             $table->text('introduction'); 
             $table->string('title', 255); 
             $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
-            $table->timestamps(); 
+            $table->timestamps('created'); 
         });
     }
 

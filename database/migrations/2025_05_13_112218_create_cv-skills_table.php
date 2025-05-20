@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-skills', function (Blueprint $table) {
-            $table->id(); // Auto-incrementing primary key
-             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
+            $table->increments('skillid'); // Auto-incrementing primary key
+            $table->bigInteger('id');
             $table->string('skill', 100)->nullable(); // Skill name column (varchar(100))
             $table->text('description')->nullable(); // Description column (text)
             $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
-            $table->index('id');
-            $table->timestamps();
+            $table->index('skillid');
+            $table->timestamps('created');
         });
     }
 

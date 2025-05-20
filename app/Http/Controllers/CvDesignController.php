@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{ResourceProfileColor, ResourceProfileDesignCategory, ResourceProfilefont};
+use App\Models\{ResourceProfilesetting, ResourceProfileDesignCategory, ResourceProfilefont};
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 
@@ -19,7 +19,7 @@ class CvDesignController extends Controller
             // ->where('version', 'like', '%7%')
             ->get();
         $fonts = ResourceProfilefont::where('status', 1)->get();
-        $colors = ResourceProfileColor::where('status', 1)->get();
+        $colors = ResourceProfilesetting::where('status', 1)->get();
         return $this->successResponse(
             [
                 'designs' => $designs,

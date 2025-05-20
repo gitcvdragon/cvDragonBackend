@@ -9,9 +9,10 @@ class UserVoucherDetails extends Model
 {
     use HasFactory;
     protected $table = 'uservoucherdetails';
-
+    public $timestamps = false;
+    protected $primaryKey = 'sn';
     protected $fillable = [
-        'user_id',
+        'id',
         'userName',
         'userEmail',
         'userPhone',

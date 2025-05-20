@@ -34,7 +34,6 @@ class CvPreference extends Model
 
     protected $casts = [
         'created' => 'datetime',
-        'proofReadDate' => 'date',
     ];
 
     // Define any relationships if needed

@@ -12,15 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('help-chat', function (Blueprint $table) {
-            $table->id();
+            $table->increments('chatID');
             $table->unsignedBigInteger('senderID');
             $table->unsignedBigInteger('receiverID');
             $table->text('chat')->collation('utf8mb4_bin');
             $table->integer('type');
             $table->tinyInteger('isResolved');
+            $table->dateTime('dateCreated');
+            $table->timestamp('dateUpdated')->useCurrent()->useCurrentOnUpdate();
             $table->unsignedBigInteger('adminID');
             $table->tinyInteger('status');
-            $table->timestamps();
+
+            $table->index(['senderID', 'receiverID']);
         });
     }
 

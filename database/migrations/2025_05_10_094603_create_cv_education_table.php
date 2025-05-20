@@ -23,12 +23,8 @@ return new class extends Migration
             $table->string('score', 50)->nullable();
             $table->string('year', 4)->nullable();
             $table->tinyInteger('visibility')->default(1);
-            $table->timestamp('created')->useCurrent()->onUpdate(DB::raw('CURRENT_TIMESTAMP'));
-            $table->tinyInteger('proofRead')->nullable();
-            $table->date('proofReadDate')->nullable();
+            $table->timestamp('created')->useCurrent();
             $table->tinyInteger('status')->nullable();
-            $table->bigInteger('refID')->nullable();
-            $table->timestamps();
         });
     }
 

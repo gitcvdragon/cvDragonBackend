@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('help_faqs', function (Blueprint $table) {
-            $table->id();
+        Schema::create('help-faq', function (Blueprint $table) {
+            $table->increments('faqID');
             $table->string('faq', 250)->collation('utf8mb4_bin');
             $table->text('answer')->collation('utf8mb4_bin');
             $table->integer('app');
             $table->integer('web');
-            $table->tinyInteger('status');
-            $table->timestamps();
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('help_faqs');
+        Schema::dropIfExists('help-faq');
     }
 };

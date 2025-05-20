@@ -11,15 +11,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('user-documents', function (Blueprint $table) {
-            $table->id();
-            $table->string('documentTitle', 255)->charset('utf8mb4')->collation('utf8mb4_bin');
-            $table->string('documentLocation', 255)->charset('utf8')->collation('utf8_general_ci');
-            $table->unsignedInteger('documentSection');
-            $table->string('documentSubSection', 20)->charset('utf8')->collation('utf8_general_ci');
-            $table->unsignedBigInteger('user_id');
+            $table->increments('documentID');
+            $table->string('documentTitle', 255)->collation('utf8mb4_bin');
+            $table->string('documentLocation', 255)->collation('utf8_general_ci');
+            $table->integer('documentSection');
+            $table->string('documentSubSection', 20)->collation('utf8_general_ci');
+            $table->bigInteger('id');
             $table->dateTime('date');
             $table->tinyInteger('status');
-            $table->timestamps();
         });
     }
 

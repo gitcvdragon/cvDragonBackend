@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cv_patents', function (Blueprint $table) {
-           $table->id(); // id INT AUTO_INCREMENT
-            $table->unsignedBigInteger('user_id');
+        Schema::create('cv-patent', function (Blueprint $table) {
+           $table->increments('patentid'); // id INT AUTO_INCREMENT
+            $table->bigInteger('id');
             $table->string('title', 200)->collation('latin1_swedish_ci');
             $table->string('patentOffice', 200)->collation('latin1_swedish_ci');
             $table->string('patentStatus', 10)->collation('latin1_swedish_ci');
@@ -23,8 +23,7 @@ return new class extends Migration
             $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
             $table->tinyInteger('status');
 
-            $table->index('id');        
-            $table->timestamps();
+            $table->index('id');     
         });
     }
 
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cv_patents');
+        Schema::dropIfExists('cv-patent');
     }
 };

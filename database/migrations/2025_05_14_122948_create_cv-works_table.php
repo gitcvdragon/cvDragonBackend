@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-work', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->increments('workid');
+            $table->bigInteger('id');
             $table->string('organization', 200)->collation('latin1_swedish_ci');
             $table->string('designation', 200)->collation('latin1_swedish_ci');
             $table->string('location', 100)->collation('latin1_swedish_ci');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->tinyInteger('currentWorking');
             $table->text('workProfile')->collation('latin1_swedish_ci');
             $table->tinyInteger('status');
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

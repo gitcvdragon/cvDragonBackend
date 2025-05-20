@@ -11,16 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-publications', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->increments('publishid');
+            $table->bigInteger('id');
             $table->string('title', 200)->collation('latin1_swedish_ci');
             $table->string('category', 100)->collation('latin1_swedish_ci');
             $table->string('publisher', 200)->collation('latin1_swedish_ci');
             $table->string('publishDate', 10)->collation('latin1_swedish_ci');
             $table->text('description')->collation('latin1_swedish_ci');
             $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active');
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

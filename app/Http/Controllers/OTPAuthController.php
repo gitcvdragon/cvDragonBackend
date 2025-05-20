@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CreateCvprofile;
+use App\Models\CreateCvuserprofile;
 use App\Models\CvBasicInfo;
 use App\Models\User;
 use App\Models\UserBasic;
@@ -112,28 +113,27 @@ class OTPAuthController extends Controller
         } else {
             // New user registration
 
-            //$id = now()->timestamp . rand(1, 1000);
-
+            $id = now()->timestamp . rand(1, 1000);
+            $userauthKey = md5(microtime() . rand());
             $user = User::create([
+                'id' => $id,
                 'userEmail' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
                 'usermobile' => is_numeric($request->identifier) ? $request->identifier : null,
                 'categoryid' => $userCategory,
+                'socialid' => 'null',
+                'authKey' => $userauthKey,
             ]);
 
             UserBasic::create([
-                'user_id' => $user->id,
+                'id' => $user->id,
                 'showWizard' => 1,
                 'emailAddress' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
                 'phoneNumber' => is_numeric($request->identifier) ? $request->identifier : null,
             ]);
 
-            CreateCvprofile::create([
-                'user_id' => $user->id,
+            CreateCvuserprofile::create([
+                'id' => $user->id,
                 'profileName' => 'First Profile',
-            ]);
-
-            CvBasicInfo::create([
-                'user_id' => $user->id,
             ]);
 
             $token = JWTAuth::fromUser($user);
@@ -148,6 +148,7 @@ class OTPAuthController extends Controller
             );
         }
     }
+
 
     //If social_id and social_token are provided: The system checks for a matching entry in the users table. Upon successful match, user is authenticated.
 
@@ -201,8 +202,13 @@ class OTPAuthController extends Controller
                 'Social login successful!!',
             );
         } else {
+
+            DB::beginTransaction();
+
             // New user registration
+             $id = now()->timestamp . rand(1, 1000);
             $user = User::create([
+                'id' => $id,
                 'socialid' => $social_id,
                 'socialToken' => $social_token,
                 'categoryid' => $userCategory,
@@ -213,20 +219,19 @@ class OTPAuthController extends Controller
             $showWizard = $user->userBasic ? $user->userBasic->showWizard : null;
 
             UserBasic::create([
-                'user_id' => $user->id,
+                'id' => $user->id,
                 'showWizard' => 1,
                 'emailAddress' => null, // no email from social login here
                 'phoneNumber' => null, // no phone from social login here
             ]);
 
-            CreateCvprofile::create([
-                'user_id' => $user->id,
+            CreateCvuserprofile::create([
+                'id' => $user->id,
                 'profileName' => 'First Profile',
             ]);
 
-            CvBasicInfo::create([
-                'user_id' => $user->id,
-            ]);
+            // Commit the transaction
+            DB::commit();
 
             $token = JWTAuth::fromUser($user);
 
@@ -235,68 +240,12 @@ class OTPAuthController extends Controller
                     'user_id' => $user->id,
                     'token' => $token,
                     'userCategory' => $userCategory,
-                    'showWizard' => $showWizard
+                    'showWizard' => $showWizard,
                 ],
                 'Social login successfull and New user created!!',
             );
         }
     }
 
-    // public function redirectToGoogle()
-    // {
-    //     $redirectUrl = Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
-    //     return $this->successResponse(['url' => $redirectUrl], 'Google redirect URL generated successfully!!!');
-    //     // return Socialite::driver('google')->redirect();
-    // }
-
-    // Handle Google OAuth Callback and User Authentication
-
-    // This method retrieves the user's information from Google using the Socialite package, creates a new user record
-    // if one doesn't exist (based on the email), and stores relevant data (Google ID, token, etc.) in the database.If the user is successfully created or authenticated, a JWT token is generated for API access.In case of any error during the process, a relevant error message is returned.
-
-    // public function handleGoogleCallback()
-    // {
-    //     try {
-    //         // Retrieve the user information from Google
-    //         $googleUser = Socialite::driver('google')->stateless()->user();
-
-    //         // Attempt to find the user by their social ID
-    //         $existingUser = User::where('socialid', $googleUser->getId())->first();
-
-    //         if ($existingUser) {
-    //             // If the user already exists, log them in
-    //             Auth::login($existingUser);
-    //             $user = $existingUser; // Use the existing user
-    //         } else {
-    //             // Create a new user if one doesn't exist
-    //             $user = User::firstOrCreate(
-    //                 ['userEmail' => $googleUser->getEmail()],
-    //                 [
-    //                     'username' => $googleUser->getName(),
-    //                     'socialType' => 0, //0 = google
-    //                     'socialid' => $googleUser->getId(),
-    //                     'socialToken' => $googleUser->token,
-    //                     'authKey' => Str::random(32),
-    //                     'status' => 1,
-    //                     'dateUpdated' => now(),
-    //                 ],
-    //             );
-    //             Auth::login($user);
-    //         }
-    //         // Generate a JWT token for API authentication
-    //         $token = JWTAuth::fromUser($user);
-
-    //         // Return success response
-    //         return $this->successResponse(
-    //             [
-    //                 'token' => $token,
-    //                 'user' => $user,
-    //             ],
-    //             'User authenticated successfully via Google.',
-    //         );
-    //     } catch (\Exception $e) {
-    //         // Return error with debug details if app is in debug mode
-    //         return $this->errorResponse('Something went wrong during Google login. Please try again later.', 500, config('app.debug') ? ['exception' => $e->getMessage()] : null);
-    //     }
-    // }
+    
 }

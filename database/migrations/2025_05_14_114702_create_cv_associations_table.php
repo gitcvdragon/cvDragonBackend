@@ -11,9 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-association', function (Blueprint $table) {
-            $table->id(); // AUTO_INCREMENT id
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+           $table->increments('associationid');
+            $table->bigInteger('id');
             $table->string('organization', 100)->collation('utf8_unicode_ci'); // Primary
             $table->string('position', 50)->collation('utf8_unicode_ci'); // Primary
             $table->string('location', 50)->collation('utf8_unicode_ci');
@@ -22,7 +21,7 @@ return new class extends Migration {
             $table->date('dateLeaving')->nullable();
             $table->tinyInteger('present'); // 1 = currently working
             $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active'); 
-            $table->timestamps();
+            $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
         });
     }
 

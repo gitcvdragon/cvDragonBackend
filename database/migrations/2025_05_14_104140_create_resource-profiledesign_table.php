@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('resource-profiledesign', function (Blueprint $table) {
-            $table->id();
+            $table->increments('designid');
             $table->unsignedBigInteger('resource_profile_design_categorie_id');
             $table->foreign('resource_profile_design_categorie_id', 'rpd_category_fk')->references('id')->on('resource_profile_design_categories')->onDelete('cascade');
             $table->string('designName', 100);
@@ -53,7 +53,6 @@ return new class extends Migration {
             $table->string('logo', 30);
             $table->string('template', 255);
             $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
-            $table->timestamps();
         });
     }
 

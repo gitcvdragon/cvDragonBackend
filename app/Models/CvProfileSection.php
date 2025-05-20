@@ -10,7 +10,7 @@ class CvProfileSection extends Model
      use HasFactory;
 
     // Table name
-    protected $table = 'cvprofilesection';
+    protected $table = 'create-cvprofilesection';
 
     // Primary Key
     protected $primaryKey = 'psid';
@@ -33,4 +33,10 @@ class CvProfileSection extends Model
     protected $casts = [
         'dateCreated' => 'datetime',
     ];
+
+    // Relationships
+    public function createCvuserprofile()
+    {
+        return $this->belongsTo(CreateCvuserprofile::class, 'cvid','cvid');
+    }
 }

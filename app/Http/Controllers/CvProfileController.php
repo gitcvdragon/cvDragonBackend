@@ -13,7 +13,7 @@ class CvProfileController extends Controller
     public function getUserProfile(Request $request)
     {
         $userId = $request->id;
-        $profiles = CreateCvuserprofile::where('id', $userId)->where('status', 1)->get();
+        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('status', 1)->get();
 
         if ($profiles->isEmpty()) {
             return $this->successResponse(

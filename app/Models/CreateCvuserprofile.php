@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CreateCvuserprofile extends Model
 {
     protected $table = 'create-cvprofile'; // Explicitly define table name
-
+    protected $primaryKey = 'cvid';
     protected $fillable = [
         'id',
         'profileName',
@@ -23,7 +23,7 @@ class CreateCvuserprofile extends Model
         'progressReport',
         'status',
     ];
-
+    public $timestamps = false;
     public function user()
     {
         return $this->belongsTo(User::class, 'id', 'id');
@@ -32,5 +32,10 @@ class CreateCvuserprofile extends Model
     public function cvImages()
     {
         return $this->belongsTo(CvImages::class, 'profilePicture', 'id');
+    }
+
+    public function cvProfileSection()
+    {
+        return $this->hasMany(CvProfileSection::class, 'cvid', 'cvid');
     }
 }

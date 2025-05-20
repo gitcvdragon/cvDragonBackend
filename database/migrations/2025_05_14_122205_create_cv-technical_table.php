@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-technical', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->increments('technicalid');
+            $table->bigInteger('id');
             $table->string('technical', 250)->collation('latin1_swedish_ci');
+            $table->string('level', 250);
             $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

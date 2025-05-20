@@ -11,15 +11,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-poa', function (Blueprint $table) {
-            $table->id(); // id INT AUTO_INCREMENT PRIMARY KEY
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->increments('poaid'); // id INT AUTO_INCREMENT PRIMARY KEY
+            $table->bigInteger('id');
             $table->string('title', 100)->collation('latin1_swedish_ci');
             $table->text('description')->collation('latin1_swedish_ci');
             $table->smallInteger('status')->default(1)->comment('0=inactive, 1=active');
 
             $table->index('id');
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

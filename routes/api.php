@@ -49,7 +49,7 @@ Route::get('/profile-designs', [CvDesignController::class, 'allDesigns']);
 // Route::get('/profile-colors', [CvDesignController::class, 'allProfileColors']);
 
 //Profile Design
-//  Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
+ Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
 
 
 

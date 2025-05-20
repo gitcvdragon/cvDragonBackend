@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-languages', function (Blueprint $table) {
-            $table->id(); // Auto-increment id
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
+            $table->increments('langid');
+            $table->bigInteger('refID');
+            $table->bigInteger('id');
             $table->string('language', 50)->collation('latin1_swedish_ci');
             $table->tinyInteger('readLanguage');
             $table->tinyInteger('writeLanguage');
@@ -22,7 +22,7 @@ return new class extends Migration
            $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
 
             $table->index('id');
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

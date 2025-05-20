@@ -161,6 +161,7 @@ class CvSectionController extends Controller
             'education' => ['cv-education', ['eduid', 'category', 'specialization']],
             'work_experience' => ['cv-work', ['workid', 'organization', 'designation']],
             'patent' => ['cv-patent', ['patentid', 'patentOffice', 'patentStatus']],
+            'certification' => ['cv-certification', ['certificateid', 'certificate', 'authority']],
         ];
 
         foreach ($sections as $key => [$table, $fields]) {

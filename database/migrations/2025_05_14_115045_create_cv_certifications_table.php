@@ -11,15 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('cv-certification', function (Blueprint $table) {
-            $table->id(); // AUTO_INCREMENT id
-            $table->unsignedBigInteger('user_id'); // composite primary
+            $table->increments('certificateid');
+            $table->bigInteger('id');
             $table->string('certificate', 250)->collation('latin1_swedish_ci'); // composite primary
             $table->string('authority', 150)->collation('latin1_swedish_ci'); // composite primary
             $table->year('year'); // composite primary
             $table->tinyInteger('status');
             // Indexes and Keys
             $table->index('id');
-            $table->timestamps();
+            $table->timestamp('created')->useCurrent();
         });
     }
 

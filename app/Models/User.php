@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     public $timestamps = false;
 
-    protected $fillable = ['id', 'categoryid', 'affiliateID', 'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'gender', 'usermobile', 'userEmail', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion',  'openCount', 'dateUpdated', 'status'];
+    protected $fillable = ['id', 'categoryid', 'socialType', 'socialid', 'authKey', 'socialToken', 'username', 'gender', 'usermobile', 'userEmail', 'playerID', 'playerIDMore', 'mobilePlatform', 'appVersion',  'openCount', 'dateUpdated', 'status'];
 
     protected $hidden = ['otp', 'otp_expires_at'];
 

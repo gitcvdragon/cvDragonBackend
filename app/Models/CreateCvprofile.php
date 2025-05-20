@@ -10,7 +10,7 @@ class CreateCvprofile extends Model
     protected $table = 'cvprofiles'; // Explicitly define table name
 
     protected $fillable = [
-        'user_id',
+        'id',
         'profileName',
         'sectionOrder',
         'design',

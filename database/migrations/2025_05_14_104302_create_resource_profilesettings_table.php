@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resource-profilesetting', function (Blueprint $table) {
-           $table->id();
+            $table->increments('settingid');
             $table->string('name', 100);
             $table->text('content');
             $table->string('heading', 10);
@@ -21,8 +21,7 @@ return new class extends Migration
             $table->string('color3', 10)->nullable();
             $table->string('color4', 10)->nullable();
             $table->integer('downloadTimes');
-            $table->tinyInteger('status');
-            $table->timestamps();
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
         });
     }
 

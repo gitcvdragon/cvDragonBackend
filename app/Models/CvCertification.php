@@ -10,15 +10,20 @@ class CvCertification extends Model
     use HasFactory;
 
     protected $table = 'cv-certification';
+    protected $primaryKey = 'certificateid';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
+        'id',
         'certificate',
         'authority',
         'year',
-        'status',
     ];
+
+     public function user()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
 
 }

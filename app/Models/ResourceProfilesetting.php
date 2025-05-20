@@ -19,6 +19,5 @@ class ResourceProfilesetting extends Model
         'color3',
         'color4',
         'downloadTimes',
-        'status',
     ];
 }

@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-interests', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
+           $table->increments('interestid');
+            $table->bigInteger('id');
             $table->text('interest');
+             $table->text('level')->nullable();
             $table->tinyInteger('status')->default(1)->comment('1 = active, 0 = inactive'); 
-            $table->timestamps();
+            $table->timestamps('created');
         });
     }
 

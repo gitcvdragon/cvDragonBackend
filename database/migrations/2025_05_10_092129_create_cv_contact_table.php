@@ -12,16 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cv-contact', function (Blueprint $table) {
-            $table->bigIncrements('id');
+           $table->bigInteger('id');
             $table->string('phoneNumber', 50)->nullable();
             $table->string('emailAddress', 50);
             $table->string('location', 50);
             $table->text('fullAddress');
             $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
-            $table->tinyInteger('proofRead');
-            $table->date('proofReadDate');
-            $table->smallInteger('status');
-            $table->bigInteger('refID');
+           $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
         });
 
     }

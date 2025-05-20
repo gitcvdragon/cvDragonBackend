@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('section');
             $table->text('subsection');
             $table->string('showName', 255);
-            $table->timestamp('dateCreated')->useCurrent()->onUpdate(\DB::raw('CURRENT_TIMESTAMP'));
-            $table->tinyInteger('status');
+            $table->timestamp('dateCreated');
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
                         
             $table->index('cvid');
             $table->index('section');

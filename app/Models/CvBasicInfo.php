@@ -9,10 +9,8 @@ class CvBasicInfo extends Model
 {
     use HasFactory;
 
-    // Define the table name (optional, Laravel defaults to 'cv_basic_infos')
     protected $table = 'cv-basic-info';
 
-    // Define which attributes are mass assignable
     protected $fillable = [
         'id',
         'cvFullName',
@@ -24,12 +22,12 @@ class CvBasicInfo extends Model
         'status',
     ];
 
-    // Define the cast types for certain attributes
     protected $casts = [
         'dateBirth' => 'date',
     ];
 
-    // Define the relationship with the User model
+    public $timestamps = false;
+
     public function user()
     {
         return $this->belongsTo(User::class, 'id');

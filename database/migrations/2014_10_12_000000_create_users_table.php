@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('guest_token')->nullable();
             $table->integer('categoryid')->nullable()->comment('0 - Guest, 1 - Free, 2 - Premium, 3 - Pro, 4 - Lifetime Access, 5 - Student, 10 - Admin');
-            $table->string('affiliateID', 6)->nullable();
             $table->bigInteger('referenceID')->nullable();
             $table->string('socialType', 100)->nullable();
             $table->string('socialid', 100)->nullable();

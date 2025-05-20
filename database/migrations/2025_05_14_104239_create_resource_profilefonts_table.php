@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resource-profilefont', function (Blueprint $table) {
-            $table->id();
-            $table->string('fontTypeName', 100);
-            $table->string('fontType', 200);
-            $table->string('googleFontName', 255);
+            $table->increments('fontid');
+            $table->string('fontTypeName', 100)->collation('utf8mb4_unicode_ci');
+            $table->string('fontType', 200)->collation('utf8mb4_unicode_ci');
+            $table->string('googleFontName', 255)->collation('utf8mb4_unicode_ci');
             $table->integer('fontSize');
-            $table->text('appliedOn');
+            $table->text('appliedOn')->collation('utf8mb4_unicode_ci');
             $table->integer('downloadTime');
             $table->tinyInteger('web');
             $table->tinyInteger('app');

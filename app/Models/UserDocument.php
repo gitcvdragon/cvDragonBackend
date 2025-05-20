@@ -16,7 +16,7 @@ class UserDocument extends Model
         'documentLocation',
         'documentSection',
         'documentSubSection',
-        'user_id',
+        'id',
         'date',
         'status',
     ];

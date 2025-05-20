@@ -26,10 +26,7 @@ return new class extends Migration
             $table->tinyInteger('declaration')->nullable();
             $table->string('signature', 200)->nullable();
             $table->timestamp('created')->useCurrent()->useCurrentOnUpdate();
-            $table->tinyInteger('proofRead')->nullable();
-            $table->date('proofReadDate')->nullable();
             $table->tinyInteger('status')->nullable();
-            $table->bigInteger('refID')->nullable();
         });
 
     }
