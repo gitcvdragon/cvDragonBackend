@@ -83,7 +83,7 @@ class OTPAuthController extends Controller
         $record = DB::table('user_otps')
             ->where('identifier', $request->identifier)
             ->where('otp', $request->otp)
-            ->where('expires_at', '>', now()) // Check if OTP is not expired
+            ->where('expires_at', '>', now()) 
             ->first();
 
         // Step 3: Handle invalid or expired OTP

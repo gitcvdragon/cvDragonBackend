@@ -33,6 +33,7 @@ Route::post('/user-name-gender-update', [UserController::class, 'updateNameAndGe
 Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileImage'])->middleware('auth:api');
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
 Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails']);
+Route::post('/user-sections-details-add', [CvSectionController::class, 'getUserSectionDetailsAdd']);
 Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 
 
