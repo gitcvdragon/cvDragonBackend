@@ -27,6 +27,7 @@ class SectionQuestion extends Model
         'is_dependent' => 'boolean',
         'required' => 'boolean',
         'status' => 'boolean',
+        'options' => 'array',
     ];
 
     public function resourceSection()
@@ -38,4 +39,5 @@ class SectionQuestion extends Model
     {
         return $this->hasMany(SectionQuestion::class, 'dependent_on_question_id');
     }
+
 }

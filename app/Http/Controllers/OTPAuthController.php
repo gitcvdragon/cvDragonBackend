@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CreateCvprofile;
-use App\Models\CreateCvuserprofile;
-use App\Models\CvBasicInfo;
-use App\Models\User;
-use App\Models\UserBasic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ApiResponseTrait;
 use App\Traits\OtpTrait;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Str;
+use App\Models\{CreateCvprofile, CreateCvuserprofile, CvBasicInfo, CvContact, User, UserBasic};
 
 class OTPAuthController extends Controller
 {
@@ -80,11 +74,7 @@ class OTPAuthController extends Controller
         ]);
 
         // Step 2: Find the OTP record in the database
-        $record = DB::table('user_otps')
-            ->where('identifier', $request->identifier)
-            ->where('otp', $request->otp)
-            ->where('expires_at', '>', now()) 
-            ->first();
+        $record = DB::table('user_otps')->where('identifier', $request->identifier)->where('otp', $request->otp)->where('expires_at', '>', now())->first();
 
         // Step 3: Handle invalid or expired OTP
         if (!$record) {
@@ -112,43 +102,60 @@ class OTPAuthController extends Controller
             );
         } else {
             // New user registration
+            try {
+                DB::beginTransaction();
+                $id = now()->timestamp . rand(1, 1000);
+                $userauthKey = md5(microtime() . rand());
+                $user = User::create([
+                    'id' => $id,
+                    'userEmail' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
+                    'usermobile' => is_numeric($request->identifier) ? $request->identifier : null,
+                    'categoryid' => $userCategory,
+                    'authKey' => $userauthKey,
+                ]);
 
-            $id = now()->timestamp . rand(1, 1000);
-            $userauthKey = md5(microtime() . rand());
-            $user = User::create([
-                'id' => $id,
-                'userEmail' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
-                'usermobile' => is_numeric($request->identifier) ? $request->identifier : null,
-                'categoryid' => $userCategory,
-                'socialid' => 'null',
-                'authKey' => $userauthKey,
-            ]);
+                UserBasic::create([
+                    'id' => $user->id,
+                    'showWizard' => 1,
+                    'emailAddress' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
+                    'phoneNumber' => is_numeric($request->identifier) ? $request->identifier : null,
+                ]);
 
-            UserBasic::create([
-                'id' => $user->id,
-                'showWizard' => 1,
-                'emailAddress' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
-                'phoneNumber' => is_numeric($request->identifier) ? $request->identifier : null,
-            ]);
+                CreateCvuserprofile::create([
+                    'id' => $user->id,
+                    'profileName' => 'First Profile',
+                ]);
 
-            CreateCvuserprofile::create([
-                'id' => $user->id,
-                'profileName' => 'First Profile',
-            ]);
+                CvContact::create([
+                    'id' => $user->id,
+                    'phoneNumber' => is_numeric($request->identifier) ? $request->identifier : null,
+                    'emailAddress' => filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? $request->identifier : null,
+                ]);
 
-            $token = JWTAuth::fromUser($user);
+                DB::commit();
+                $token = JWTAuth::fromUser($user);
 
-            return $this->successResponse(
-                [
-                    'user_id' => $user->id,
-                    'token' => $token,
-                    'userCategory' => $userCategory,
-                ],
-                'OTP verified successfully and New User is created !!',
-            );
+                return $this->successResponse(
+                    [
+                        'user_id' => $user->id,
+                        'token' => $token,
+                        'userCategory' => $userCategory,
+                    ],
+                    'OTP verified successfully and New User is created !!',
+                );
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(
+                    [
+                        'success' => false,
+                        'message' => 'Failed to create user.',
+                        'error' => $e->getMessage(),
+                    ],
+                    500,
+                );
+            }
         }
     }
-
 
     //If social_id and social_token are provided: The system checks for a matching entry in the users table. Upon successful match, user is authenticated.
 
@@ -202,11 +209,10 @@ class OTPAuthController extends Controller
                 'Social login successful!!',
             );
         } else {
-
             DB::beginTransaction();
 
             // New user registration
-             $id = now()->timestamp . rand(1, 1000);
+            $id = now()->timestamp . rand(1, 1000);
             $user = User::create([
                 'id' => $id,
                 'socialid' => $social_id,
@@ -246,6 +252,4 @@ class OTPAuthController extends Controller
             );
         }
     }
-
-    
 }
