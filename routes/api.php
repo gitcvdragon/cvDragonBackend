@@ -34,6 +34,9 @@ Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileIm
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
 Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails']);
 Route::post('/user-sections-details-add', [CvSectionController::class, 'getUserSectionDetailsAdd']);
+Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate']);
+Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete']);
+Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete']);
 Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 
 

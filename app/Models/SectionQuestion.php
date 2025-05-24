@@ -10,7 +10,7 @@ class SectionQuestion extends Model
     use HasFactory;
 
     protected $table = 'section_questions';
-
+    protected $primaryKey = 'sectionquestionid';
     protected $fillable = [
         'resource_section_id',
         'question',
@@ -37,7 +37,7 @@ class SectionQuestion extends Model
 
    public function dependentQuestions()
     {
-        return $this->hasMany(SectionQuestion::class, 'dependent_on_question_id');
+        return $this->hasMany(SectionQuestion::class, 'dependent_on_question_id', 'sectionquestionid')->where('status', 1)->orderBy('ordering');
     }
 
 }
