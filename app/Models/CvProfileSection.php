@@ -32,6 +32,7 @@ class CvProfileSection extends Model
     // Casts
     protected $casts = [
         'dateCreated' => 'datetime',
+        'subsection' => 'array',
     ];
 
     // Relationships
