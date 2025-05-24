@@ -43,9 +43,6 @@ Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);
-Route::get('/all-sections-basic', [CvSectionController::class, 'allSectionsBasic']); //for basic sections
-Route::get('/all-section-tabs', [CvSectionController::class, 'allSectionTabs']); //have to ask
-
 
 //Designs Api
 Route::get('/profile-designs', [CvDesignController::class, 'allDesigns']);
