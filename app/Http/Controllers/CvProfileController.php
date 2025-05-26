@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CreateCvuserprofile;
+use App\Models\CvProfileSection;
 use App\Models\ResourceSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -45,15 +46,13 @@ class CvProfileController extends Controller
         );
     }
 
-
     public function addUserProfile(Request $request)
     {
-        $validatedData = $request->validate([
-            'userName' => 'required|string|max:255',
-        ]);
+        $userId = auth()->user()->id;
 
          $profile = CreateCvuserprofile::create([
-            'userName' => $validatedData['userName'],
+            'id' => $userId,
+            'profileName'=> $request->profileName,
         ]);
 
         return $this->successResponse(
@@ -63,6 +62,55 @@ class CvProfileController extends Controller
             'Profile Created Successfully!!',
         );
     }
+
+    public function updateUserProfile(Request $request)
+    {
+        $validatedData = $request->validate([
+            'profileName' => 'nullable|string|max:255',
+        ]);
+
+        $userId = $request->user()->id;
+        $profile = CreateCvuserprofile::where('id',$userId )->first();
+
+        if (!$profile) {
+            return $this->errorResponse('Profile not found.', 404);
+        }
+
+        $profile->update([
+            'profileName' => $request->profileName,
+        ]);
+
+        return $this->successResponse(
+            ['profile' => $profile],
+            'Profile Updated Successfully!!'
+        );
+    }
+
+    public function deleteUserProfile(Request $request)
+    {
+        $userId = $request->user()->id;
+        $profile = CreateCvuserprofile::where('id', $userId)->first();
+
+        if (!$profile) {
+            return $this->errorResponse('Profile not found.', 404);
+        }
+
+        $cvId = $profile->cvid ?? null;
+
+        if ($cvId) {
+            CvProfileSection::where('cvid', $cvId)->update(['status' => 0]);
+            CreateCvuserprofile::where('cvid', $cvId)->update(['status' => 0]);
+        }
+
+        $profile->delete();
+
+        return $this->successResponse(
+            null,
+            'Profile and related sections marked as inactive successfully!!'
+        );
+    }
+
+
 
 
 }

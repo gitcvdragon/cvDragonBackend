@@ -75,89 +75,160 @@ class CvSectionController extends Controller
         );
     }
 
+    // public function getUserSectionDetails(Request $request)
+    // {
+    //     $allSectionData = [];
+    //     $text = '';
+    //     $id = $request->input('id');
+
+    //     // Helper to process descriptions and titles
+    //     $appendText = function ($items, $fields) use (&$text) {
+    //         foreach ($items as $item) {
+    //             foreach ($fields as $field) {
+    //                 if (isset($item->$field)) {
+    //                     $text .= $item->$field . ' ';
+    //                 }
+    //             }
+    //         }
+    //     };
+
+    //     // 1. Basic Info
+    //     $allSectionData['basic_info'] = DB::table('cv-basic-info')->where('id', $id)->where('status', 1)->first();
+
+    //     // Contact Details
+    //     $allSectionData['contact_details'] = DB::table('cv-contact')->where('id', $id)->where('status', 1)->first();
+
+    //     $allSectionData['social_links'] = DB::table('cv_social_links')->where('id', $id)->where('status', 1)->first();
+
+    //     // 2. Introduction
+    //     $introduction = DB::table('cv-introduction')->select('id', 'title', 'introduction')->where('id', $id)->where('status', 1)->first();
+
+    //     $allSectionData['introduction'] = $introduction;
+
+    //     //Sections with multiple records
+    //     $sections = [
+    //         'projects' => ['cv-project', ['projectid', 'description']],
+    //         'academic_projects' => ['cv-academic-projects', ['academicid', 'description']],
+    //         'poa' => ['cv-poa', ['poaid', 'description']],
+    //         'co_curricular' => ['cv-co-curricular-activities', ['activityid', 'title', 'description']],
+    //         'presentations' => ['cv-presentations', ['activityid', 'title', 'description']],
+    //         'internships' => ['cv-internship', ['internshipid', 'description']],
+    //         'trainings' => ['cv-trainings', ['trainingid', 'description']],
+    //         'technical_skills' => ['cv-technical', ['technicalid', 'technical', 'type', 'level', 'description']],
+    //         'publications' => ['cv-publications', ['publishid', 'title', 'publisher', 'description']],
+    //         'achievements' => ['cv-achievements', ['achieveid', 'achievement', 'description']],
+    //         'associations' => ['cv-association', ['associationid', 'description']],
+    //         'volunteer' => ['cv-volunteer', ['volunteerid', 'description']],
+    //         'skills' => ['cv-skills', ['skillid', 'skill', 'description']],
+    //         'interests' => ['cv-interests', ['interestid', 'interest', 'level']],
+    //         'languages' => ['cv-languages', ['langid', 'language']],
+    //         'images' => ['cv-images', ['imageid', 'image', 'status']],
+    //         'preferences' => ['cv-preference', ['prefid', 'noticePeriod', 'expectedCTC']],
+    //         'education' => ['cv-education', ['eduid', 'category', 'specialization']],
+    //         'work_experience' => ['cv-work', ['workid', 'organization', 'designation']],
+    //         'patent' => ['cv-patent', ['patentid', 'patentOffice', 'patentStatus']],
+    //         'certification' => ['cv-certification', ['certificateid', 'certificate', 'authority']],
+    //     ];
+
+    //     foreach ($sections as $key => [$table, $fields]) {
+    //         $query = DB::table($table)->where('id', $id)->where('status', 1)->orderBy('created', 'desc');
+
+    //         //     // Specific sort fields
+    //         if ($table === 'cv-trainings') {
+    //             $query->orderBy('number', 'desc');
+    //         }
+    //         if ($table === 'cv-achievements') {
+    //             $query->orderBy('year', 'desc');
+    //         }
+    //         if (in_array($table, ['cv-association', 'cv-volunteer'])) {
+    //             $query->orderBy('dateJoining', 'desc');
+    //         }
+    //         if ($table === 'cv-publications') {
+    //             $query->orderBy('publishDate', 'desc');
+    //         }
+
+    //         $data = $query->get();
+    //         $allSectionData[$key] = $data;
+    //         $appendText($data, $fields);
+    //     }
+
+    //     return $this->successResponse(
+    //         [
+    //             'data' => $allSectionData,
+    //         ],
+    //         'All Sections Tabs are fetched successfully!!',
+    //     );
+    // }
+
     public function getUserSectionDetails(Request $request)
     {
-        $allSectionData = [];
-        $text = '';
-        $id = $request->input('id');
+        $user_id = $request->input('user_id');
+        $section_id = $request->input('section_id');
 
-        // Helper to process descriptions and titles
-        $appendText = function ($items, $fields) use (&$text) {
-            foreach ($items as $item) {
-                foreach ($fields as $field) {
-                    if (isset($item->$field)) {
-                        $text .= $item->$field . ' ';
-                    }
-                }
-            }
-        };
-
-        // 1. Basic Info
-        $allSectionData['basic_info'] = DB::table('cv-basic-info')->where('id', $id)->where('status', 1)->first();
-
-        // Contact Details
-        $allSectionData['contact_details'] = DB::table('cv-contact')->where('id', $id)->where('status', 1)->first();
-
-        $allSectionData['social_links'] = DB::table('cv_social_links')->where('id', $id)->where('status', 1)->first();
-
-        // 2. Introduction
-        $introduction = DB::table('cv-introduction')->select('id', 'title', 'introduction')->where('id', $id)->where('status', 1)->first();
-
-        $allSectionData['introduction'] = $introduction;
-
-        //Sections with multiple records
-        $sections = [
-            'projects' => ['cv-project', ['projectid', 'description']],
-            'academic_projects' => ['cv-academic-projects', ['academicid', 'description']],
-            'poa' => ['cv-poa', ['poaid', 'description']],
-            'co_curricular' => ['cv-co-curricular-activities', ['activityid', 'title', 'description']],
-            'presentations' => ['cv-presentations', ['activityid', 'title', 'description']],
-            'internships' => ['cv-internship', ['internshipid', 'description']],
-            'trainings' => ['cv-trainings', ['trainingid', 'description']],
-            'technical_skills' => ['cv-technical', ['technicalid', 'technical', 'type', 'level', 'description']],
-            'publications' => ['cv-publications', ['publishid', 'title', 'publisher', 'description']],
-            'achievements' => ['cv-achievements', ['achieveid', 'achievement', 'description']],
-            'associations' => ['cv-association', ['associationid', 'description']],
-            'volunteer' => ['cv-volunteer', ['volunteerid', 'description']],
-            'skills' => ['cv-skills', ['skillid', 'skill', 'description']],
-            'interests' => ['cv-interests', ['interestid', 'interest', 'level']],
-            'languages' => ['cv-languages', ['langid', 'language']],
-            'images' => ['cv-images', ['imageid', 'image', 'status']],
-            'preferences' => ['cv-preference', ['prefid', 'noticePeriod', 'expectedCTC']],
-            'education' => ['cv-education', ['eduid', 'category', 'specialization']],
-            'work_experience' => ['cv-work', ['workid', 'organization', 'designation']],
-            'patent' => ['cv-patent', ['patentid', 'patentOffice', 'patentStatus']],
-            'certification' => ['cv-certification', ['certificateid', 'certificate', 'authority']],
-        ];
-
-        foreach ($sections as $key => [$table, $fields]) {
-            $query = DB::table($table)->where('id', $id)->where('status', 1)->orderBy('created', 'desc');
-
-            //     // Specific sort fields
-            if ($table === 'cv-trainings') {
-                $query->orderBy('number', 'desc');
-            }
-            if ($table === 'cv-achievements') {
-                $query->orderBy('year', 'desc');
-            }
-            if (in_array($table, ['cv-association', 'cv-volunteer'])) {
-                $query->orderBy('dateJoining', 'desc');
-            }
-            if ($table === 'cv-publications') {
-                $query->orderBy('publishDate', 'desc');
-            }
-
-            $data = $query->get();
-            $allSectionData[$key] = $data;
-            $appendText($data, $fields);
+        if (!$user_id || !$section_id) {
+            return $this->errorResponse('Missing parameters', 400);
         }
 
-        return $this->successResponse(
-            [
-                'data' => $allSectionData,
-            ],
-            'All Sections Tabs are fetched successfully!!',
-        );
+        // Step 1: Get section table info
+        $section = DB::table('resource-section')->where('id', $section_id)->first();
+
+        if (!$section) {
+            return $this->errorResponse('Section not found.', 404);
+        }
+
+        $sectionTable = $section->sectionTable;
+        $idColumnName = $section->idColumnName;
+
+        if (!$sectionTable || !$idColumnName) {
+            return $this->errorResponse('Section configuration is incomplete.', 400);
+        }
+
+        // Step 2: Get question_column_name mappings
+        $columnNames = DB::table('section_questions')
+            ->select('sectionquestionid')
+            ->where('resource_section_id', $section_id)
+            ->get()
+            ->pluck('sectionquestionid')
+            ->filter(fn($name) => !is_null($name) && trim($name) !== '')
+            ->values()
+            ->toArray();
+
+        $questionColumnNamesAssoc = DB::table('section_questions')
+            ->whereIn('sectionquestionid', $columnNames)
+            ->whereNotNull('question_column_name')
+            ->whereRaw("TRIM(question_column_name) != ''")
+            ->pluck('question_column_name', 'sectionquestionid')
+            ->toArray();
+
+        // Step 3: Fetch section records
+        $sectionRecords = DB::table($sectionTable)
+            ->where('id', $user_id)
+            ->get();
+
+        if ($sectionRecords->isEmpty()) {
+            return $this->successResponse('No section data found.', [
+                'data' => [],
+                'section_table' => $sectionTable,
+            ]);
+        }
+
+        // Step 4: Transform data (optional: map column names back to sectionquestionid)
+        $responseData = [];
+
+        foreach ($sectionRecords as $record) {
+            $row = [];
+            foreach ($questionColumnNamesAssoc as $sectionquestionid => $columnName) {
+                $row[$sectionquestionid] = $record->$columnName ?? null;
+            }
+            $responseData[] = $row;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Section data fetched successfully.',
+            'data' => $responseData,
+            'section_table' => $sectionTable,
+        ]);
     }
 
     public function getUserSectionDetailsAdd(Request $request)
