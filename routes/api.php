@@ -50,7 +50,10 @@ Route::get('/profile-designs', [CvDesignController::class, 'allDesigns']);
 // Route::get('/profile-colors', [CvDesignController::class, 'allProfileColors']);
 
 //Profile Design
- Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
+Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
+Route::post('/user-profile-add', [CvProfileController::class, 'addUserProfile'])->middleware('auth:api');;
+Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');;
+Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');;
 
 
 

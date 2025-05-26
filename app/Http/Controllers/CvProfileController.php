@@ -6,6 +6,7 @@ use App\Models\CreateCvuserprofile;
 use App\Models\ResourceSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CvProfileController extends Controller
 {
@@ -43,4 +44,25 @@ class CvProfileController extends Controller
             'All Profiles Fetched!!',
         );
     }
+
+
+    public function addUserProfile(Request $request)
+    {
+        $validatedData = $request->validate([
+            'userName' => 'required|string|max:255',
+        ]);
+
+         $profile = CreateCvuserprofile::create([
+            'userName' => $validatedData['userName'],
+        ]);
+
+        return $this->successResponse(
+            [
+                'profile' => $profile,
+            ],
+            'Profile Created Successfully!!',
+        );
+    }
+
+
 }

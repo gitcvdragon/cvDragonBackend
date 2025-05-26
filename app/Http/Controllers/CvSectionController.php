@@ -109,7 +109,7 @@ class CvSectionController extends Controller
         $sections = [
             'projects' => ['cv-project', ['projectid', 'description']],
             'academic_projects' => ['cv-academic-projects', ['academicid', 'description']],
-            'poa' => ['cv-POA', ['poaid', 'description']],
+            'poa' => ['cv-poa', ['poaid', 'description']],
             'co_curricular' => ['cv-co-curricular-activities', ['activityid', 'title', 'description']],
             'presentations' => ['cv-presentations', ['activityid', 'title', 'description']],
             'internships' => ['cv-internship', ['internshipid', 'description']],
@@ -316,8 +316,6 @@ class CvSectionController extends Controller
             ->whereRaw("TRIM(question_column_name) != ''")
             ->pluck('question_column_name', 'sectionquestionid')
             ->toArray();
-
-            //dd($questionColumnNamesAssoc);
 
         // Step 3: Build update data from input
         $inputData = $request->input('data', []);
