@@ -24,6 +24,12 @@ class CreateCvuserprofile extends Model
         'status',
     ];
     public $timestamps = false;
+
+    protected $casts = [
+        'dateCreated' => 'datetime',
+        'sectionOrder' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'id', 'id');
