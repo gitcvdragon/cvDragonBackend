@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\{ResourceProfilesetting, ResourceProfileDesignCategory, ResourceProfilefont};
-use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
+use App\Models\ResourceProfileDesignCategory;
+use App\Models\ResourceProfilefont;
+use App\Models\ResourceProfilesetting;
 
 class CvDesignController extends Controller
 {
@@ -13,18 +12,19 @@ class CvDesignController extends Controller
     //Fetch Active Designs, Fonts, and Colors
     public function allDesigns()
     {
-        $designs = ResourceProfileDesignCategory::with('resourceProfileDesigns')
-            ->where('status', 1)
-            // ->where('app', 1)
-            // ->where('version', 'like', '%7%')
-            ->get();
-        $fonts = ResourceProfilefont::where('status', 1)->get();
+        $designs = ResourceProfileDesignCategory::with(['resourceProfileDesigns' => function ($query) {
+            $query->get()->each(function ($design) {
+                $design->sectionOrder = json_decode($design->sectionOrder, true);
+            });
+        }])->where('status', 1)->get();
+
+        $fonts  = ResourceProfilefont::where('status', 1)->get();
         $colors = ResourceProfilesetting::where('status', 1)->get();
         return $this->successResponse(
             [
                 'designs' => $designs,
-                'fonts' => $fonts,
-                'colors' => $colors,
+                'fonts'   => $fonts,
+                'colors'  => $colors,
             ],
             'Designs, Fonts, and Colors fetched successfully!',
         );
