@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\ResourceProfileDesignCategory;
 use App\Models\ResourceProfilefont;
 use App\Models\ResourceProfilesetting;
+use App\Traits\ApiResponseTrait;
 
 class CvDesignController extends Controller
 {

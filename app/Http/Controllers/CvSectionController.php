@@ -2,7 +2,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterCvSection;
-use App\Models\ResourceSection;use Illuminate\Http\Request;
+use App\Models\ResourceSection;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CvSectionController extends Controller
