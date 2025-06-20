@@ -1,12 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\{MasterCvSection, ResourceSection};
-use App\Traits\ApiResponseTrait;
+use App\Models\MasterCvSection;
+use App\Models\ResourceSection;use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class CvSectionController extends Controller
 {
@@ -16,6 +13,11 @@ class CvSectionController extends Controller
     public function getGroupSections()
     {
         $sections = MasterCvSection::with('resourceSections')->where('status', 1)->get();
+        $sections->each(function ($section) {
+            $section->resourceSections->each(function ($resource) {
+                $resource->makeHidden(['sectionTable', 'idColumnName']);
+            });
+        });
         return $this->successResponse(
             [
                 'data' => $sections,
@@ -25,14 +27,28 @@ class CvSectionController extends Controller
     }
 
     // Fetch Section Questions::Retrieves a specific resource section by ID along with all its related section questions and their dependent questions (if any). Ensures the section exists and returns a structured JSON response with validation and success status.
+    // public function getSectionQuestions()
+    // {
+    //     $sections = ResourceSection::with([
+    //         'sectionQuestions.dependentQuestions',
+    //     ])->get();
+    //     return $this->successResponse(
+    //         [
+    //             'data' => $sections,
+    //         ],
+    //         'Section and Questions are fetched successfully!!',
+    //     );
+    // }
+
     public function getSectionQuestions()
     {
         $sections = ResourceSection::with([
-                'sectionQuestions.dependentQuestions'
-            ])->get();
+            'sectionQuestions.dependentQuestions',
+        ])->get();
+
         return $this->successResponse(
             [
-                'data' => $sections,
+                'data' => SectionQuestionResource::collection($sections),
             ],
             'Section and Questions are fetched successfully!!',
         );
@@ -77,10 +93,10 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetails(Request $request)
     {
-        $user_id = $request->input('user_id');
+        $user_id    = $request->input('user_id');
         $profile_id = $request->input('profile_id');
 
-        if (!$user_id || !$profile_id) {
+        if (! $user_id || ! $profile_id) {
             return $this->errorResponse('Missing parameters', 400);
         }
 
@@ -97,22 +113,22 @@ class CvSectionController extends Controller
         $results = [];
 
         foreach ($sections as $sectionEntry) {
-            $section_id = $sectionEntry->section;
+            $section_id    = $sectionEntry->section;
             $subsectionIds = json_decode($sectionEntry->subsection, true) ?? [];
 
             // Step 2: Get section configuration
             $sectionConfig = DB::table('resource-section')->where('id', $section_id)->first();
 
-            if (!$sectionConfig) {
-                continue; 
+            if (! $sectionConfig) {
+                continue;
             }
 
             $sectionTable = $sectionConfig->sectionTable;
             $idColumnName = $sectionConfig->idColumnName;
-            $sectionName = $sectionConfig->sectionName;
+            $sectionName  = $sectionConfig->sectionName;
 
-            if (!$sectionTable || !$idColumnName) {
-                continue; 
+            if (! $sectionTable || ! $idColumnName) {
+                continue;
             }
 
             // Step 3: Retrieve rows from the section table
@@ -121,34 +137,33 @@ class CvSectionController extends Controller
                 ->get();
 
             $results[] = [
-                'section_id' => $section_id,
-                'section_name' => $sectionName,
+                'section_id'    => $section_id,
+                'section_name'  => $sectionName,
                 'section_table' => $sectionTable,
-                'data' => $sectionData,
+                'data'          => $sectionData,
             ];
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'   => 'success',
             'sections' => $results,
         ]);
     }
 
-
     public function getUserSectionDetailsAdd(Request $request)
     {
-        $user_id = $request->input('user_id');
+        $user_id    = $request->input('user_id');
         $section_id = $request->input('section_id');
         $profile_id = $request->input('profile_id');
 
-        if (!$user_id || !$section_id || !$profile_id) {
+        if (! $user_id || ! $section_id || ! $profile_id) {
             return $this->errorResponse('Missing parameters', 400);
         }
 
         // Step 1: Get section table name
         $section = DB::table('resource-section')->where('id', $section_id)->first();
 
-        if (!$section) {
+        if (! $section) {
             return $this->errorResponse('Section not found.', 404);
         }
 
@@ -156,36 +171,36 @@ class CvSectionController extends Controller
         $idColumnName = $section->idColumnName;
         $section_name = $section->sectionName;
 
-        if (!$sectionTable || !$idColumnName) {
+        if (! $sectionTable || ! $idColumnName) {
             return $this->errorResponse('Section configuration is incomplete.', 400);
         }
 
         // Step 2: Get valid question_column_names mapping (sectionquestionid => question_column_name)
-        $columnNames = DB::table('section_questions')->select('sectionquestionid')->where('resource_section_id', $section_id)->get()->pluck('sectionquestionid')->filter(fn($name) => !is_null($name) && trim($name) !== '')->values()->toArray();
+        $columnNames = DB::table('section_questions')->select('sectionquestionid')->where('resource_section_id', $section_id)->get()->pluck('sectionquestionid')->filter(fn($name) => ! is_null($name) && trim($name) !== '')->values()->toArray();
 
         $questionColumnNamesAssoc = DB::table('section_questions')->whereIn('sectionquestionid', $columnNames)->whereNotNull('question_column_name')->whereRaw("TRIM(question_column_name) != ''")->pluck('question_column_name', 'sectionquestionid')->toArray();
 
         // Step 3: Build dynamic section_data from input data array
-        $inputData = $request->input('data', []);
-        $section_data = [];
+        $inputData       = $request->input('data', []);
+        $section_data    = [];
         $multiInsertRows = [];
 
         foreach ($questionColumnNamesAssoc as $sectionquestionid => $columnName) {
-            $value = $inputData[$sectionquestionid] ?? null;
+            $value                     = $inputData[$sectionquestionid] ?? null;
             $section_data[$columnName] = $value;
         }
 
         $insertedIds = [];
-        if (!empty($multiInsertRows)) {
+        if (! empty($multiInsertRows)) {
             foreach ($multiInsertRows as $row) {
                 $insertedIds[] = DB::table($sectionTable)->insertGetId($row, $idColumnName);
             }
             $recordId = $insertedIds;
-            $action = 'inserted';
+            $action   = 'inserted';
         } else {
             $section_data['id'] = $user_id;
-            $recordId = DB::table($sectionTable)->insertGetId($section_data, $idColumnName);
-            $action = 'inserted';
+            $recordId           = DB::table($sectionTable)->insertGetId($section_data, $idColumnName);
+            $action             = 'inserted';
         }
 
         // Step 5: Handle special tables mapping
@@ -194,9 +209,9 @@ class CvSectionController extends Controller
         if (in_array($sectionTable, $specialTables)) {
             $mapping = [
                 'cv-introduction' => 'intro',
-                'cv-contact' => 'contact_id',
-                'cv-basic-info' => 'basic_info_id',
-                'cv-preference' => 'preference_id',
+                'cv-contact'      => 'contact_id',
+                'cv-basic-info'   => 'basic_info_id',
+                'cv-preference'   => 'preference_id',
             ];
 
             $columnToUpdate = $mapping[$sectionTable] ?? null;
@@ -211,8 +226,8 @@ class CvSectionController extends Controller
                         ->update([$columnToUpdate => $recordId]);
                 } else {
                     DB::table('create-cvprofile')->insert([
-                        'cvid' => $profile_id,
-                        'id' => $user_id,
+                        'cvid'          => $profile_id,
+                        'id'            => $user_id,
                         $columnToUpdate => $recordId,
                     ]);
                 }
@@ -221,14 +236,14 @@ class CvSectionController extends Controller
             // Step 6: Handle non-special tables -> create-cvprofilesection
             $existingCvProfileSection = DB::table('create-cvprofilesection')->where('cvid', $profile_id)->where('section', $section_id)->where('id', $user_id)->first();
 
-            $newRecordIds = is_array($recordId) ? $recordId : [$recordId];
-            $newRecordIds = array_map('strval', $newRecordIds);
+            $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
+            $newRecordIds   = array_map('strval', $newRecordIds);
             $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
 
             if ($existingCvProfileSection) {
                 $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
                 $existingSubsection = array_map('strval', $existingSubsection);
-                $mergedSubsection = array_unique(array_merge($existingSubsection, $newRecordIds));
+                $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
 
                 DB::table('create-cvprofilesection')
                     ->where('cvid', $profile_id)
@@ -236,51 +251,51 @@ class CvSectionController extends Controller
                     ->where('id', $user_id)
                     ->update([
                         'subsection' => json_encode($mergedSubsection),
-                        'showName' => $section_name,
+                        'showName'   => $section_name,
                     ]);
             } else {
                 DB::table('create-cvprofilesection')->insert([
-                    'cvid' => $profile_id,
-                    'section' => $section_id,
-                    'id' => $user_id,
+                    'cvid'       => $profile_id,
+                    'section'    => $section_id,
+                    'id'         => $user_id,
                     'subsection' => json_encode($newRecordIds),
-                    'showName' => $section_name,
+                    'showName'   => $section_name,
                 ]);
             }
         }
 
         return response()->json([
-            'status' => 'success',
-            'message' => "Data {$action} successfully.",
-            'record_id' => $recordId,
+            'status'        => 'success',
+            'message'       => "Data {$action} successfully.",
+            'record_id'     => $recordId,
             'section_table' => $sectionTable,
-            'section_data' => $section_data,
+            'section_data'  => $section_data,
         ]);
     }
 
     public function getUserSectionDetailsUpdate(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $section_id = $request->input('section_id');
+        $user_id       = $request->input('user_id');
+        $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
 
         //dd($user_id, $section_id, $subSection_id);
 
-        if (!$user_id || !$section_id || !$subSection_id) {
+        if (! $user_id || ! $section_id || ! $subSection_id) {
             return $this->errorResponse('Missing parameters', 400);
         }
 
         // Step 1: Get section table config
         $section = DB::table('resource-section')->where('id', $section_id)->first();
 
-        if (!$section) {
+        if (! $section) {
             return $this->errorResponse('Section not found.', 404);
         }
 
         $sectionTable = $section->sectionTable;
         $idColumnName = $section->idColumnName;
 
-        if (!$sectionTable || !$idColumnName) {
+        if (! $sectionTable || ! $idColumnName) {
             return $this->errorResponse('Section configuration is incomplete.', 400);
         }
 
@@ -293,7 +308,7 @@ class CvSectionController extends Controller
             ->toArray();
 
         // Step 3: Build update data from input
-        $inputData = $request->input('data', []);
+        $inputData  = $request->input('data', []);
         $updateData = [];
 
         foreach ($questionColumnNamesAssoc as $sectionquestionid => $columnName) {
@@ -314,11 +329,11 @@ class CvSectionController extends Controller
 
         if ($updated) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Section data updated successfully.',
-                'section_table' => $sectionTable,
+                'status'         => 'success',
+                'message'        => 'Section data updated successfully.',
+                'section_table'  => $sectionTable,
                 'sub_section_id' => $subSection_id,
-                'updated_fields' => $updateData
+                'updated_fields' => $updateData,
             ]);
         } else {
             return $this->errorResponse('Changes are done already!!!', 500);
@@ -327,25 +342,25 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsHardDelete(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $section_id = $request->input('section_id');
+        $user_id       = $request->input('user_id');
+        $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
 
-        if (!$user_id || !$section_id || !$subSection_id) {
+        if (! $user_id || ! $section_id || ! $subSection_id) {
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
         // Step 1: Get section table info
         $section = DB::table('resource-section')->where('id', $section_id)->first();
 
-        if (!$section) {
+        if (! $section) {
             return response()->json(['status' => 'error', 'message' => 'Section not found'], 404);
         }
 
         $sectionTable = $section->sectionTable;
         $idColumnName = $section->idColumnName;
 
-        if (!$sectionTable || !$idColumnName) {
+        if (! $sectionTable || ! $idColumnName) {
             return response()->json(['status' => 'error', 'message' => 'Section configuration incomplete'], 400);
         }
 
@@ -355,7 +370,7 @@ class CvSectionController extends Controller
             ->where('id', $user_id)
             ->update(['status' => 0]);
 
-        if (!$updated) {
+        if (! $updated) {
             return response()->json(['status' => 'error', 'message' => 'Delete failed or already deleted'], 500);
         }
 
@@ -367,7 +382,7 @@ class CvSectionController extends Controller
 
         if ($cvProfileSection) {
             $existingSubsections = json_decode($cvProfileSection->subsection, true) ?? [];
-            $updatedSubsections = array_filter($existingSubsections, fn($id) => (string)$id !== (string)$subSection_id);
+            $updatedSubsections  = array_filter($existingSubsections, fn($id) => (string) $id !== (string) $subSection_id);
 
             DB::table('create-cvprofilesection')
                 ->where('id', $user_id)
@@ -376,21 +391,21 @@ class CvSectionController extends Controller
         }
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Subsection deleted successfully.',
-            'section_table' => $sectionTable,
-            'sub_section_id' => $subSection_id
+            'status'         => 'success',
+            'message'        => 'Subsection deleted successfully.',
+            'section_table'  => $sectionTable,
+            'sub_section_id' => $subSection_id,
         ]);
     }
 
     public function getUserSectionDetailsSoftDelete(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $profile_id = $request->input('profile_id');
-        $section_id = $request->input('section_id');
+        $user_id       = $request->input('user_id');
+        $profile_id    = $request->input('profile_id');
+        $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
 
-        if (!$user_id || !$profile_id || !$section_id || !$subSection_id) {
+        if (! $user_id || ! $profile_id || ! $section_id || ! $subSection_id) {
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
@@ -415,15 +430,14 @@ class CvSectionController extends Controller
                 ->where('section', $section_id)
                 ->where('id', $user_id)
                 ->update([
-                    'subsection' => json_encode(array_values($subsections)) // reset indexes
+                    'subsection' => json_encode(array_values($subsections)), // reset indexes
                 ]);
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Section entry marked removed from profile section.',
         ]);
     }
-
 
 }

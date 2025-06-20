@@ -10,7 +10,7 @@ class CvDesignController extends Controller
     use ApiResponseTrait;
 
     //Fetch Active Designs, Fonts, and Colors
-    public function allDesigns()
+    public function allCvDesgin()
     {
         $designs = ResourceProfileDesignCategory::with(['resourceProfileDesigns' => function ($query) {
             $query->get()->each(function ($design) {

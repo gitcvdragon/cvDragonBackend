@@ -1,7 +1,12 @@
 <?php
 
-use App\Http\Controllers\{AppConfigController, CvCommonController, CvDesignController, CvProfileController, CvSectionController, OTPAuthController, UserController};
-use Illuminate\Http\Request;
+use App\Http\Controllers\AppConfigController;
+use App\Http\Controllers\CvCommonController;
+use App\Http\Controllers\CvDesignController;
+use App\Http\Controllers\CvProfileController;
+use App\Http\Controllers\CvSectionController;
+use App\Http\Controllers\OTPAuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Sending OTP to user Mobile or Email..
-Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']); 
+Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
 Route::post('verify-otp', [OTPAuthController::class, 'verifyOtp']);
 Route::get('/social-login', [OTPAuthController::class, 'socialLogin']);
 
@@ -39,23 +44,17 @@ Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'g
 Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete']);
 Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 
-
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);
 
 //Designs Api
-Route::get('/profile-designs', [CvDesignController::class, 'allDesigns']);
+Route::get('/cv-setting', [CvDesignController::class, 'allCvDesgin']);
 // Route::get('/profile-fonts', [CvDesignController::class, 'allProfileFonts']);
 // Route::get('/profile-colors', [CvDesignController::class, 'allProfileColors']);
 
-//Profile Design
+//Profile Design        000
 Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
-Route::post('/user-profile-add', [CvProfileController::class, 'addUserProfile'])->middleware('auth:api');;
-Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');;
-Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');;
-
-
-
-
-
+Route::post('/user-profile-add', [CvProfileController::class, 'hhhh'])->middleware('auth:api');
+Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');
+Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
