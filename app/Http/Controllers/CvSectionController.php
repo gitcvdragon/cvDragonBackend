@@ -146,10 +146,10 @@ class CvSectionController extends Controller
                 ->get();
 
             $results[] = [
-                'section_id'    => $section_id,
-                'section_name'  => $sectionName,
-                'section_table' => $sectionTable,
-                'data'          => $sectionData,
+                'section_id'   => $section_id,
+                'section_name' => $sectionName,
+                //  'section_table' => $sectionTable,
+                'data'         => $sectionData,
             ];
         }
 
