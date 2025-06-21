@@ -29,28 +29,14 @@ class CvSectionController extends Controller
     }
 
     // Fetch Section Questions::Retrieves a specific resource section by ID along with all its related section questions and their dependent questions (if any). Ensures the section exists and returns a structured JSON response with validation and success status.
-    // public function getSectionQuestions()
-    // {
-    //     $sections = ResourceSection::with([
-    //         'sectionQuestions.dependentQuestions',
-    //     ])->get();
-    //     return $this->successResponse(
-    //         [
-    //             'data' => $sections,
-    //         ],
-    //         'Section and Questions are fetched successfully!!',
-    //     );
-    // }
-
     public function getSectionQuestions()
     {
         $sections = ResourceSection::with([
             'sectionQuestions.dependentQuestions',
         ])->get();
-
         return $this->successResponse(
             [
-                'data' => SectionQuestionResource::collection($sections),
+                'data' => $sections,
             ],
             'Section and Questions are fetched successfully!!',
         );
