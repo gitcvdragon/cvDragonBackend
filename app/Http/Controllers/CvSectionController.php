@@ -334,13 +334,14 @@ class CvSectionController extends Controller
         }
     }
 
-    public function getUserSectionDetailsHardDelete(Request $request)
+    public function getUserSectionDetailsSoftDelete(Request $request)
     {
         $user_id       = $request->input('user_id');
+        $profile_id    = $request->input('profile_id');
         $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
 
-        if (! $user_id || ! $section_id || ! $subSection_id) {
+        if (! $user_id || ! $profile_id || ! $section_id || ! $subSection_id) {
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
@@ -358,42 +359,58 @@ class CvSectionController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Section configuration incomplete'], 400);
         }
 
-        // Step 2: Soft delete in section table (status = 0)
-        $updated = DB::table($sectionTable)
-            ->where($idColumnName, $subSection_id)
+        // Step 2: Get primary keys to soft-delete
+        $primaryKeys = DB::table($sectionTable)
             ->where('id', $user_id)
+            ->where('status', 1)
             ->where('refID', $request->input('refID'))
-            ->update(['status' => 0]);
+            ->pluck($idColumnName)
+            ->map(function ($item) {
+                return (string) $item;
+            })
+            ->toArray();
 
-        if (! $updated) {
-            return response()->json(['status' => 'error', 'message' => 'Delete failed or already deleted'], 500);
+        if (empty($primaryKeys)) {
+            return response()->json(['status' => 'error', 'message' => 'No matching section entries found'], 404);
         }
 
-        // Step 3: Remove subSection_id from create-cvprofilesection subsection
-        $cvProfileSection = DB::table('create-cvprofilesection')
-            ->where('id', $user_id)
+        // Step 4: Load profile section
+        $profileSection = DB::table('create-cvprofilesection')
+            ->where('cvid', $profile_id)
             ->where('section', $section_id)
+            ->where('id', $user_id)
+            ->where('status', 1)
             ->first();
 
-        if ($cvProfileSection) {
-            $existingSubsections = json_decode($cvProfileSection->subsection, true) ?? [];
-            $updatedSubsections  = array_filter($existingSubsections, fn($id) => (string) $id !== (string) $subSection_id);
-
-            DB::table('create-cvprofilesection')
-                ->where('id', $user_id)
-                ->where('section', $section_id)
-                ->update(['subsection' => json_encode(array_values($updatedSubsections))]);
+        if (! $profileSection) {
+            return response()->json(['status' => 'error', 'message' => 'Profile section not found'], 404);
         }
 
+        $subsections = json_decode($profileSection->subsection, true) ?? [];
+
+        // Step 5: Remove primary keys from subsection array
+        $subsections = array_filter($subsections, function ($id) use ($primaryKeys) {
+            return ! in_array((string) $id, $primaryKeys, true);
+        });
+
+        // Re-index array
+        $subsections = array_values($subsections);
+
+        // Step 6: Update create-cvprofilesection
+        DB::table('create-cvprofilesection')
+            ->where('psid', $profileSection->psid)
+            ->update([
+                'subsection' => json_encode($subsections),
+            ]);
+
         return response()->json([
-            'status'         => 'success',
-            'message'        => 'Subsection deleted successfully.',
-            'section_table'  => $sectionTable,
-            'sub_section_id' => $subSection_id,
+            'status'  => 'success',
+            'message' => 'Section entry marked removed from profile section.',
         ]);
+
     }
 
-    public function getUserSectionDetailsSoftDelete(Request $request)
+    public function getUserSectionDetailsHardDelete(Request $request)
     {
         $user_id       = $request->input('user_id');
         $profile_id    = $request->input('profile_id');
@@ -404,35 +421,75 @@ class CvSectionController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
-        // Step 2: Remove subsection ID from create-cvprofilesection
+        // Step 1: Get section table info
+        $section = DB::table('resource-section')->where('id', $section_id)->first();
+
+        if (! $section) {
+            return response()->json(['status' => 'error', 'message' => 'Section not found'], 404);
+        }
+
+        $sectionTable = $section->sectionTable;
+        $idColumnName = $section->idColumnName;
+
+        if (! $sectionTable || ! $idColumnName) {
+            return response()->json(['status' => 'error', 'message' => 'Section configuration incomplete'], 400);
+        }
+
+        // Step 2: Get primary keys to soft-delete
+        $primaryKeys = DB::table($sectionTable)
+            ->where('id', $user_id)
+            ->where('status', 1)
+            ->where('refID', $request->input('refID'))
+            ->pluck($idColumnName)
+            ->map(function ($item) {
+                return (string) $item;
+            })
+            ->toArray();
+
+        if (empty($primaryKeys)) {
+            return response()->json(['status' => 'error', 'message' => 'No matching section entries found'], 404);
+        }
+
+        // Step 3: Soft delete in section table (status = 0)
+        DB::table($sectionTable)
+            ->where('id', $user_id)
+            ->where('status', 1)
+            ->where('refID', $request->input('refID'))
+            ->update(['status' => 0]);
+
+        // Step 4: Load profile section
         $profileSection = DB::table('create-cvprofilesection')
             ->where('cvid', $profile_id)
             ->where('section', $section_id)
             ->where('id', $user_id)
+            ->where('status', 1)
             ->first();
 
-        if ($profileSection) {
-            $subsections = json_decode($profileSection->subsection, true) ?? [];
-
-            // Remove the subSection_id
-            $subsections = array_filter($subsections, function ($id) use ($subSection_id) {
-                return strval($id) !== strval($subSection_id);
-            });
-
-            // Update the record
-            DB::table('create-cvprofilesection')
-                ->where('cvid', $profile_id)
-                ->where('section', $section_id)
-                ->where('id', $user_id)
-                ->update([
-                    'subsection' => json_encode(array_values($subsections)), // reset indexes
-                ]);
+        if (! $profileSection) {
+            return response()->json(['status' => 'error', 'message' => 'Profile section not found'], 404);
         }
+
+        $subsections = json_decode($profileSection->subsection, true) ?? [];
+
+        // Step 5: Remove primary keys from subsection array
+        $subsections = array_filter($subsections, function ($id) use ($primaryKeys) {
+            return ! in_array((string) $id, $primaryKeys, true);
+        });
+
+        // Re-index array
+        $subsections = array_values($subsections);
+
+        // Step 6: Update create-cvprofilesection
+        DB::table('create-cvprofilesection')
+            ->where('psid', $profileSection->psid)
+            ->update([
+                'subsection' => json_encode($subsections),
+            ]);
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'Section entry marked removed from profile section.',
+            'message' => 'Subsection deleted successfully.',
+
         ]);
     }
-
 }
