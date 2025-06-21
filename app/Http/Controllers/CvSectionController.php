@@ -51,7 +51,7 @@ class CvSectionController extends Controller
         $formattedSections = $sections->map(function ($section) {
             return [
                 'section_id'        => $section->section_id,
-                'section_questions' => $section->sectionQuestions, // Already loaded with dependentQuestions
+                'section_questions' => $section->sectionQuestions,
             ];
         });
 
@@ -185,9 +185,12 @@ class CvSectionController extends Controller
         }
 
         // Step 2: Get valid question_column_names mapping (sectionquestionid => question_column_name)
-        $columnNames = DB::table('section_questions')->select('sectionquestionid')->where('resource_section_id', $section_id)->get()->pluck('sectionquestionid')->filter(fn($name) => ! is_null($name) && trim($name) !== '')->values()->toArray();
+        $sectionquestionids = DB::table('section_questions')->select('sectionquestionid')
 
-        $questionColumnNamesAssoc = DB::table('section_questions')->whereIn('sectionquestionid', $columnNames)->whereNotNull('question_column_name')->whereRaw("TRIM(question_column_name) != ''")->pluck('question_column_name', 'sectionquestionid')->toArray();
+            ->where('resource_section_id', $section_id)->get()->pluck('sectionquestionid')
+            ->filter(fn($name) => ! is_null($name) && trim($name) !== '')->values()->toArray();
+
+        $questionColumnNamesAssoc = DB::table('section_questions')->whereIn('sectionquestionid', $sectionquestionids)->whereNotNull('question_column_name')->whereRaw("TRIM(question_column_name) != ''")->pluck('question_column_name', 'sectionquestionid')->toArray();
 
         // Step 3: Build dynamic section_data from input data array
         $inputData       = $request->input('data', []);
@@ -212,65 +215,35 @@ class CvSectionController extends Controller
             $action             = 'inserted';
         }
 
-        // Step 5: Handle special tables mapping
-        $specialTables = ['cv-introduction', 'cv-contact', 'cv-basic-info', 'cv-preference'];
+        $existingCvProfileSection = DB::table('create-cvprofilesection')
+            ->where('cvid', $profile_id)->where('section', $section_id)
+            ->where('status', 1)->where('id', $user_id)->first();
 
-        if (in_array($sectionTable, $specialTables)) {
-            $mapping = [
-                'cv-introduction' => 'intro',
-                'cv-contact'      => 'contact_id',
-                'cv-basic-info'   => 'basic_info_id',
-                'cv-preference'   => 'preference_id',
-            ];
+        $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
+        $newRecordIds   = array_map('strval', $newRecordIds);
+        $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
 
-            $columnToUpdate = $mapping[$sectionTable] ?? null;
+        if ($existingCvProfileSection && $section->defaultsection == 0) {
+            $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
+            $existingSubsection = array_map('strval', $existingSubsection);
+            $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
 
-            if ($columnToUpdate) {
-                $cvProfile = DB::table('create-cvprofile')->where('cvid', $profile_id)->where('id', $user_id)->first();
-
-                if ($cvProfile) {
-                    DB::table('create-cvprofile')
-                        ->where('cvid', $profile_id)
-                        ->where('id', $user_id)
-                        ->update([$columnToUpdate => $recordId]);
-                } else {
-                    DB::table('create-cvprofile')->insert([
-                        'cvid'          => $profile_id,
-                        'id'            => $user_id,
-                        $columnToUpdate => $recordId,
-                    ]);
-                }
-            }
-        } else {
-            // Step 6: Handle non-special tables -> create-cvprofilesection
-            $existingCvProfileSection = DB::table('create-cvprofilesection')->where('cvid', $profile_id)->where('section', $section_id)->where('id', $user_id)->first();
-
-            $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
-            $newRecordIds   = array_map('strval', $newRecordIds);
-            $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
-
-            if ($existingCvProfileSection) {
-                $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
-                $existingSubsection = array_map('strval', $existingSubsection);
-                $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
-
-                DB::table('create-cvprofilesection')
-                    ->where('cvid', $profile_id)
-                    ->where('section', $section_id)
-                    ->where('id', $user_id)
-                    ->update([
-                        'subsection' => json_encode($mergedSubsection),
-                        'showName'   => $section_name,
-                    ]);
-            } else {
-                DB::table('create-cvprofilesection')->insert([
-                    'cvid'       => $profile_id,
-                    'section'    => $section_id,
-                    'id'         => $user_id,
-                    'subsection' => json_encode($newRecordIds),
+            DB::table('create-cvprofilesection')
+                ->where('cvid', $profile_id)
+                ->where('section', $section_id)
+                ->where('id', $user_id)
+                ->update([
+                    'subsection' => json_encode($mergedSubsection),
                     'showName'   => $section_name,
                 ]);
-            }
+        } else {
+            DB::table('create-cvprofilesection')->insert([
+                'cvid'       => $profile_id,
+                'section'    => $section_id,
+                'id'         => $user_id,
+                'subsection' => json_encode($newRecordIds),
+                'showName'   => $section_name,
+            ]);
         }
 
         return response()->json([
