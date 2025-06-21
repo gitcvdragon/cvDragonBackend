@@ -41,6 +41,27 @@ class CvSectionController extends Controller
             'Section and Questions are fetched successfully!!',
         );
     }
+    // public function getSectionQuestions()
+    // {
+    //     $sections = ResourceSection::with([
+    //         'sectionQuestions.dependentQuestions',
+    //     ])->get();
+
+    //     // Only return section_id and section_questions
+    //     $formattedSections = $sections->map(function ($section) {
+    //         return [
+    //             'section_id' => $section->section_id,
+    //             'section_questions' => $section->sectionQuestions, // Already loaded with dependentQuestions
+    //         ];
+    //     });
+
+    //     return $this->successResponse(
+    //         [
+    //             'data' => $formattedSections,
+    //         ],
+    //         'Section and Questions are fetched successfully!!'
+    //     );
+    // }
 
     public function allSectionsBasic()
     {
