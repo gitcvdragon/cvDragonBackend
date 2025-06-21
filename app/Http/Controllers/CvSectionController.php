@@ -203,6 +203,7 @@ class CvSectionController extends Controller
         }
 
         $insertedIds = [];
+
         if (! empty($multiInsertRows)) {
             foreach ($multiInsertRows as $row) {
                 $insertedIds[] = DB::table($sectionTable)->insertGetId($row, $idColumnName);
@@ -212,16 +213,22 @@ class CvSectionController extends Controller
         } else {
             $section_data['id'] = $user_id;
             $recordId           = DB::table($sectionTable)->insertGetId($section_data, $idColumnName);
-            $action             = 'inserted';
+
+            $action = 'inserted';
         }
 
         $existingCvProfileSection = DB::table('create-cvprofilesection')
-            ->where('cvid', $profile_id)->where('section', $section_id)
-            ->where('status', 1)->where('id', $user_id)->first();
+            ->where('cvid', $profile_id)
+            ->where('section', $section_id)
+            ->where('id', $user_id)
+            ->where('status', 1)->first();
 
         $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
         $newRecordIds   = array_map('strval', $newRecordIds);
         $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
+        if ($existingCvProfileSection && $section->defaultsection == 1) {
+            return $this->errorResponse('Data already Available.', 400);
+        }
 
         if ($existingCvProfileSection && $section->defaultsection == 0) {
             $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
@@ -232,6 +239,7 @@ class CvSectionController extends Controller
                 ->where('cvid', $profile_id)
                 ->where('section', $section_id)
                 ->where('id', $user_id)
+                ->where('status', 1)
                 ->update([
                     'subsection' => json_encode($mergedSubsection),
                     'showName'   => $section_name,
@@ -244,6 +252,7 @@ class CvSectionController extends Controller
                 'subsection' => json_encode($newRecordIds),
                 'showName'   => $section_name,
             ]);
+            //dd($existingCvProfileSection);
         }
 
         return response()->json([
@@ -260,6 +269,7 @@ class CvSectionController extends Controller
         $user_id       = $request->input('user_id');
         $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
+        $refID         = $request->input('refID');
 
         //dd($user_id, $section_id, $subSection_id);
 
@@ -305,10 +315,12 @@ class CvSectionController extends Controller
 
         // Step 4: Perform the update
         $updated = DB::table($sectionTable)
-            ->where($idColumnName, $subSection_id)
+        //->where($idColumnName, $subSection_id)
             ->where('id', $user_id)
+            ->where('refID', $refID)
+            ->where('status', 1)
             ->update($updateData);
-
+//dd( $updated);
         if ($updated) {
             return response()->json([
                 'status'         => 'success',
@@ -350,6 +362,7 @@ class CvSectionController extends Controller
         $updated = DB::table($sectionTable)
             ->where($idColumnName, $subSection_id)
             ->where('id', $user_id)
+            ->where('refID', $request->input('refID'))
             ->update(['status' => 0]);
 
         if (! $updated) {
