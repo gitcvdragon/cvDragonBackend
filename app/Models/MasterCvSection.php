@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +11,7 @@ class MasterCvSection extends Model
 
     // Mass assignable attributes
     protected $fillable = ['heading', 'description', 'icon', 'color', 'status', 'ordering'];
-    protected $casts = [
+    protected $casts    = [
         'status' => 'boolean',
     ];
 
@@ -21,5 +20,4 @@ class MasterCvSection extends Model
         return $this->hasMany(ResourceSection::class, 'master_cv_sections_id');
     }
 
-    
 }

@@ -50,7 +50,7 @@ class CvSectionController extends Controller
         // Only return section_id and section_questions
         $formattedSections = $sections->map(function ($section) {
             return [
-                'section_id'        => $section->section_id,
+                'section_id'        => $section->sectionQuestions->resource_section_id,
                 'section_questions' => $section->sectionQuestions,
             ];
         });
