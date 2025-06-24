@@ -17,7 +17,7 @@ class CvSectionController extends Controller
         $sections = MasterCvSection::with('resourceSections')->where('status', 1)->get();
         $sections->each(function ($section) {
             $section->resourceSections->each(function ($resource) {
-                $resource->makeHidden(['sectionTable', 'idColumnName']);
+                $resource->makeHidden(['sectionTable']);
             });
         });
         return $this->successResponse(
