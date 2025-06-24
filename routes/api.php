@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 // fallback route for ANY unknown API endpoint
-Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
@@ -61,3 +60,4 @@ Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
 Route::post('/user-profile-add', [CvProfileController::class, 'hhhh'])->middleware('auth:api');
 Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
+Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
