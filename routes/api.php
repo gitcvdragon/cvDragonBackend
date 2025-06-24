@@ -5,6 +5,7 @@ use App\Http\Controllers\CvCommonController;
 use App\Http\Controllers\CvDesignController;
 use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\CvSectionController;
+use App\Http\Controllers\FallbackController;
 use App\Http\Controllers\OTPAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
