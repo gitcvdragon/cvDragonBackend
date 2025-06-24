@@ -250,10 +250,17 @@ class CvSectionController extends Controller
             return $this->errorResponse('No active sections found for this user.', 404);
         }
 
-        $sectionResults = [];
+        $sectionResults    = [];
+        $processedSections = []; // to track section_id processed
 
         foreach ($sections as $sectionEntry) {
-            $section_id    = $sectionEntry->section;
+            $section_id = $sectionEntry->section;
+
+            // Skip if already processed
+            if (in_array($section_id, $processedSections)) {
+                continue;
+            }
+
             $subsectionIds = json_decode($sectionEntry->subsection, true) ?? [];
 
             // Get section config
@@ -285,6 +292,9 @@ class CvSectionController extends Controller
                 'section_name' => $sectionName,
                 'data'         => $sectionData,
             ];
+
+            // Mark this section_id as processed
+            $processedSections[] = $section_id;
         }
 
         return response()->json([
