@@ -22,12 +22,6 @@ class FallbackController extends Controller
             'updated_at' => now(),
         ]);
 
-        Log::info('API Fallback called', [
-            'url'    => $url,
-            'method' => $method,
-            'data'   => $data,
-        ]);
-
         return response()->json([
             'status'  => 'success',
             'message' => 'API request stored',
