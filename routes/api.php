@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// fallback route for ANY unknown API endpoint
+Route::fallback([\App\Http\Controllers\FallbackController::class, 'handle']);
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
