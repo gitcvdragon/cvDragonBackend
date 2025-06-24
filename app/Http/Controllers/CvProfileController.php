@@ -31,7 +31,7 @@ class CvProfileController extends Controller
 
             // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
-            $profileData['sections'] = $sections;
+            //  $profileData['sections'] = $sections;
 
             return $profileData;
         });
