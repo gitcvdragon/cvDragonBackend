@@ -158,7 +158,7 @@ class CvSectionController extends Controller
             'sections' => $results,
         ]);
     }
-    public function getUserSectionDetails(Request $request)
+    public function getUserSectionDetailsa(Request $request)
     {
         $user_id = $request->input('user_id');
 
@@ -230,6 +230,66 @@ class CvSectionController extends Controller
             'status'   => 'success',
             'user_id'  => $user_id,
             'profiles' => $finalResults,
+        ]);
+    }
+    public function getUserSectionDetails(Request $request)
+    {
+        $user_id = $request->input('user_id');
+
+        if (! $user_id) {
+            return $this->errorResponse('Missing user_id parameter', 400);
+        }
+
+        // Get all section entries for this user where status = 1
+        $sections = DB::table('create-cvprofilesection')
+            ->where('id', $user_id)
+            ->where('status', 1)
+            ->get();
+
+        if ($sections->isEmpty()) {
+            return $this->errorResponse('No active sections found for this user.', 404);
+        }
+
+        $sectionResults = [];
+
+        foreach ($sections as $sectionEntry) {
+            $section_id    = $sectionEntry->section;
+            $subsectionIds = json_decode($sectionEntry->subsection, true) ?? [];
+
+            // Get section config
+            $sectionConfig = DB::table('resource-section')
+                ->where('status', 1)
+                ->where('id', $section_id)
+                ->first();
+
+            if (! $sectionConfig) {
+                continue;
+            }
+
+            $sectionTable = $sectionConfig->sectionTable;
+            $idColumnName = $sectionConfig->idColumnName;
+            $sectionName  = $sectionConfig->sectionName;
+
+            if (! $sectionTable || ! $idColumnName || empty($subsectionIds)) {
+                continue;
+            }
+
+            // Retrieve section data from the respective table
+            $sectionData = DB::table($sectionTable)
+                ->whereIn($idColumnName, $subsectionIds)
+                ->get();
+
+            $sectionResults[] = [
+                'section_id'   => $section_id,
+                'section_name' => $sectionName,
+                'data'         => $sectionData,
+            ];
+        }
+
+        return response()->json([
+            'status'   => 'success',
+            'user_id'  => $user_id,
+            'sections' => $sectionResults,
         ]);
     }
 

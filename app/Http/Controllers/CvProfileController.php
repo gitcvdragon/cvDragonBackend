@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CreateCvuserprofile;
 use App\Models\CvProfileSection;
-use App\Models\ResourceSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 
@@ -30,7 +29,7 @@ class CvProfileController extends Controller
             $profileData['profile_id'] = $profile->cvid ?? null;
             $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
 
-            $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+            // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
             $profileData['sections'] = $sections;
 
