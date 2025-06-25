@@ -349,12 +349,11 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsSoftDelete(Request $request)
     {
-        $user_id       = $request->input('user_id');
-        $profile_id    = $request->input('profile_id');
-        $section_id    = $request->input('section_id');
-        $subSection_id = $request->input('subSection_id');
+        $user_id    = $request->input('user_id');
+        $profile_id = $request->input('profile_id');
+        $section_id = $request->input('section_id');
 
-        if (! $user_id || ! $profile_id || ! $section_id || ! $subSection_id) {
+        if (! $user_id || ! $profile_id || ! $section_id) {
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
@@ -425,12 +424,11 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsHardDelete(Request $request)
     {
-        $user_id       = $request->input('user_id');
-        $profile_id    = $request->input('profile_id');
-        $section_id    = $request->input('section_id');
-        $subSection_id = $request->input('subSection_id');
+        $user_id    = $request->input('user_id');
+        $profile_id = $request->input('profile_id');
+        $section_id = $request->input('section_id');
 
-        if (! $user_id || ! $profile_id || ! $section_id || ! $subSection_id) {
+        if (! $user_id || ! $profile_id || ! $section_id) {
             return response()->json(['status' => 'error', 'message' => 'Missing parameters'], 400);
         }
 
