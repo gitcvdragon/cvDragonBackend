@@ -151,7 +151,8 @@ class CvSectionController extends Controller
 
             // Retrieve section data from the respective table
             $sectionData = DB::table($sectionTable)
-                ->whereIn($idColumnName, $subsectionIds)
+            // ->whereIn($idColumnName, $subsectionIds)
+                ->where('id', $user_id)
                 ->where('status', 1)
                 ->get();
 
