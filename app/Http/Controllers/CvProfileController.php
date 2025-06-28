@@ -182,7 +182,7 @@ class CvProfileController extends Controller
             CreateCvuserprofile::where('cvid', $cvId)->update(['status' => 0]);
         }
 
-        $profile->delete();
+        //  $profile->delete();
 
         return $this->successResponse(
             null,
