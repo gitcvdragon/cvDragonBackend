@@ -109,7 +109,7 @@ class CvProfileController extends Controller
     public function updateUserProfileSectionOrderUpdate(Request $request)
     {
         $validatedData = $request->validate([
-            'sectionOrder' => 'nullable|string',
+            'sectionOrder' => 'nullable|array',
         ]);
 
         $userId = $request->user()->id;
