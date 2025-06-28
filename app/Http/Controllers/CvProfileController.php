@@ -90,7 +90,7 @@ class CvProfileController extends Controller
         ]);
 
         $userId  = $request->user()->id;
-        $profile = CreateCvuserprofile::where('id', $userId)->first();
+        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
 
         if (! $profile) {
             return $this->errorResponse('Profile not found.', 404);
@@ -106,10 +106,39 @@ class CvProfileController extends Controller
         );
     }
 
+    public function updateUserProfileSectionOrderUpdate(Request $request)
+    {
+        $validatedData = $request->validate([
+            'sectionOrder' => 'nullable|string',
+        ]);
+
+        $userId = $request->user()->id;
+
+        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
+
+        if (! $profile) {
+            return $this->errorResponse('Profile not found.', 404);
+        }
+
+        $sectionOrder = $request->sectionOrder;
+        if (is_array($sectionOrder)) {
+            $sectionOrder = json_encode($sectionOrder);
+        }
+
+        $profile->update([
+            'sectionOrder' => $sectionOrder,
+        ]);
+
+        return $this->successResponse(
+            ['profile' => $profile],
+            'Section Order Updated Successfully!!'
+        );
+    }
+
     public function deleteUserProfile(Request $request)
     {
         $userId  = $request->user()->id;
-        $profile = CreateCvuserprofile::where('id', $userId)->first();
+        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
 
         if (! $profile) {
             return $this->errorResponse('Profile not found.', 404);
