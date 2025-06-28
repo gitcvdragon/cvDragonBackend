@@ -59,6 +59,8 @@ Route::get('/cv-setting', [CvDesignController::class, 'allCvDesgin']);
 Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
 Route::post('/user-profile-add', [CvProfileController::class, 'addUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');
+Route::post('/user-add-profile-section-data', [CvProfileController::class, 'addData'])->middleware('auth:api');
+
 Route::post('/user-section-order-update', [CvProfileController::class, 'updateUserProfileSectionOrderUpdate'])->middleware('auth:api');
 
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');

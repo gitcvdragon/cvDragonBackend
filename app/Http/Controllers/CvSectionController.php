@@ -173,7 +173,7 @@ class CvSectionController extends Controller
         ]);
     }
 
-    public function getUserSectionDetailsAdd(Request $request)
+    public function addData(Request $request)
     {
         $user_id    = $request->input('user_id');
         $section_id = $request->input('section_id');
