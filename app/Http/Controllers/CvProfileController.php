@@ -52,9 +52,32 @@ class CvProfileController extends Controller
             'profileName' => $request->profileName,
         ]);
 
+        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->cvid)->where('status', 1)->get();
+
+        if ($profiles->isEmpty()) {
+            return $this->successResponse(
+                [
+                    'profiles' => null,
+                ],
+                'No Profiles Fetched!!',
+            );
+        }
+
+        $profilesWithSections = $profiles->map(function ($profile) {
+            $profileData               = $profile->toArray();
+            $profileData['profile_id'] = $profile->cvid ?? null;
+            $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+
+            // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+
+            //  $profileData['sections'] = $sections;
+
+            return $profileData;
+        });
+
         return $this->successResponse(
             [
-                'profile' => $profile,
+                'profile' => $profiles,
             ],
             'Profile Created Successfully!!',
         );

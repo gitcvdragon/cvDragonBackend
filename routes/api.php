@@ -57,7 +57,7 @@ Route::get('/cv-setting', [CvDesignController::class, 'allCvDesgin']);
 
 //Profile Design        000
 Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
-Route::post('/user-profile-add', [CvProfileController::class, 'hhhh'])->middleware('auth:api');
+Route::post('/user-profile-add', [CvProfileController::class, 'addUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
 Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
