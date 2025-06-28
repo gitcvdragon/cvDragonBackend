@@ -101,7 +101,22 @@ class CvProfileController extends Controller
         ]);
 
         return $this->successResponse(
-            ['profile' => $profile],
+            [
+                'profile' => [
+                    'cvid'           => $profile->cvid,
+                    'id'             => $profile->id,
+                    'profileName'    => $profile->profileName,
+                    'sections'       => $profile->sections,
+                    'sectionOrder'   => json_decode($profile->sectionOrder, true),
+                    'design'         => $profile->design,
+                    'font'           => $profile->font,
+                    'setting'        => $profile->setting,
+                    'isPublic'       => $profile->isPublic,
+                    'progressReport' => $profile->progressReport,
+                    'dateUpdated'    => $profile->dateUpdated,
+                    'status'         => $profile->status,
+                ],
+            ],
             'Profile Updated Successfully!!'
         );
     }
