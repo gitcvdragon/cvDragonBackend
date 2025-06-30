@@ -190,109 +190,79 @@ class CvProfileController extends Controller
         );
     }
 
-    public function getUserSectionDetailsAdd(Request $request)
+    public function addData(Request $request)
     {
-        $user_id    = $request->input('user_id');
-        $section_id = $request->input('section_id');
+        $recordId   = $request->input('record_id');
         $profile_id = $request->input('profile_id');
+        $section_id = $request->input('section_id');
+        $user_id    = $request->input('user_id');
 
-        if (! $user_id || ! $section_id || ! $profile_id) {
+        if (! $recordId || ! $profile_id || ! $section_id || ! $user_id) {
             return $this->errorResponse('Missing parameters', 400);
         }
 
-        // Step 1: Get section table name
-        $section = DB::table('resource-section')->where('id', $section_id)->first();
+        try {
+            DB::beginTransaction();
 
-        if (! $section) {
-            return $this->errorResponse('Section not found.', 404);
-        }
+            $section = DB::table('resource-section')->where('id', $section_id)->first();
 
-        $sectionTable = $section->sectionTable;
-        $idColumnName = $section->idColumnName;
-        $section_name = $section->sectionName;
-
-        if (! $sectionTable || ! $idColumnName) {
-            return $this->errorResponse('Section configuration is incomplete.', 400);
-        }
-
-        // Step 2: Get valid question_column_names mapping (sectionquestionid => question_column_name)
-        $sectionquestionids = DB::table('section_questions')->select('sectionquestionid')
-
-            ->where('resource_section_id', $section_id)->get()->pluck('sectionquestionid')
-            ->filter(fn($name) => ! is_null($name) && trim($name) !== '')->values()->toArray();
-
-        $questionColumnNamesAssoc = DB::table('section_questions')->whereIn('sectionquestionid', $sectionquestionids)->whereNotNull('question_column_name')->whereRaw("TRIM(question_column_name) != ''")->pluck('question_column_name', 'sectionquestionid')->toArray();
-
-        // Step 3: Build dynamic section_data from input data array
-        $inputData       = $request->input('data', []);
-        $section_data    = [];
-        $multiInsertRows = [];
-
-        foreach ($questionColumnNamesAssoc as $sectionquestionid => $columnName) {
-            $value                     = $inputData[$sectionquestionid] ?? null;
-            $section_data[$columnName] = $value;
-        }
-
-        $insertedIds = [];
-
-        if (! empty($multiInsertRows)) {
-            foreach ($multiInsertRows as $row) {
-                $insertedIds[] = DB::table($sectionTable)->insertGetId($row, $idColumnName);
+            if (! $section) {
+                DB::rollBack();
+                return $this->errorResponse('Section not found.', 404);
             }
-            $recordId = $insertedIds;
-            $action   = 'inserted';
-        } else {
-            $section_data['id'] = $user_id;
-            $recordId           = DB::table($sectionTable)->insertGetId($section_data, $idColumnName);
 
-            $action = 'inserted';
-        }
+            $section_name   = $section->sectionName;
+            $defaultSection = $section->defaultsection;
 
-        $existingCvProfileSection = DB::table('create-cvprofilesection')
-            ->where('cvid', $profile_id)
-            ->where('section', $section_id)
-            ->where('id', $user_id)
-            ->where('status', 1)->first();
-
-        $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
-        $newRecordIds   = array_map('strval', $newRecordIds);
-        $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
-        if ($existingCvProfileSection && $section->defaultsection == 1) {
-            return $this->errorResponse('Data already Available.', 400);
-        }
-
-        if ($existingCvProfileSection && $section->defaultsection == 0) {
-            $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
-            $existingSubsection = array_map('strval', $existingSubsection);
-            $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
-
-            DB::table('create-cvprofilesection')
+            $existingCvProfileSection = DB::table('create-cvprofilesection')
                 ->where('cvid', $profile_id)
                 ->where('section', $section_id)
                 ->where('id', $user_id)
                 ->where('status', 1)
-                ->update([
-                    'subsection' => json_encode($mergedSubsection),
+                ->first();
+
+            $newRecordIds = [strval($recordId)];
+
+            if ($existingCvProfileSection && $defaultSection == 1) {
+                DB::rollBack();
+                return $this->errorResponse('Data already available.', 400);
+            }
+
+            if ($existingCvProfileSection && $defaultSection == 0) {
+                $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
+                $existingSubsection = array_map('strval', $existingSubsection);
+                $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
+
+                DB::table('create-cvprofilesection')
+                    ->where('cvid', $profile_id)
+                    ->where('section', $section_id)
+                    ->where('id', $user_id)
+                    ->where('status', 1)
+                    ->update([
+                        'subsection' => json_encode($mergedSubsection),
+                        'showName'   => $section_name,
+                    ]);
+            } else {
+                DB::table('create-cvprofilesection')->insert([
+                    'cvid'       => $profile_id,
+                    'section'    => $section_id,
+                    'id'         => $user_id,
+                    'subsection' => json_encode($newRecordIds),
                     'showName'   => $section_name,
                 ]);
-        } else {
-            DB::table('create-cvprofilesection')->insert([
-                'cvid'       => $profile_id,
-                'section'    => $section_id,
-                'id'         => $user_id,
-                'subsection' => json_encode($newRecordIds),
-                'showName'   => $section_name,
-            ]);
-            //dd($existingCvProfileSection);
-        }
+            }
 
-        return response()->json([
-            'status'        => 'success',
-            'message'       => "Data {$action} successfully.",
-            'record_id'     => $recordId,
-            'section_table' => $sectionTable,
-            'section_data'  => $section_data,
-        ]);
+            DB::commit();
+
+            return response()->json([
+                'status'    => 'success',
+                'message'   => 'Section data linked successfully.',
+                'record_id' => $recordId,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse('An error occurred: ' . $e->getMessage(), 500);
+        }
     }
 
 }
