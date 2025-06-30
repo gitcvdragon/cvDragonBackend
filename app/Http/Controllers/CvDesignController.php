@@ -21,21 +21,26 @@ class CvDesignController extends Controller
 
         $designs = DB::select("
         SELECT d.id, d.sectionOrder
-        FROM resource_profile_designs d
+        FROM  resource-profiledesign d
         JOIN resource_profile_design_categories c ON d.category_id = c.id
         WHERE c.status = 1
     ");
 
+        $flattenedDesigns = collect();
+
         foreach ($designs as $design) {
             $decoded = json_decode($design->sectionOrder, true);
 
-            if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
-                $flattened = collect($decoded)->flatten()->values()->toArray();
-                $json      = json_encode($flattened);
+            if (is_array($decoded)) {
+                if (isset($decoded[0]) && is_array($decoded[0])) {
+                    $flattened = collect($decoded)->flatten()->values()->toArray();
+                } else {
+                    $flattened = $decoded; // already flat
+                }
 
-                DB::update("UPDATE resource_profile_designs SET sectionOrder = ? WHERE id = ?", [
-                    $json,
-                    $design->id,
+                $flattenedDesigns->push([
+                    'id'           => $design->id,
+                    'sectionOrder' => $flattened,
                 ]);
             }
         }
