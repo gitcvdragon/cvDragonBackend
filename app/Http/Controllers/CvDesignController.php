@@ -39,7 +39,7 @@ class CvDesignController extends Controller
         $colors = ResourceProfilesetting::where('status', 1)->get();
         return $this->successResponse(
             [
-                'designs' => $designs,
+                'designs' => $categories,
                 'fonts'   => $fonts,
                 'colors'  => $colors,
             ],
