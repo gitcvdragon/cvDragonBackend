@@ -20,30 +20,31 @@ class CvDesignController extends Controller
         // }])->where('status', 1)->get();
 
         $designs = DB::select("
-        SELECT d.designid, d.sectionOrder
-        FROM `resource-profiledesign` d
-        JOIN resource_profile_design_categories c ON d.resource_profile_design_categorie_id = c.id
-        WHERE c.status = 1
-    ");
+SELECT d.*, c.status AS category_status
+FROM `resource-profiledesign` d
+JOIN resource_profile_design_categories c ON d.resource_profile_design_categorie_id = c.id
+WHERE c.status = 1
+");
 
         $flattenedDesigns = [];
 
         foreach ($designs as $design) {
-            $decoded = json_decode($design->sectionOrder, true);
+            $row = (array) $design; // convert stdClass to array
+
+            $decoded = json_decode($row['sectionOrder'], true);
 
             if (is_array($decoded)) {
-                // Flatten only if nested
+                // If nested arrays, flatten them
                 if (isset($decoded[0]) && is_array($decoded[0])) {
                     $flattened = collect($decoded)->flatten()->values()->toArray();
                 } else {
                     $flattened = $decoded;
                 }
 
-                $flattenedDesigns[] = [
-                    'designid'     => $design->designid,
-                    'sectionOrder' => $flattened,
-                ];
+                $row['sectionOrder'] = $flattened;
             }
+
+            $flattenedDesigns[] = $row;
         }
 
         $fonts  = ResourceProfilefont::where('status', 1)->get();
