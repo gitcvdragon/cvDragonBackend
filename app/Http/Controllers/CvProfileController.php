@@ -5,6 +5,7 @@ use App\Models\CreateCvuserprofile;
 use App\Models\CvProfileSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CvProfileController extends Controller
 {
