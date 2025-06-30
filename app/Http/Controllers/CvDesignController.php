@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\ResourceProfileDesignCategory;
 use App\Models\ResourceProfilefont;
 use App\Models\ResourceProfilesetting;
 use App\Traits\ApiResponseTrait;
@@ -19,27 +18,31 @@ class CvDesignController extends Controller
         //     });
         // }])->where('status', 1)->get();
 
-        $categories = ResourceProfileDesignCategory::with('resourceProfileDesigns')->where('status', 1)->get();
+        $designs = DB::select("
+        SELECT d.id, d.sectionOrder
+        FROM resource_profile_designs d
+        JOIN resource_profile_design_categories c ON d.category_id = c.id
+        WHERE c.status = 1
+    ");
 
-        foreach ($categories as $category) {
-            foreach ($category->resourceProfileDesigns as $design) {
-                $decoded = json_decode($design->sectionOrder, true);
+        foreach ($designs as $design) {
+            $decoded = json_decode($design->sectionOrder, true);
 
-                if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
-                    $flattened            = collect($decoded)->flatten()->values()->toArray();
-                    $design->sectionOrder = json_encode($flattened);
+            if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
+                $flattened = collect($decoded)->flatten()->values()->toArray();
+                $json      = json_encode($flattened);
 
-                    if (! empty($design->id)) {
-                        $design->save();
-                    }
-                }
+                DB::update("UPDATE resource_profile_designs SET sectionOrder = ? WHERE id = ?", [
+                    $json,
+                    $design->id,
+                ]);
             }
         }
         $fonts  = ResourceProfilefont::where('status', 1)->get();
         $colors = ResourceProfilesetting::where('status', 1)->get();
         return $this->successResponse(
             [
-                'designs' => $categories,
+                'designs' => $designs,
                 'fonts'   => $fonts,
                 'colors'  => $colors,
             ],
