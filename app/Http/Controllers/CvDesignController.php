@@ -21,7 +21,7 @@ class CvDesignController extends Controller
 
         $designs = DB::select("
         SELECT d.id, d.sectionOrder
-        FROM  resource-profiledesign d
+        FROM  `resource-profiledesign` d
         JOIN resource_profile_design_categories c ON d.category_id = c.id
         WHERE c.status = 1
     ");
