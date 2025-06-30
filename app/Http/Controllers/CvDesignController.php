@@ -19,28 +19,19 @@ class CvDesignController extends Controller
         //     });
         // }])->where('status', 1)->get();
 
-        $designs = ResourceProfileDesignCategory::with(['resourceProfileDesigns' => function ($query) {
-            $query->get()->each(function ($design) {
-                $decoded = json_decode($design->sectionOrder, true);
+        $categories = ResourceProfileDesignCategory::with('resourceProfileDesigns')->where('status', 1)->get();
+
+        foreach ($categories as $category) {
+            foreach ($category->resourceProfileDesigns as $design) {
+                $original = $design->sectionOrder;
+
+                $decoded = json_decode($original, true);
 
                 if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
-                    $flattened            = collect($decoded)->flatten()->values();
-                    $design->sectionOrder = $flattened;
-                } else {
-                    $design->sectionOrder = $decoded;
+                    $flattened            = collect($decoded)->flatten()->values()->toArray();
+                    $design->sectionOrder = json_encode($flattened);
+                    $design->save();
                 }
-            });
-        }])->where('status', 1)->get();
-        foreach ($designs as $design) {
-            $original = $design->sectionOrder;
-
-            $decoded = json_decode($original, true);
-
-            if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
-                $flattened            = collect($decoded)->flatten()->values()->toArray();
-                $design->sectionOrder = json_encode($flattened);
-
-                $design->save();
             }
         }
 
@@ -48,7 +39,7 @@ class CvDesignController extends Controller
         $colors = ResourceProfilesetting::where('status', 1)->get();
         return $this->successResponse(
             [
-                'designs' => $designs,
+                'designs' => $categories,
                 'fonts'   => $fonts,
                 'colors'  => $colors,
             ],
