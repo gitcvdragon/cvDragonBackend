@@ -31,6 +31,18 @@ class CvDesignController extends Controller
                 }
             });
         }])->where('status', 1)->get();
+        foreach ($designs as $design) {
+            $original = $design->sectionOrder;
+
+            $decoded = json_decode($original, true);
+
+            if (is_array($decoded) && isset($decoded[0]) && is_array($decoded[0])) {
+                $flattened            = collect($decoded)->flatten()->values()->toArray();
+                $design->sectionOrder = json_encode($flattened);
+
+                $design->save();
+            }
+        }
 
         $fonts  = ResourceProfilefont::where('status', 1)->get();
         $colors = ResourceProfilesetting::where('status', 1)->get();
