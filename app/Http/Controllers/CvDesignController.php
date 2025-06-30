@@ -20,7 +20,7 @@ class CvDesignController extends Controller
         // }])->where('status', 1)->get();
 
         $designs = DB::select("
-        SELECT d.id, d.sectionOrder
+        SELECT d.designid, d.sectionOrder
         FROM  `resource-profiledesign` d
         JOIN resource_profile_design_categories c ON d.category_id = c.id
         WHERE c.status = 1
@@ -39,7 +39,7 @@ class CvDesignController extends Controller
                 }
 
                 $flattenedDesigns->push([
-                    'id'           => $design->id,
+                    'id'           => $design->designid,
                     'sectionOrder' => $flattened,
                 ]);
             }
