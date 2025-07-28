@@ -5,7 +5,6 @@ use App\Http\Controllers\CvCommonController;
 use App\Http\Controllers\CvDesignController;
 use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\CvSectionController;
-use App\Http\Controllers\FallbackController;
 use App\Http\Controllers\OTPAuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
-Route::post('verify-otp', [OTPAuthController::class, 'verifyOtp']);
+Route::post('/verify-otp', [OTPAuthController::class, 'verifyOtp']);
 Route::get('/social-login', [OTPAuthController::class, 'socialLogin']);
 
 // resouce-career options
@@ -64,4 +63,4 @@ Route::post('/user-add-profile-section-data', [CvProfileController::class, 'addD
 Route::post('/user-section-order-update', [CvProfileController::class, 'updateUserProfileSectionOrderUpdate'])->middleware('auth:api');
 
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
-Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
+//Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
