@@ -504,4 +504,12 @@ class CvSectionController extends Controller
 
         ]);
     }
+
+public function groupByIndex()
+{
+    // Fetch all records from the actual table name
+    $menus = DB::table('resource-menu')->get()->groupBy('index');
+
+    return response()->json($menus);
+}
 }
