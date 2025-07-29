@@ -25,17 +25,39 @@ class CvProfileController extends Controller
         }
 
         // Extract section IDs from JSON field (assumed)
-        $profilesWithSections = $profiles->map(function ($profile) {
-            $profileData               = $profile->toArray();
-            $profileData['profile_id'] = $profile->cvid ?? null;
-            $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+        // $profilesWithSections = $profiles->map(function ($profile) {
+        //     $profileData               = $profile->toArray();
+        //     $profileData['profile_id'] = $profile->cvid ?? null;
+        //     $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
 
-            // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+        //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
-            //  $profileData['sections'] = $sections;
+        //     //  $profileData['sections'] = $sections;
 
-            return $profileData;
-        });
+        //     return $profileData;
+        // });
+
+    $profilesWithSections = $profiles->map(function ($profile) {
+        $profileData = $profile->toArray();
+        $profileData['profile_id'] = $profile->cvid ?? null;
+
+        // Decode sections and sectionOrder (ensure array format)
+        $sectionIds     = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+        $sectionOrder   = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
+
+        // Fetch actual section records
+        $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+
+        // Reorder them based on sectionOrder
+        $orderedSections = collect($sectionOrder)->map(function ($id) use ($sections) {
+            return $sections->firstWhere('id', (int) $id); // ensure ID is integer
+        })->filter(); // remove nulls if any ID not matched
+
+        $profileData['sections'] = $orderedSections->values(); // reset keys
+
+        return $profileData;
+    });
+
         return $this->successResponse(
             [
                 'profiles' => $profilesWithSections,
