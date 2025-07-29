@@ -46,12 +46,12 @@ class CvProfileController extends Controller
         $sectionOrder   = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
 
         // Fetch actual section records
-        $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+        // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
         // Reorder them based on sectionOrder
-        $orderedSections = collect($sectionOrder)->map(function ($id) use ($sections) {
-            return $sections->firstWhere('id', (int) $id); // ensure ID is integer
-        })->filter(); // remove nulls if any ID not matched
+        // $orderedSections = collect($sectionOrder)->map(function ($id) use ($sections) {
+        //     return $sections->firstWhere('id', (int) $id); // ensure ID is integer
+        // })->filter(); // remove nulls if any ID not matched
 
         $profileData['sections'] = $orderedSections->values(); // reset keys
 
