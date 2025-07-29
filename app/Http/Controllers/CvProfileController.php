@@ -37,18 +37,26 @@ class CvProfileController extends Controller
         //     return $profileData;
         // });
 
-    $profilesWithSections = $profiles->map(function ($profile) {
-        $profileData = $profile->toArray();
-        $profileData['profile_id'] = $profile->cvid ?? null;
+        $profilesWithSections = $profiles->map(function ($profile) {
+            $profileData = $profile->toArray();
+            $profileData['profile_id'] = $profile->cvid ?? null;
 
-        // Decode sections and sectionOrder (ensure array format)
-        $sectionIds     = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
-        $sectionOrder   = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
+            // Decode and fallback to empty array if null or invalid
+            $sectionIds = is_array($profile->sections)
+                ? $profile->sections
+                : (json_decode($profile->sections, true) ?? []);
 
+            $sectionOrder = is_array($profile->sectionOrder)
+                ? $profile->sectionOrder
+                : (json_decode($profile->sectionOrder, true) ?? []);
 
+            // OPTIONAL: attach decoded arrays to see the result
+            $profileData['decoded_sections'] = $sectionIds;
+            $profileData['decoded_sectionOrder'] = $sectionOrder;
 
-        return $profileData;
-    });
+            return $profileData;
+        });
+
 
         return $this->successResponse(
             [
