@@ -39,7 +39,7 @@ Route::post('/user-name-gender-update', [UserController::class, 'updateNameAndGe
 Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileImage'])->middleware('auth:api');
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
 Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails']);
-Route::post('/user-sections-details-add', [CvSectionController::class, 'getUserSectionDetailsAdd']);
+Route::post('/user-sections-details-add', [CvSectionController::class, 'addData']);
 Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate']);
 Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete']);
 Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete']);
