@@ -41,21 +41,24 @@ class CvProfileController extends Controller
             $profileData = $profile->toArray();
             $profileData['profile_id'] = $profile->cvid ?? null;
 
-            // Decode and fallback to empty array if null or invalid
-            $sectionIds = is_array($profile->sections)
-                ? $profile->sections
-                : (json_decode($profile->sections, true) ?? []);
+            // Decode sections and order
+            $sectionIds    = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true) ?? [];
+            $sectionOrder  = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true) ?? [];
 
-            $sectionOrder = is_array($profile->sectionOrder)
-                ? $profile->sectionOrder
-                : (json_decode($profile->sectionOrder, true) ?? []);
+            // Fetch section content (example: from a `ResourceSection` model)
+            $sections = ResourceSection::whereIn('id', $sectionIds)->get()->keyBy('id');
 
-            // OPTIONAL: attach decoded arrays to see the result
-            $profileData['decoded_sections'] = $sectionIds;
-            $profileData['decoded_sectionOrder'] = $sectionOrder;
+            // Reorder them based on `sectionOrder`
+            $orderedSections = collect($sectionOrder)->map(function ($id) use ($sections) {
+                return $sections[$id] ?? null;
+            })->filter(); // remove nulls
+
+            // Set the reordered sections in the profile
+            $profileData['sections'] = $orderedSections->values();
 
             return $profileData;
         });
+
 
 
         return $this->successResponse(
