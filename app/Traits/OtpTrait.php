@@ -8,7 +8,7 @@ trait OtpTrait
 {
     protected function generateAndStoreOtp($identifier)
     {
-        // Step 1: Generate the OTP
+
         // $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         $otp = 123456;
         // Step 2: Handle phone number formatting (if it's an Indian phone number)
@@ -16,7 +16,6 @@ trait OtpTrait
             $identifier = preg_replace('/^(\+91|91)/', '', $identifier); // strip country code
         }
 
-        // Step 3: Store OTP in the database with expiry time
         DB::table('user_otps')->updateOrInsert(
             ['identifier' => $identifier],
             [
