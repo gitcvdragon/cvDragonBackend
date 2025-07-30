@@ -57,7 +57,7 @@ class CvProfileController extends Controller
             'profileName' => $request->profileName,
         ]);
 
-        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->cvid)->where('status', 1)->get();
+        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->id)->where('status', 1)->get();
 
         if ($profiles->isEmpty()) {
             return $this->successResponse(
@@ -68,23 +68,27 @@ class CvProfileController extends Controller
             );
         }
 
+        // Extract section IDs from JSON field (assumed)
         $profilesWithSections = $profiles->map(function ($profile) {
-            $profileData               = $profile->toArray();
+          $profileData               = $profile->toArray();
             $profileData['profile_id'] = $profile->cvid ?? null;
-            $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+          $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+   $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
+        //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
-            // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+        //     //  $profileData['sections'] = $sections;
 
-            //  $profileData['sections'] = $sections;
+           return $profileData;
+         });
 
-            return $profileData;
-        });
+
+
 
         return $this->successResponse(
             [
-                'profile' => $profiles,
+                'profiles' => $profilesWithSections,
             ],
-            'Profile Created Successfully!!',
+            'All Profiles Fetched!!',
         );
     }
 
