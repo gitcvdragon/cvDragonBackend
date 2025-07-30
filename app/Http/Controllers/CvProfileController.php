@@ -57,7 +57,12 @@ class CvProfileController extends Controller
             'profileName' => $request->profileName,
         ]);
 
-        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->id)->where('status', 1)->get();
+        // $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->id)->where('status', 1)->get();
+        $profile = new CreateCvuserprofile();
+        $profile->profileName = $request->profileName;
+        $profile->save();
+
+        $profileId = $profile->id;
 
         if ($profiles->isEmpty()) {
             return $this->successResponse(
