@@ -15,6 +15,8 @@ trait ApiResponseTrait
     public function successResponse($data = null, $message, $statusCode = 200)
     {
         return response()->json([
+            'status'        => 'success',
+
             'success' => true,
             'message' => $message,
             'data' => $data,
@@ -36,6 +38,8 @@ trait ApiResponseTrait
     public function errorResponse($message = 'An error occurred', $statusCode = 500, $errors = null)
     {
         return response()->json([
+            'status'        => 'error',
+
             'success' => false,
             'message' => $message,
             'errors' => $errors,
@@ -57,6 +61,8 @@ trait ApiResponseTrait
     public function validationErrorResponse($errors, $message, $statusCode = 422)
     {
         return response()->json([
+            'status'        => 'error',
+
             'success' => false,
             'message' => $message,
             'errors' => $errors,

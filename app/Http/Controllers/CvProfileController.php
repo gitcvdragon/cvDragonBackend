@@ -25,39 +25,18 @@ class CvProfileController extends Controller
         }
 
         // Extract section IDs from JSON field (assumed)
-        // $profilesWithSections = $profiles->map(function ($profile) {
-        //     $profileData               = $profile->toArray();
-        //     $profileData['profile_id'] = $profile->cvid ?? null;
-        //     $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
-
+        $profilesWithSections = $profiles->map(function ($profile) {
+          $profileData               = $profile->toArray();
+            $profileData['profile_id'] = $profile->cvid ?? null;
+          $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+   $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
         //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
         //     //  $profileData['sections'] = $sections;
 
-        //     return $profileData;
-        // });
+           return $profileData;
+         });
 
-        $profilesWithSections = $profiles->map(function ($profile) {
-            $profileData = $profile->toArray();
-            $profileData['profile_id'] = $profile->cvid ?? null;
-
-            // Decode sections and order
-            $sectionIds    = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true) ?? [];
-            $sectionOrder  = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true) ?? [];
-
-            // Fetch section content (example: from a `ResourceSection` model)
-            $sections = ResourceSection::whereIn('id', $sectionIds)->get()->keyBy('id');
-
-            // Reorder them based on `sectionOrder`
-            $orderedSections = collect($sectionOrder)->map(function ($id) use ($sections) {
-                return $sections[$id] ?? null;
-            })->filter(); // remove nulls
-
-            // Set the reordered sections in the profile
-            $profileData['sections'] = $orderedSections->values();
-
-            return $profileData;
-        });
 
 
 
@@ -147,50 +126,50 @@ class CvProfileController extends Controller
         );
     }
 
-    public function updateUserProfileSectionOrderUpdate(Request $request)
-    {
-        $validatedData = $request->validate([
-            'sectionOrder' => 'nullable|array',
-        ]);
+  public function updateUserProfileSectionOrderUpdate(Request $request)
+{
+    $validatedData = $request->validate([
+        'sectionOrder' => 'nullable|array',
+    ]);
 
-        $userId = $request->user()->id;
+    $userId = $request->user()->id;
 
-        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
+    $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
 
-        if (! $profile) {
-            return $this->errorResponse('Profile not found.', 404);
-        }
-
-        $sectionOrder = $request->sectionOrder;
-        if (is_array($sectionOrder)) {
-            $sectionOrder = json_encode($sectionOrder);
-        }
-
-        $profile->update([
-            'sectionOrder' => $sectionOrder,
-        ]);
-
-        return $this->successResponse(
-            [
-                'profile' => [
-                    'cvid'           => $profile->cvid,
-                    'id'             => $profile->id,
-                    'profileName'    => $profile->profileName,
-                    'sections'       => $profile->sections,
-                    'sectionOrder'   => json_decode($profile->sectionOrder, true),
-                    'design'         => $profile->design,
-                    'font'           => $profile->font,
-                    'setting'        => $profile->setting,
-                    'isPublic'       => $profile->isPublic,
-                    'progressReport' => $profile->progressReport,
-                    'dateUpdated'    => $profile->dateUpdated,
-                    'status'         => $profile->status,
-                ],
-            ],
-            'Section Order Updated Successfully!!'
-        );
-
+    if (! $profile) {
+        return $this->errorResponse('Profile not found.', 404);
     }
+
+  $sectionOrder = collect($request->sectionOrder)
+    ->map(fn($id) => (string) $id)
+    ->unique()
+    ->values()
+    ->toArray();
+
+$profile->sectionOrder = $sectionOrder;
+$profile->save();
+
+
+    return $this->successResponse(
+        [
+            'profile' => [
+                'cvid'           => $profile->cvid,
+                'id'             => $profile->id,
+                'profileName'    => $profile->profileName,
+                'sections'       => $profile->sections,
+                'sectionOrder'   => $sectionOrder, // Already parsed
+                'design'         => $profile->design,
+                'font'           => $profile->font,
+                'setting'        => $profile->setting,
+                'isPublic'       => $profile->isPublic,
+                'progressReport' => $profile->progressReport,
+                'dateUpdated'    => $profile->dateUpdated,
+                'status'         => $profile->status,
+            ],
+        ],
+        'Section Order Updated Successfully!!'
+    );
+}
 
     public function deleteUserProfile(Request $request)
     {
