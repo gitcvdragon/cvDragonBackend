@@ -10,7 +10,50 @@ use Illuminate\Support\Facades\DB;
 class CvProfileController extends Controller
 {
     use ApiResponseTrait;
+
     public function getUserProfile(Request $request)
+{
+    $userId = $request->id;
+
+    // Fetch user profile(s) with associated cvProfileSection
+    $profiles = CreateCvuserprofile::with('cvProfileSection')
+        ->where('id', $userId)
+        ->where('status', 1)
+        ->get();
+
+    // If no profiles found, return a success response with null
+    if ($profiles->isEmpty()) {
+        return $this->successResponse(
+            ['profiles' => null],
+            'No Profiles Fetched!!'
+        );
+    }
+
+    // Transform each profile
+    $profilesWithSections = $profiles->map(function ($profile) {
+        $profileData = $profile->toArray();
+
+        $profileData['profile_id'] = $profile->cvid ?? null;
+
+        // Decode JSON fields if they’re not already arrays
+        $profileData['sections'] = is_array($profile->sections)
+            ? $profile->sections
+            : json_decode($profile->sections, true);
+
+        $profileData['sectionOrder'] = is_array($profile->sectionOrder)
+            ? $profile->sectionOrder
+            : json_decode($profile->sectionOrder, true);
+
+        return $profileData;
+    });
+
+    return $this->successResponse(
+        ['profiles' => $profilesWithSections],
+        'All Profiles Fetched!!'
+    );
+}
+
+    public function getUserProfilee(Request $request)
     {
         $userId   = $request->id;
         $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('status', 1)->get();
@@ -52,50 +95,43 @@ class CvProfileController extends Controller
     {
         $userId = auth()->user()->id;
 
+
         $profile = CreateCvuserprofile::create([
             'id'          => $userId,
             'profileName' => $request->profileName,
         ]);
 
-        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('cvid', $profile->cvid)->where('status', 1)->get();
-        // $profile = new CreateCvuserprofile();
-        // $profile->profileName = $request->profileName;
-        // $profile->save();
+        // Retrieve the created profile with related sections
+        $profileWithRelations = CreateCvuserprofile::with('cvProfileSection')
+            ->where('id', $userId)
+            ->where('cvid', $profile->cvid)
+            ->where('status', 1)
+            ->first();
 
-        // $profileId = $profile->id;
-
-        if ($profiles->isEmpty()) {
+        if (!$profileWithRelations) {
             return $this->successResponse(
-                [
-                    'profiles' => null,
-                ],
-                'No Profiles Fetched!!',
+                ['profiles' => null],
+                'No Profiles Fetched!!'
             );
         }
 
-        // Extract section IDs from JSON field (assumed)
-        $profilesWithSections = $profiles->map(function ($profile) {
-          $profileData               = $profile->toArray();
-            $profileData['profile_id'] = $profile->cvid ?? null;
-          $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
-         $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
-        //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
+        // Process the profile
+        $profileData = $profileWithRelations->toArray();
+        $profileData['profile_id'] = $profileWithRelations->cvid ?? null;
+        $profileData['sections'] = is_array($profileWithRelations->sections)
+            ? $profileWithRelations->sections
+            : json_decode($profileWithRelations->sections, true);
 
-        //     //  $profileData['sections'] = $sections;
-
-           return $profileData;
-         });
-
-
-
+        $profileData['sectionOrder'] = is_array($profileWithRelations->sectionOrder)
+            ? $profileWithRelations->sectionOrder
+            : json_decode($profileWithRelations->sectionOrder, true);
 
         return $this->successResponse(
-            [
-                'profiles' => $profilesWithSections,
-            ],
-            'All Profiles Fetched!!',
+            ['profiles' => $profileData],
+            'Profile Created and Fetched Successfully!'
         );
     }
+
 
     public function updateUserProfile(Request $request)
     {
