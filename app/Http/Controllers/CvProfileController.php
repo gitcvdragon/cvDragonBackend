@@ -95,7 +95,7 @@ class CvProfileController extends Controller
         ]);
 
         $userId  = $request->user()->id;
-        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
+        $profile = CreateCvuserprofile::where('id', $userId)->where('cvid', $request->profile_id)->where('status', 1)->first();
 
         if (! $profile) {
             return $this->errorResponse('Profile not found.', 404);
