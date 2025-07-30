@@ -112,7 +112,7 @@ class CvProfileController extends Controller
                     'id'             => $profile->id,
                     'profileName'    => $profile->profileName,
                     'sections'       => $profile->sections,
-                    'sectionOrder'   => json_decode($profile->sectionOrder, true),
+                    'sectionOrder'   => $profile->sectionOrder,
                     'design'         => $profile->design,
                     'font'           => $profile->font,
                     'setting'        => $profile->setting,
