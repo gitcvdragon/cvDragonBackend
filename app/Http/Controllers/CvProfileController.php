@@ -72,7 +72,7 @@ class CvProfileController extends Controller
           $profileData               = $profile->toArray();
             $profileData['profile_id'] = $profile->cvid ?? null;
           $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
-   $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
+        $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
         //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
         //     //  $profileData['sections'] = $sections;
@@ -220,7 +220,7 @@ $profile->save();
     public function deleteUserProfile(Request $request)
     {
         $userId  = $request->user()->id;
-        $profile = CreateCvuserprofile::where('id', $userId)->where('status', 1)->first();
+        $profile = CreateCvuserprofile::where('id', $userId)->where('cvid', $request->profile_id)->where('status', 1)->first();
 
         if (! $profile) {
             return $this->errorResponse('Profile not found.', 404);
