@@ -151,22 +151,22 @@ $profile->save();
 
 
     return $this->successResponse(
-        [
-            'profile' => [
-                'cvid'           => $profile->cvid,
-                'id'             => $profile->id,
-                'profileName'    => $profile->profileName,
-                'sections'       => $profile->sections,
-                'sectionOrder'   => $sectionOrder, // Already parsed
-                'design'         => $profile->design,
-                'font'           => $profile->font,
-                'setting'        => $profile->setting,
-                'isPublic'       => $profile->isPublic,
-                'progressReport' => $profile->progressReport,
-                'dateUpdated'    => $profile->dateUpdated,
-                'status'         => $profile->status,
-            ],
-        ],
+        // [
+        //     'profile' => [
+        //         'cvid'           => $profile->cvid,
+        //         'id'             => $profile->id,
+        //         'profileName'    => $profile->profileName,
+        //         'sections'       => $profile->sections,
+        //         'sectionOrder'   => $sectionOrder, // Already parsed
+        //         'design'         => $profile->design,
+        //         'font'           => $profile->font,
+        //         'setting'        => $profile->setting,
+        //         'isPublic'       => $profile->isPublic,
+        //         'progressReport' => $profile->progressReport,
+        //         'dateUpdated'    => $profile->dateUpdated,
+        //         'status'         => $profile->status,
+        //     ],
+        // ],
         'Section Order Updated Successfully!!'
     );
 }
