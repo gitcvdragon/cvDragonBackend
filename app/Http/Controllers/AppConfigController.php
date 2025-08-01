@@ -57,9 +57,15 @@ class AppConfigController extends Controller
     public function getActiveConfigs(Request $request)
     {
         try {
-            $configs = DB::table('cvdragonappconfignew')
+            $rawConfigs = DB::table('cvdragonappconfignew')
                 ->where('status', 1)
                 ->get();
+
+            $configs = $rawConfigs->map(function ($config) {
+                $decodedParam = json_decode($config->parameter, true);
+                $config->parameter = $decodedParam ?: $config->parameter;
+                return $config;
+            });
 
             return $this->successResponse(
                 ['data' => $configs],
@@ -70,5 +76,6 @@ class AppConfigController extends Controller
             return $this->errorResponse('Changes are done already!!!', 500);
         }
     }
+
 
 }
