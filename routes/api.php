@@ -44,7 +44,8 @@ Route::post('/user-sections-details-add', [CvSectionController::class, 'addData'
 Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate']);
 Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete']);
 Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete']);
-Route::post('/get-config', [AppConfigController::class, 'getConfig']);
+// Route::post('/get-config', [AppConfigController::class, 'getConfig']);
+Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs']);
 
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);

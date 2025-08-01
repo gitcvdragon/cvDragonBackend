@@ -53,4 +53,22 @@ class AppConfigController extends Controller
     {
         return DB::table('users')->where('id', $id)->where('authkey', $authkey)->exists();
     }
+
+    public function getActiveConfigs(Request $request)
+    {
+        try {
+            $configs = DB::table('cvdragonappconfignew')
+                ->where('sendData', 1)
+                ->get();
+
+            return $this->successResponse(
+                ['data' => $configs],
+                'All Data Fetched!!'
+            );
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('Changes are done already!!!', 500);
+        }
+    }
+
 }
