@@ -58,7 +58,7 @@ class AppConfigController extends Controller
     {
         try {
             $configs = DB::table('cvdragonappconfignew')
-                ->where('sendData', 1)
+                ->where('status', 1)
                 ->get();
 
             return $this->successResponse(
