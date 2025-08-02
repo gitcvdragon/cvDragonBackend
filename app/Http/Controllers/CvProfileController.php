@@ -93,13 +93,27 @@ class CvProfileController extends Controller
 
     public function addUserProfile(Request $request)
     {
-        $userId = auth()->user()->id;
+     $userId = auth()->user()->id;
 
+$defaultSections = DB::table('resource-section')
+    ->where('status', 1)
+    ->orderBy('orderSection')
+    ->get()
+    ->map(function ($section) {
+        // Convert id to string if slug is alphanumeric (example rule)
+        if (preg_match('/[a-zA-Z]/', $section->id)) {
+            return (string) $section->id;
+        }
+        return (int) $section->id;
+    })
+    ->toArray();
 
-        $profile = CreateCvuserprofile::create([
-            'id'          => $userId,
-            'profileName' => $request->profileName,
-        ]);
+$profile = CreateCvuserprofile::create([
+    'id'           => $userId,
+    'profileName'  => $request->profileName,
+    'sections'     => json_encode($defaultSections),
+    'sectionOrder' => json_encode($defaultSections),
+]);
 
         // Retrieve the created profile with related sections
         $profileWithRelations = CreateCvuserprofile::with('cvProfileSection')

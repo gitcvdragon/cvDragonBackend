@@ -504,12 +504,34 @@ class CvSectionController extends Controller
 
         ]);
     }
+    public function groupByIndex()
+    {
 
-public function groupByIndex()
-{
-    // Fetch all records from the actual table name
-    $menus = DB::table('resource-menu')->get()->groupBy('index');
+        $items = DB::table('resource-menu')
+            ->where('status', 1)
+            ->orderBy('orderMenu')
+            ->get();
 
-    return response()->json($menus);
-}
+
+        $menuMap = [];
+        foreach ($items as $item) {
+            $item->Submenu = [];
+            $menuMap[$item->content] = $item;
+        }
+        $tree = [];
+        foreach ($items as $item) {
+            if (isset($menuMap[$item->index])) {
+
+                $menuMap[$item->index]->Submenu[] = $item;
+            } else {
+
+                $tree[] = $item;
+            }
+        }
+
+        $groupedTree = collect($tree)->groupBy('index');
+
+        return response()->json($groupedTree);
+    }
+
 }
