@@ -115,7 +115,10 @@ class CvSectionController extends Controller
             ->get();
 
         if ($sections->isEmpty()) {
-            return $this->errorResponse('No active sections found for this user.', 404);
+            return response()->json([
+                'status'   => 'No active sections found for this user.',
+            ]);
+            // return $this->errorResponse('No active sections found for this user.', 404);
         }
 
         $sectionResults    = [];
