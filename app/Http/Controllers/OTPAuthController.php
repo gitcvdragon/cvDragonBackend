@@ -41,8 +41,6 @@ class OTPAuthController extends Controller
         return $this->successResponse(['otp' => $otp], 'Your One time OTP sent successfully!!  Please use it within 5 minutes.');
     }
 
-
-
     public function verifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [

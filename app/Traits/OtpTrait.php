@@ -12,9 +12,9 @@ trait OtpTrait
         // $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         $otp = 123456;
         // Step 2: Handle phone number formatting (if it's an Indian phone number)
-        if (preg_match('/^(\+91|91)?[6-9]\d{9}$/', $identifier)) {
-            $identifier = preg_replace('/^(\+91|91)/', '', $identifier); // strip country code
-        }
+        // if (preg_match('/^(\+91|91)?[6-9]\d{9}$/', $identifier)) {
+        //     $identifier = preg_replace('/^(\+91|91)/', '', $identifier);
+        // }
 
         DB::table('user_otps')->updateOrInsert(
             ['identifier' => $identifier],
