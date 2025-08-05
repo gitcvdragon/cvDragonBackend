@@ -21,7 +21,7 @@ class HelpController extends Controller
             'status' => 'success',
             'help-videos' => DB::table('help-videos')->where('status', 1)->get(),
             'help-faq' => DB::table('help-faq')->where('status', 1)->get(),
-            'notifications' => DB::table('notifications')->select('notificationID', 'displayImage')->where('status', 1)->get()
+            'notifications' => DB::table('notifications')->select('id', 'displayImage')->where('status', 1)->get()
         ]);
     }
 }
