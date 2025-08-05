@@ -26,26 +26,27 @@ JOIN resource_profile_design_categories c ON d.categoryid = c.id
 WHERE c.status = 1
 ");
 
-        $flattenedDesigns = [];
 
-        foreach ($designs as $design) {
-            $row = (array) $design; // convert stdClass to array
+$flattenedDesigns = [];
 
-            $decoded = json_decode($row['sectionOrder'], true);
+foreach ($designs as $design) {
+    $row = (array) $design;
 
-            if (is_array($decoded)) {
-                // If nested arrays, flatten them
-                if (isset($decoded[0]) && is_array($decoded[0])) {
-                    $flattened = collect($decoded)->flatten()->values()->toArray();
-                } else {
-                    $flattened = $decoded;
-                }
+    $decoded = json_decode($row['sectionOrder'], true);
 
-                $row['sectionOrder'] = $flattened;
-            }
-
-            $flattenedDesigns[] = $row;
+    if (is_array($decoded)) {
+        if (isset($decoded[0]) && is_array($decoded[0])) {
+            $flattened = collect($decoded)->flatten()->values()->toArray();
+        } else {
+            $flattened = $decoded;
         }
+
+        $row['sectionOrder'] = $flattened;
+    }
+
+    $flattenedDesigns[] = $row;
+}
+
 
         $fonts  = ResourceProfilefont::where('status', 1)->get();
         $colors = ResourceProfilesetting::where('status', 1)->get();
