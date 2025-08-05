@@ -12,7 +12,7 @@ class FeedController extends Controller
 public function getFeedList()
 {
     $feeds = DB::table('kc-feed as kf')
-        ->join('feed_main as fm', 'kf.postType', '=', 'fm.feedID')
+        ->join('kc-feed-main as fm', 'kf.postType', '=', 'fm.feedID')
         ->select(
             'kf.feedID',
             'kf.postID',
