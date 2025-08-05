@@ -13,7 +13,9 @@ class CvProfileController extends Controller
 
     public function getUserProfile(Request $request)
 {
-    $userId = $request->id;
+    // $userId = $request->id;
+    $userId = auth()->user()->id;
+
 
     // Fetch user profile(s) with associated cvProfileSection
     $profiles = CreateCvuserprofile::with('cvProfileSection')
@@ -55,7 +57,9 @@ class CvProfileController extends Controller
 
     public function getUserProfilee(Request $request)
     {
-        $userId   = $request->id;
+        // $userId   = $request->id;
+    $userId = auth()->user()->id;
+
         $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('status', 1)->get();
 
         if ($profiles->isEmpty()) {
@@ -267,7 +271,9 @@ $profile->save();
         $recordId   = $request->input('record_id');
         $profile_id = $request->input('profile_id');
         $section_id = $request->input('section_id');
-        $user_id    = $request->input('user_id');
+        // $user_id    = $request->input('user_id');
+    $user_id = auth()->user()->id;
+
 
         if (! $recordId || ! $profile_id || ! $section_id || ! $user_id) {
             return $this->errorResponse('Missing parameters', 400);

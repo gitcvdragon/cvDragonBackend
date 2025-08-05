@@ -102,7 +102,8 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetails(Request $request)
     {
-        $user_id = $request->input('user_id');
+        // $user_id = $request->input('user_id');
+        $user_id = auth()->user()->id;
 
         if (! $user_id) {
             return $this->errorResponse('Missing user_id parameter', 400);
@@ -178,7 +179,9 @@ class CvSectionController extends Controller
 
     public function addData(Request $request)
     {
-        $user_id    = $request->input('user_id');
+        // $user_id    = $request->input('user_id');
+    $user_id = auth()->user()->id;
+
         $section_id = $request->input('section_id');
         $profile_id = $request->input('profile_id');
 
@@ -283,7 +286,9 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsUpdate(Request $request)
     {
-        $user_id       = $request->input('user_id');
+        // $user_id       = $request->input('user_id');
+    $user_id = auth()->user()->id;
+
         $section_id    = $request->input('section_id');
         $subSection_id = $request->input('subSection_id');
         $refID         = $request->input('refID');
@@ -353,7 +358,9 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsSoftDelete(Request $request)
     {
-        $user_id    = $request->input('user_id');
+        // $user_id    = $request->input('user_id');
+    $user_id = auth()->user()->id;
+
         $profile_id = $request->input('profile_id');
         $section_id = $request->input('section_id');
 
@@ -428,7 +435,9 @@ class CvSectionController extends Controller
 
     public function getUserSectionDetailsHardDelete(Request $request)
     {
-        $user_id    = $request->input('user_id');
+        // $user_id    = $request->input('user_id');
+    $user_id = auth()->user()->id;
+
         $profile_id = $request->input('profile_id');
         $section_id = $request->input('section_id');
 
