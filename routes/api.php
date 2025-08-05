@@ -39,11 +39,11 @@ Route::get('/getSkillsBySpecialization', [CvCommonController::class, 'getSkillsB
 Route::post('/user-name-gender-update', [UserController::class, 'updateNameAndGender'])->middleware('auth:api');
 Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileImage'])->middleware('auth:api');
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
-Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails']);
-Route::post('/user-sections-details-add', [CvSectionController::class, 'addData']);
-Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate']);
-Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete']);
-Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete']);
+Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails'])->middleware('auth:api');
+Route::post('/user-sections-details-add', [CvSectionController::class, 'addData'])->middleware('auth:api');
+Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate'])->middleware('auth:api');
+Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete'])->middleware('auth:api');
+Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete'])->middleware('auth:api');
 // Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs']);
 
@@ -57,7 +57,7 @@ Route::get('/cv-setting', [CvDesignController::class, 'allCvDesgin']);
 // Route::get('/profile-colors', [CvDesignController::class, 'allProfileColors']);
 
 //Profile Design        000
-Route::post('/user-profile', [CvProfileController::class, 'getUserProfile']);
+Route::post('/user-profile', [CvProfileController::class, 'getUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-add', [CvProfileController::class, 'addUserProfile'])->middleware('auth:api');
 Route::post('/user-profile-update', [CvProfileController::class, 'updateUserProfile'])->middleware('auth:api');
 Route::post('/user-add-profile-section-data', [CvProfileController::class, 'addData'])->middleware('auth:api');
