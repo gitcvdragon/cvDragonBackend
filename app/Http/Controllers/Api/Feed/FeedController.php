@@ -53,12 +53,8 @@ public function getFeedList()
 
             return $feed;
         });
+        return response()->json($feeds);
 
-    return $this->successResponse(
-        [
-            'feed' => $feeds
-        ],
-        'feed fetched successfully!'
-    );
+
 }
 }
