@@ -13,5 +13,5 @@ Route::get('/help', [HelpController::class, 'allHelp']);
 
 Route::post('/chat/add', [ChatController::class, 'addChat']);
 Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);
-Route::post('/feeds', [FeedController::class, 'userChatIndividual']);
+Route::get('/feeds', [FeedController::class, 'getFeedList']);
 
