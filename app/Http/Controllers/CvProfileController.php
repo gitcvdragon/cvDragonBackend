@@ -92,59 +92,66 @@ class CvProfileController extends Controller
     }
 
     public function addUserProfile(Request $request)
-    {
-     $userId = auth()->user()->id;
+{
+    $userId = auth()->user()->id;
 
-$defaultSections = DB::table('resource-section')
-    ->where('status', 1)
-    ->orderBy('orderSection')
-    ->get()
-    ->map(function ($section) {
-        // Convert id to string if slug is alphanumeric (example rule)
-        if (preg_match('/[a-zA-Z]/', $section->id)) {
-            return (string) $section->id;
-        }
-        return (int) $section->id;
-    })
-    ->toArray();
+    $defaultSections = DB::table('resource-section')
+        ->where('status', 1)
+        ->orderBy('orderSection')
+        ->pluck('id')
+        ->map(function ($id) {
+            return preg_match('/[a-zA-Z]/', $id) ? (string) $id : (int) $id;
+        })
+        ->toArray();
 
-$profile = CreateCvuserprofile::create([
-    'id'           => $userId,
-    'profileName'  => $request->profileName,
-    'sections'     => json_encode($defaultSections),
-    'sectionOrder' => json_encode($defaultSections),
-]);
+    $profile = CreateCvuserprofile::create([
+        'id'           => $userId,
+        'profileName'  => $request->profileName,
+        'sections'     => json_encode($defaultSections),
+        'sectionOrder' => json_encode($defaultSections),
+    ]);
 
-        // Retrieve the created profile with related sections
-        $profileWithRelations = CreateCvuserprofile::with('cvProfileSection')
-            ->where('id', $userId)
-            ->where('cvid', $profile->cvid)
-            ->where('status', 1)
-            ->first();
+    $profileWithRelations = CreateCvuserprofile::with('cvProfileSection')
+        ->where('id', $userId)
+        ->where('cvid', $profile->cvid)
+        ->where('status', 1)
+        ->first();
 
-        if (!$profileWithRelations) {
-            return $this->successResponse(
-                ['profiles' => null],
-                'No Profiles Fetched!!'
-            );
-        }
-
-        // Process the profile
-        $profileData = $profileWithRelations->toArray();
-        $profileData['profile_id'] = $profileWithRelations->cvid ?? null;
-        $profileData['sections'] = is_array($profileWithRelations->sections)
-            ? $profileWithRelations->sections
-            : json_decode($profileWithRelations->sections, true);
-
-        $profileData['sectionOrder'] = is_array($profileWithRelations->sectionOrder)
-            ? $profileWithRelations->sectionOrder
-            : json_decode($profileWithRelations->sectionOrder, true);
-
-        return $this->successResponse(
-            ['profiles' => $profileData],
-            'Profile Created and Fetched Successfully!'
-        );
+    if (!$profileWithRelations) {
+        return $this->successResponse(['profiles' => null], 'No Profiles Fetched!!');
     }
+
+    $profileData = $profileWithRelations->toArray();
+    $profileData['profile_id'] = $profileWithRelations->cvid ?? null;
+    $profileData['sections'] = is_array($profileWithRelations->sections)
+        ? $profileWithRelations->sections
+        : json_decode($profileWithRelations->sections, true);
+
+    $profileData['sectionOrder'] = is_array($profileWithRelations->sectionOrder)
+        ? $profileWithRelations->sectionOrder
+        : json_decode($profileWithRelations->sectionOrder, true);
+
+    $sections = DB::table('resource-section')
+        ->where('status', 1)
+        ->orderBy('orderSection')
+        ->get();
+
+    $cvProfileSection = $sections->map(function ($section) use ($profile) {
+        return [
+            'cvid'       => $profile->cvid,
+            'section'    => (int) $section->id,
+            'subsection' => [],
+            'showName'   => $section->sectionName,
+        ];
+    })->toArray();
+
+    $profileData['cv_profile_section'] = $cvProfileSection;
+
+    return $this->successResponse(
+        ['profiles' => $profileData],
+        'Profile Created and Fetched Successfully!'
+    );
+}
 
 
     public function updateUserProfile(Request $request)
