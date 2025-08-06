@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Help\HelpController;
 use App\Http\Controllers\Api\Menu\MenuController;
 use App\Http\Controllers\Api\Menu\ChatController;
 use App\Http\Controllers\Api\Feed\FeedController;
+use App\Http\Controllers\Api\website\HomeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -14,4 +15,5 @@ Route::get('/help', [HelpController::class, 'allHelp']);
 Route::post('/chat/add', [ChatController::class, 'addChat']);
 Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);
 Route::get('/feeds', [FeedController::class, 'getFeedList']);
+Route::get('/home', [HomeController::class, 'fetchMarketingResources']);
 
