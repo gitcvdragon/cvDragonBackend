@@ -78,8 +78,9 @@ class HomeController extends Controller
                 ->get();
 
                 $designs = DB::table('resource-profiledesign')
+                ->select('design_image')
         ->where('status', 1)
-        ->orderBy('lastUpdated', 'desc')
+        ->orderBy('downloadTimes', 'desc')
         ->limit(20)
         ->get();
             return $this->successResponse([
