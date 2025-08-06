@@ -11,7 +11,7 @@ use App\Traits\ApiResponseTrait;
 class HomeController extends Controller
 {
 
-
+    use ApiResponseTrait;
     public function fetchMarketingResources(Request $request)
     {
         try {
