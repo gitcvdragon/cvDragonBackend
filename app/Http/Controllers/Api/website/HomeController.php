@@ -89,7 +89,7 @@ class HomeController extends Controller
                 'institutes' => $institutes,
                 'tutorials'    => $tutorials,
                 'faqs'         => $faqs,
-                'faqs'         => $designs,
+                'designs'         => $designs,
             ], 'All Data Fetched!!');
 
         } catch (\Exception $e) {
