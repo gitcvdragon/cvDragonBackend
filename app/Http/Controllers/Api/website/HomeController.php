@@ -76,6 +76,12 @@ class HomeController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(6)
                 ->get();
+
+                $designs = DB::table('resource-profiledesign')
+        ->where('status', 1)
+        ->orderBy('lastUpdated', 'desc')
+        ->limit(20)
+        ->get();
             return $this->successResponse([
                 'category' => $category,
                 'testimonials' => $testimonials,
@@ -83,6 +89,7 @@ class HomeController extends Controller
                 'institutes' => $institutes,
                 'tutorials'    => $tutorials,
                 'faqs'         => $faqs,
+                'faqs'         => $designs,
             ], 'All Data Fetched!!');
 
         } catch (\Exception $e) {
