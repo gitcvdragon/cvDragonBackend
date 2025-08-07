@@ -12,7 +12,7 @@ class FeedController extends Controller
 {
     use ApiResponseTrait;
 
-    public function getPublicFeedList()
+    public function getFeedList()
     {
         try {
             $allFeeds = DB::table('kc-feed as kf')
