@@ -48,7 +48,7 @@ public function getFeedList()
     ->where('fm.isFeed', 1)
     ->orderByDesc('kf.postID')
     ->get()
-    ->map(function ($feed) {
+    ->map(function ($guidesala) {
         $guidesala->images = ($guidesala->postMultipleImage == 1)
             ? DB::table('kc-feed-gallery')
                 ->where('feedID', $guidesala->feedID)
