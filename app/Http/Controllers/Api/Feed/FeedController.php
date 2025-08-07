@@ -12,63 +12,60 @@ class FeedController extends Controller
 {
     use ApiResponseTrait;
 
-public function getFeedList()
-{
-    try {
+    public function getPublicFeedList()
+    {
+        try {
+            $allFeeds = DB::table('kc-feed as kf')
+                ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
+                ->select(
+                    'kf.feedID',
+                    'kf.postID',
+                    'kf.postHeading',
+                    'kf.postDescription',
+                    'kf.postImageLink',
+                    'kf.postVideoLink',
+                    'kf.postMultipleImage',
+                    'kf.postLink',
+                    'kf.postUpdateDate',
+                    'fm.kcName as postTypeDisplayName'
+                )
+                ->where('kf.status', 1)
+                ->where('fm.status', 1)
+                ->where('fm.isFeed', 1)
+                ->orderByDesc('kf.postUpdateDate')
+                ->get();
 
-    $guidesala = DB::table('kc-feed as kf')
-    ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
-    ->select(
-        'kf.feedID',
-        'kf.postID',
-        'kf.postHeading',
-        'kf.postDescription',
-        'kf.postHeadingDisplay',
-        'kf.postHeadingDescription',
-        'kf.postTypeName',
-        'kf.postPremium',
-        'kf.postMultipleImage',
-        'kf.postImageLink',
-        'kf.postImagePotrait',
-        'kf.postLink',
-        'kf.postVideoLink',
-        'kf.postButtonText',
-        'kf.postDesignID',
-        'kf.postType',
-        'kf.postPostedBy',
-        'kf.postUploadDate',
-        'kf.postUpdateDate',
-        'kf.postLikes',
-        'kf.postShares',
-        'kf.status',
-        'fm.kcName as postTypeDisplayName'
-    )
-    ->where('kf.status', 1)
-    ->where('fm.status', 1)
-    ->where('fm.isFeed', 1)
-    ->orderByDesc('kf.postID')
-    ->get()
-    ->map(function ($guidesala) {
-        $guidesala->images = ($guidesala->postMultipleImage == 1)
-            ? DB::table('kc-feed-gallery')
-                ->where('feedID', $guidesala->feedID)
-                ->where('postID', $guidesala->postID)
-                ->where('status', 1)
-                ->pluck('imageLink')
-            : [$guidesala->postImageLink];
+            $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
+                return $items->take(5)->map(function ($item) {
+                    // Handle images
+                    $images = ($item->postMultipleImage == 1)
+                        ? DB::table('kc-feed-gallery')
+                            ->where('feedID', $item->feedID)
+                            ->where('postID', $item->postID)
+                            ->where('status', 1)
+                            ->pluck('imageLink')
+                            ->toArray()
+                        : [$item->postImageLink];
 
-        return $guidesala;
-    })
-    ->groupBy('postTypeDisplayName');
+                    return [
+                        'title'       => $item->postHeading,
+                        'description' => $item->postDescription,
+                        'images'      => $images,
+                        'video_link'  => $item->postVideoLink,
+                        'link'        => $item->postLink,
+                        'updated_at'  => $item->postUpdateDate,
+                    ];
+                });
+            });
 
-    return $this->successResponse([
-        'guidesala' => $guidesala,
-    ], 'All Data Fetched!!');
-
-
- } catch (\Exception $e) {
-            return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->successResponse([
+                'feeds' => $grouped,
+            ], 'Public feed fetched successfully!');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
         }
-}
+    }
+
+
 
 }
