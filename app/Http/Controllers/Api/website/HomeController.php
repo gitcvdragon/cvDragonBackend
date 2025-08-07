@@ -79,10 +79,10 @@ class HomeController extends Controller
 
                 $designs = DB::table('resource-profiledesign')
                 ->select('design_image')
-        ->where('status', 1)
-        ->orderBy('downloadTimes', 'desc')
-        ->limit(20)
-        ->get();
+                ->where('status', 1)
+                ->orderBy('downloadTimes', 'desc')
+                ->limit(20)
+                ->get();
             return $this->successResponse([
                 'category' => $category,
                 'testimonials' => $testimonials,
