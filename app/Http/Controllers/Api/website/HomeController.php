@@ -45,7 +45,7 @@ class HomeController extends Controller
                     ['status', '=', 1],
                 ])
                 ->orderBy('created_at', 'desc')
-                // ->limit(5)
+                ->limit(5)
                 ->get();
 
             $institutes = DB::table('resource-marketing-institue-placed')
@@ -55,7 +55,7 @@ class HomeController extends Controller
                     ['status', '=', 1],
                 ])
                 ->orderBy('created_at', 'desc')
-                // ->limit(5)
+                ->limit(5)
                 ->get();
             $tutorials = DB::table('resource_tutorials')
                 ->select('sn', 'title', 'description', 'icon', 'image', 'created_at')
@@ -64,7 +64,7 @@ class HomeController extends Controller
                     ['status', '=', 1],
                 ])
                 ->orderBy('created_at', 'desc')
-                ->limit(6)
+                ->limit(5)
                 ->get();
 
             $faqs = DB::table('resource_faqs')
@@ -74,14 +74,14 @@ class HomeController extends Controller
                     ['status', '=', 1],
                 ])
                 ->orderBy('created_at', 'desc')
-                ->limit(6)
+                ->limit(5)
                 ->get();
 
                 $designs = DB::table('resource-profiledesign')
                 ->select('design_image')
                 ->where('status', 1)
                 ->orderBy('downloadTimes', 'desc')
-                ->limit(20)
+                ->limit(5)
                 ->get();
             return $this->successResponse([
                 'category' => $category,

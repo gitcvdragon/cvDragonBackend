@@ -35,11 +35,12 @@ public function getFeedList()
             'kf.postUpdateDate',
             'kf.postLikes',
             'kf.postShares',
-            'kf.adminID',
             'kf.status',
             'fm.kcName as postTypeDisplayName'
         )
         ->where('kf.status', 1)
+        ->where('fm.status', 1)
+        ->where('fm.isFeed', 1)
         ->orderByDesc('kf.postID')
         ->get()
         ->map(function ($feed) {
