@@ -16,7 +16,7 @@ Route::get('/help', [HelpController::class, 'allHelp']);
 
 Route::post('/chat/add', [ChatController::class, 'addChat']);
 Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);
-Route::get('/', [FeedController::class, 'getFeedList']);
+Route::get('/guideshala', [FeedController::class, 'getFeedList']);
 Route::get('/home', [HomeController::class, 'fetchMarketingResources']);
 Route::get('/template', [ResumeTemplatesController::class, 'templatesCategory']);
 Route::get('/template/view-all', [ResumeTemplatesController::class, 'getDesignsByCategory']);
