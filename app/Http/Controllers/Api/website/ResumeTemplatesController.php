@@ -91,6 +91,7 @@ class ResumeTemplatesController extends Controller
             $categoryId = $request->input('category_id');
 
             $designs = DB::table('resource-profiledesign')
+            ->select('design_image')
                 ->where('status', 1)
                 ->where('categoryid', $categoryId)
                 ->orderBy('downloadTimes', 'desc')
