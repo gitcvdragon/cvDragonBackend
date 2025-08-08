@@ -57,15 +57,15 @@ class HomeController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
-            $tutorials = DB::table('resource_tutorials')
-                ->select('sn', 'title', 'description', 'icon', 'image', 'created_at')
-                ->where([
-                    ['category', '=', $category],
-                    ['status', '=', 1],
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
+            // $tutorials = DB::table('resource_tutorials')
+            //     ->select('sn', 'title', 'description', 'icon', 'image', 'created_at')
+            //     ->where([
+            //         ['category', '=', $category],
+            //         ['status', '=', 1],
+            //     ])
+            //     ->orderBy('created_at', 'desc')
+            //     ->limit(5)
+            //     ->get();
 
             $faqs = DB::table('resource_faqs')
                 ->select('sn', 'question', 'answer',  'created_at')
@@ -95,12 +95,15 @@ class HomeController extends Controller
                     'kf.postMultipleImage',
                     'kf.postLink',
                     'kf.postUpdateDate',
+                    'kf.postLikes',
                     'fm.kcName as postTypeDisplayName'
                 )
                 ->where('kf.status', 1)
                 ->where('fm.status', 1)
                 ->where('fm.isFeed', 1)
-                ->orderByDesc('kf.postUpdateDate')
+                ->orderBy('kf.postLikes', 'desc')
+               ->orderBy('kf.postUpdateDate', 'desc')
+
                 ->get();
 
             $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
