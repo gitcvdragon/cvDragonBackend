@@ -59,7 +59,7 @@ class FeedController extends Controller
             });
 
             return $this->successResponse([
-                'feeds' => $grouped,
+                'guideshala' => $grouped,
             ], 'Public feed fetched successfully!');
         } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);

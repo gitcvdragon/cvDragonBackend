@@ -83,6 +83,49 @@ class HomeController extends Controller
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(5)
                 ->get();
+                $allFeeds = DB::table('kc-feed as kf')
+                ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
+                ->select(
+                    'kf.feedID',
+                    'kf.postID',
+                    'kf.postHeading',
+                    'kf.postDescription',
+                    'kf.postImageLink',
+                    'kf.postVideoLink',
+                    'kf.postMultipleImage',
+                    'kf.postLink',
+                    'kf.postUpdateDate',
+                    'fm.kcName as postTypeDisplayName'
+                )
+                ->where('kf.status', 1)
+                ->where('fm.status', 1)
+                ->where('fm.isFeed', 1)
+                ->orderByDesc('kf.postUpdateDate')
+                ->get();
+
+            $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
+                return $items->take(5)->map(function ($item) {
+                    // Handle images
+                    $images = ($item->postMultipleImage == 1)
+                        ? DB::table('kc-feed-gallery')
+                            ->where('feedID', $item->feedID)
+                            ->where('postID', $item->postID)
+                            ->where('status', 1)
+                            ->pluck('imageLink')
+                            ->toArray()
+                        : [$item->postImageLink];
+
+                    return [
+                        'title'       => $item->postHeading,
+                        'description' => $item->postDescription,
+                        'images'      => $images,
+                        'video_link'  => $item->postVideoLink,
+                        'link'        => $item->postLink,
+                        'updated_at'  => $item->postUpdateDate,
+                    ];
+                });
+            });
+
             return $this->successResponse([
                 'category' => $category,
                 'testimonials' => $testimonials,
@@ -91,6 +134,8 @@ class HomeController extends Controller
                 'tutorials'    => $tutorials,
                 'faqs'         => $faqs,
                 'designs'         => $designs,
+                'guideshala' => $grouped,
+
             ], 'All Data Fetched!!');
 
         } catch (\Exception $e) {
