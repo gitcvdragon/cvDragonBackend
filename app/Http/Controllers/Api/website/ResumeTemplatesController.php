@@ -92,7 +92,7 @@ class ResumeTemplatesController extends Controller
 
             $designs = DB::table('resource-profiledesign')
                 ->where('status', 1)
-                ->where('category_id', $categoryId)
+                ->where('categoryid', $categoryId)
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(9)
 
