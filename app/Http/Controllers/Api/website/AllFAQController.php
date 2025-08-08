@@ -63,7 +63,7 @@ class AllFAQController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'category' => 'required|string|max:100',
-                'category_id' => 'required|string|max:100',
+                'category_id' => 'required|integer|max:100',
                 'search' => 'nullable|string',
                 'sort_by' => 'nullable|string|in:created_at,question',
                 'sort_order' => 'nullable|string|in:asc,desc',
@@ -98,7 +98,7 @@ class AllFAQController extends Controller
 
             $faqs = $query->orderBy($sortBy, $sortOrder)
                 ->limit($limit)
-                ->offset($offset) 
+                ->offset($offset)
                 ->get();
 
             return $this->successResponse(['faqs' => $faqs], 'Data fetched successfully!');
