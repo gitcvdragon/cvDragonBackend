@@ -63,7 +63,7 @@ class AllFAQController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'category' => 'required|string|max:100',
-                'category_id' => 'required|integer|max:100',
+                'sub_category' => 'required|string|max:100',
                 'search' => 'nullable|string',
                 'sort_by' => 'nullable|string|in:created_at,question',
                 'sort_order' => 'nullable|string|in:asc,desc',
@@ -76,7 +76,7 @@ class AllFAQController extends Controller
             }
 
             $category = $request->input('category');
-            $categoryId = $request->input('category_id');
+            $sub_category = $request->input('sub_category');
             $search = $request->input('search');
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
@@ -86,7 +86,7 @@ class AllFAQController extends Controller
             $query = DB::table('resource_faqs')
                 ->select('sn', 'question', 'answer', 'created_at')
                 ->where('category', $category)
-                ->where('sub_category', $categoryId)
+                ->where('sub_category', $sub_category)
                 ->where('status', 1);
 
             if ($search) {
