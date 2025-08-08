@@ -76,7 +76,7 @@ class ResumeTemplatesController extends Controller
         }
     }
 
-    public function getDesignsByCategory($categoryId)
+    public function getDesignsByCategory(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
