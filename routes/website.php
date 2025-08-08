@@ -20,6 +20,6 @@ Route::get('/guideshala', [FeedController::class, 'getFeedList']);
 Route::get('/home', [HomeController::class, 'fetchMarketingResources']);
 Route::get('/template', [ResumeTemplatesController::class, 'templatesCategory']);
 Route::get('/template/view-all', [ResumeTemplatesController::class, 'getDesignsByCategory']);
-Route::get('/faq/view-all', [AllFAQController::class, 'templatesCategory']);
+Route::get('/faq/view-all', [AllFAQController::class, 'AllFaqBasedOnCategory']);
 Route::get('/faq/category/view-all', [AllFAQController::class, 'AllFaqBasedOnCategorySubCategory']);
 
