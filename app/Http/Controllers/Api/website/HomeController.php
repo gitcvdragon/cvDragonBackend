@@ -134,7 +134,7 @@ class HomeController extends Controller
                 'testimonials' => $testimonials,
                 'companies' => $companies,
                 'institutes' => $institutes,
-                'tutorials'    => $tutorials,
+                // 'tutorials'    => $tutorials,
                 'faqs'         => $faqs,
                 'designs'         => $designs,
                 'guideshala' => $grouped,
