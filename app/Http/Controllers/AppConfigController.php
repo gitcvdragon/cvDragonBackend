@@ -59,7 +59,7 @@ class AppConfigController extends Controller
         try {
             $category = $request->category;
 
-            if ($category) {
+            if (!$category) {
                 return $this->errorResponse('Missing category ', 400);
             }
             $rawConfigs = DB::table('resource-appconfig-user')
