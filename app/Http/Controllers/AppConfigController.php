@@ -73,7 +73,8 @@ class AppConfigController extends Controller
             );
 
         } catch (\Exception $e) {
-            return $this->errorResponse('Changes are done already!!!', 500);
+            return $this->errorResponse('An error occurred: ' . $e->getMessage(), 500);
+
         }
     }
 
