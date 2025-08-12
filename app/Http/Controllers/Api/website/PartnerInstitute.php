@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\website;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Validator;
 
 class PartnerInstitute extends Controller
