@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\website\AllFAQController;
 use App\Http\Controllers\Api\website\AllServicesController;
 use App\Http\Controllers\Api\website\HomeController;
 use App\Http\Controllers\Api\website\ResumeTemplatesController;
+use App\Http\Controllers\Api\website\PromotionController;
 use App\Http\Controllers\Api\website\PartnerInstitute;
 use App\Http\Controllers\Api\website\AppDownload;
 use Illuminate\Support\Facades\Route;
