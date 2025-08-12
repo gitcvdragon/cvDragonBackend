@@ -54,8 +54,8 @@ class FeedController extends Controller
                         'images'      => $images,
                         'video_link'  => $item->postVideoLink,
                         'link'        => $item->postLink,
-                        'updated_at'  => $item->postUpdateDate,
-                        'updated_at'  => $item->tags,
+                        'postUpdateDate'  => $item->postUpdateDate,
+                        'tags'  => $item->tags,
                     ];
                 });
             });
