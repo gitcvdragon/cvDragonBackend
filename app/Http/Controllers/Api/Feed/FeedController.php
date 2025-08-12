@@ -110,13 +110,14 @@ class FeedController extends Controller
                             ->where('status', 1)
                             ->pluck('imageLink')
                             ->toArray()
-                        : [$item->postImageLink];
+                        : [];
 
                     return [
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         'images'      => $images,
                         'video_link'  => $item->postVideoLink,
+                        'postImageLink'  => $item->postImageLink,
                         'link'        => $item->postLink,
                         'updated_at'  => $item->postUpdateDate,
                     ];
