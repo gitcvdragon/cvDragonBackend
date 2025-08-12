@@ -52,7 +52,7 @@ class FeedController extends Controller
                         : [$item->postImageLink];
 
                     return [
-                        'postType'       => $this->decryptSafe($item->postType),
+                        'postType'       => $this->encryptSafe($item->postType),
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         'images'      => $images,
