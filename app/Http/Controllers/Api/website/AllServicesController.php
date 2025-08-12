@@ -110,7 +110,8 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'sn'          => $this->encryptSafe($service->sn)
+                        'main'          => $this->encryptSafe($service->main),
+                        'microsite'          =>  $this->encryptSafe($service->microsite)
                     ];
                 });
 
@@ -154,7 +155,8 @@ class AllServicesController extends Controller
                 'category'     => 'required|string|max:50',
                 'sub_category' => 'required|string|max:100',
 
-                'heading'      => 'required|string|max:50',
+                'main'      => 'required|string',
+                'microsite'      => 'required|string',
 
             ]);
 
@@ -163,11 +165,13 @@ class AllServicesController extends Controller
             }
             $category   = $request->input('category') ?? 'services';
             $categoryId = $request->input('sub_category');
-            $heading    = $request->input('heading');
+            $main = $this->decryptSafe($request->input('main'));
+            $microsite = $this->decryptSafe($request->input('microsite'));
+
             $services   = DB::table('microservice')
-                ->where('microsite', '=', $category)
+                ->where('microsite', '=', $microsite)
                 ->where('category', '=', "main")
-                ->where('main', '=', $heading)
+                ->where('main', '=', $main)
 
                 ->orderBy('order-no', 'asc')
                 ->get()
