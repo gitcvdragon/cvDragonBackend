@@ -57,8 +57,14 @@ class AppConfigController extends Controller
     public function getActiveConfigs(Request $request)
     {
         try {
+            $category = $request->category;
+
+            if ($category) {
+                return $this->errorResponse('Missing category ', 400);
+            }
             $rawConfigs = DB::table('resource-appconfig-user')
                 ->where('status', 1)
+                ->where('user_category', $category)
                 ->get();
 
             $configs = $rawConfigs->map(function ($config) {
