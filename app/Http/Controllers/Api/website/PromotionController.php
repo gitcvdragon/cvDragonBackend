@@ -6,13 +6,14 @@ namespace App\Http\Controllers\Api\website;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class PromotionController extends Controller
 {
     use ApiResponseTrait;
 
-    public function promotion()
+    public function promotion(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
