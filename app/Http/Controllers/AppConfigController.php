@@ -57,7 +57,7 @@ class AppConfigController extends Controller
     public function getActiveConfigs(Request $request)
     {
         try {
-            $rawConfigs = DB::table('cvdragonappconfignew')
+            $rawConfigs = DB::table('resource-appconfig-user')
                 ->where('status', 1)
                 ->get();
 
