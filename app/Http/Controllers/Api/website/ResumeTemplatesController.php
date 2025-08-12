@@ -99,7 +99,7 @@ class ResumeTemplatesController extends Controller
                 ->limit(9)
 
                 ->get() ->map(function ($item) {
-                    $item->designid = $this->decryptSafe($item->category_id);
+                    $item->category_id = $this->encryptSafe($item->category_id);
                     return $item;
                 });
             $testimonials = DB::table('resource_testimonials')
