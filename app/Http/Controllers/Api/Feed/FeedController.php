@@ -75,7 +75,7 @@ class FeedController extends Controller
     public function getFeedListforsingle(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'postType' => 'required|integer',
+            'postType' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -83,7 +83,7 @@ class FeedController extends Controller
         }
         try {
 
-            $postType = $this->encryptSafe($request->postType);
+            $postType = $this->decryptSafe($request->postType);
 
 
             $allFeeds = DB::table('kc-feed as kf')
