@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\ApiResponseTrait;
+use App\Traits\CryptHelper;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Crypt;
 
 class FeedController extends Controller
 {
     use ApiResponseTrait;
-
+    use CryptHelper;
     public function getFeedList()
     {
         try {
@@ -21,6 +23,7 @@ class FeedController extends Controller
                     'kf.feedID',
                     'kf.postID',
                     'kf.postHeading',
+                    'kf.postType',
                     'kf.postDescription',
                     'kf.postImageLink',
                     'kf.postVideoLink',
@@ -49,6 +52,7 @@ class FeedController extends Controller
                         : [$item->postImageLink];
 
                     return [
+                        'postType'       => $this->decryptSafe($item->postType),
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         'images'      => $images,
@@ -79,7 +83,8 @@ class FeedController extends Controller
         }
         try {
 
-            $postType=$request->postType;
+            $postType = $this->encryptSafe($request->postType);
+
 
             $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
