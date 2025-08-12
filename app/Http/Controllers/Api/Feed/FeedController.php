@@ -27,7 +27,8 @@ class FeedController extends Controller
                     'kf.postMultipleImage',
                     'kf.postLink',
                     'kf.postUpdateDate',
-                    'fm.kcName as postTypeDisplayName'
+                    'fm.kcName as postTypeDisplayName',
+                    'fm.kcType as tags'
                 )
                 ->where('kf.status', 1)
                 ->where('fm.status', 1)
@@ -54,6 +55,7 @@ class FeedController extends Controller
                         'video_link'  => $item->postVideoLink,
                         'link'        => $item->postLink,
                         'updated_at'  => $item->postUpdateDate,
+                        'updated_at'  => $item->tags,
                     ];
                 });
             });

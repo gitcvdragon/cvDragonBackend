@@ -33,7 +33,7 @@ class ResumeTemplatesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['status', '=', 1],
@@ -110,7 +110,7 @@ class ResumeTemplatesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $sub_category],
@@ -170,7 +170,7 @@ class ResumeTemplatesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $sub_category],

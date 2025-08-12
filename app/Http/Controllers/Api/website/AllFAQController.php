@@ -36,7 +36,7 @@ class AllFAQController extends Controller
             $offset = $request->input('offset', 0);
 
             $query = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where('category', $category)
                 ->where('status', 1);
 
@@ -84,7 +84,7 @@ class AllFAQController extends Controller
             $offset = $request->input('offset', 0);
 
             $query = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where('category', $category)
                 ->where('sub_category', $sub_category)
                 ->where('status', 1);

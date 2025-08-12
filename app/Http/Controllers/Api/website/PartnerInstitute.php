@@ -34,7 +34,7 @@ class PartnerInstitute extends Controller
 
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
 

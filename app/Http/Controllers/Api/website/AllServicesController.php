@@ -53,7 +53,7 @@ class AllServicesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
 
@@ -121,7 +121,7 @@ class AllServicesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $categoryId],
@@ -193,7 +193,7 @@ class AllServicesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $categoryId],
