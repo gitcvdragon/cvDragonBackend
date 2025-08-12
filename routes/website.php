@@ -33,4 +33,5 @@ Route::get('/service/category', [AllServicesController::class, 'getServicesBlock
 Route::get('/service/category/main', [AllServicesController::class, 'getServicesBlockonClickMain']);
 
 Route::get('/app-download', [AppDownload::class, 'appDownload']);
+Route::get('/patner-institute', [AppDownload::class, 'partnerInstitute']);
 Route::get('/promotion', [PromotionController::class, 'promotion']);
