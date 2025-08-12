@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Validator;
 class AllServicesController extends Controller
 {
     use ApiResponseTrait;
+    use \App\Traits\CryptHelper;
 
-    public function getServicesBlock()
+    public function getServicesBlock(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -38,7 +39,7 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'sn'          => $service->sn,
+                        'sn'          =>  $this->encryptSafe($service->sn)
                     ];
                 });
 
@@ -74,7 +75,7 @@ class AllServicesController extends Controller
         }
     }
 
-    public function getServicesBlockonClick()
+    public function getServicesBlockonClick(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -105,7 +106,7 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'sn'          => $service->sn,
+                        'sn'          => $this->encryptSafe($service->sn)
                     ];
                 });
 
@@ -142,7 +143,7 @@ class AllServicesController extends Controller
             return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
         }
     }
-    public function getServicesBlockonClickMain()
+    public function getServicesBlockonClickMain(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [

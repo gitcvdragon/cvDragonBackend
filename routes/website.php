@@ -27,7 +27,8 @@ Route::get('/template/view', [ResumeTemplatesController::class, 'getDesignsByCat
 
 Route::get('/faq/view-all', [AllFAQController::class, 'AllFaqBasedOnCategory']);
 Route::get('/faq/category/view-all', [AllFAQController::class, 'AllFaqBasedOnCategorySubCategory']);
-Route::get('/service-all', [AllServicesController::class, 'templatesCategory']);
+
+Route::get('/service-all', [AllServicesController::class, 'getServicesBlock']);
 Route::get('/service/category', [AllServicesController::class, 'getServicesBlockonClick']);
 Route::get('/service/category/main', [AllServicesController::class, 'getServicesBlockonClickMain']);
 

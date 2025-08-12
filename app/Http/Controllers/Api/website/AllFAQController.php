@@ -11,6 +11,7 @@ use App\Traits\ApiResponseTrait;
 class AllFAQController extends Controller
 {
     use ApiResponseTrait;
+    use \App\Traits\CryptHelper;
 
     public function AllFaqBasedOnCategory(Request $request)
     {
@@ -50,7 +51,10 @@ class AllFAQController extends Controller
             $faqs = $query->orderBy($sortBy, $sortOrder)
                 ->limit($limit)
                 ->offset($offset)
-                ->get();
+                ->get()  ->map(function ($item) {
+                    $item->sn = $this->encryptSafe($item->sn);
+                    return $item;
+                });
 
             return $this->successResponse(['faqs' => $faqs], 'All Data Fetched!!');
         } catch (\Exception $e) {
