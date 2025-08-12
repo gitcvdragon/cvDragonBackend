@@ -144,7 +144,7 @@ class ResumeTemplatesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'category'     => 'required|string|max:100',
-                'category_id'  => 'required|integer',
+                'category_id'  => 'required|string',
                 'sub_category' => 'required|string|max:100',
 
             ]);
