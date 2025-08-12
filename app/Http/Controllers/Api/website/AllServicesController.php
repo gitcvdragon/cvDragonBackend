@@ -41,7 +41,7 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'sn'          =>  $this->encryptSafe($service->sn)
+                        'microsite'          =>  $this->encryptSafe($service->microsite)
                     ];
                 });
 
@@ -81,6 +81,7 @@ class AllServicesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'service_category'     => 'required|string|max:100',
                 'category'     => 'required|string|max:100',
                 'sub_category' => 'required|string|max:100',
 
@@ -91,9 +92,10 @@ class AllServicesController extends Controller
             }
             $category   = $request->input('category') ?? 'services';
             $categoryId = $request->input('sub_category');
+            $service_category = $this->decryptSafe($request->input('service_category'));
 
             $services = DB::table('microservice')
-                ->where('microsite', '=', $category)
+                ->where('microsite', '=', $service_category)
                 ->orderBy('order-no', 'asc')
                 ->get()
                 ->map(function ($service) {
