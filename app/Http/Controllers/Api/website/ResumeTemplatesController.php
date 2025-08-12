@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api\website;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
+use App\Traits\CryptHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -11,6 +12,7 @@ class ResumeTemplatesController extends Controller
 {
 
     use ApiResponseTrait;
+    use CryptHelper;
     public function templatesCategory(Request $request)
     {
         try {
@@ -90,13 +92,16 @@ class ResumeTemplatesController extends Controller
             $sub_category = $request->input('sub_category');
 
             $designs = DB::table('resource-profiledesign')
-                ->select('design_image')
+                ->select('design_image','designid as category_id')
                 ->where('status', 1)
                 ->where('categoryid', $categoryId)
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(9)
 
-                ->get();
+                ->get() ->map(function ($item) {
+                    $item->designid = $this->decryptSafe($item->category_id);
+                    return $item;
+                });
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
@@ -148,7 +153,8 @@ class ResumeTemplatesController extends Controller
                 return $this->errorResponse($validator->errors()->first(), 422);
             }
             $category     = $request->input('category');
-            $categoryId   = $request->input('category_id');
+            $categoryId = $this->decryptSafe($request->category_id);
+
             $sub_category = $request->input('sub_category');
 
             $designs = DB::table('resource-profiledesign')
