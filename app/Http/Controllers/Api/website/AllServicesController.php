@@ -81,7 +81,7 @@ class AllServicesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'microsite'     => 'required|string|max:100',
+                'microsite'     => 'required|string',
                 'category'     => 'required|string|max:100',
                 'sub_category' => 'required|string|max:100',
 
