@@ -10,7 +10,7 @@ class PartnerInstitute extends Controller
 {
     use ApiResponseTrait;
 
-    public function partnerInstitute()
+    public function partnerInstitute(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
