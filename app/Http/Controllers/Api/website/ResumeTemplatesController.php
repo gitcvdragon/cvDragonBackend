@@ -64,7 +64,7 @@ class ResumeTemplatesController extends Controller
                 )
                 ->where('c.status', 1)
                 ->where('d.status', 1)
-                ->where('c.id', $categoryId)
+                ->where('c.id', $category)
                 ->orderBy('d.downloadTimes', 'desc')
                 ->limit(3)
                 ->get();
