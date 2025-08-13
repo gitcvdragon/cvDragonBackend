@@ -32,7 +32,16 @@ class ResumeTemplatesController extends Controller
                 ->where('status', 1)
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    if (!empty($item->title)) {
+                        try {
+                            $item->title =  $this->encryptSafe($item->title);
+                        } catch (\Exception $e) {
+
+                        }
+                    }      return $item;
+                });
 
             $faqs = DB::table('resource_faqs')
                 ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
