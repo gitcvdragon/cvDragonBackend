@@ -32,16 +32,16 @@ class ResumeTemplatesController extends Controller
                 ->where('status', 1)
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
-                ->get()
-                ->map(function ($item) {
-                    if (!empty($item->id)) {
-                        try {
-                            $item->id =  $this->encryptSafe($item->id);
-                        } catch (\Exception $e) {
+                ->get();
+                // ->map(function ($item) {
+                //     if (!empty($item->id)) {
+                //         try {
+                //             $item->id =  $this->encryptSafe($item->id);
+                //         } catch (\Exception $e) {
 
-                        }
-                    }      return $item;
-                });
+                //         }
+                //     }      return $item;
+                // });
 
             $faqs = DB::table('resource_faqs')
                 ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
@@ -106,11 +106,12 @@ class ResumeTemplatesController extends Controller
                 ->where('categoryid', $categoryId)
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(9)
+                ->get();
 
-                ->get() ->map(function ($item) {
-                    $item->category_id = $this->encryptSafe($item->category_id);
-                    return $item;
-                });
+                // ->get(); ->map(function ($item) {
+                //     $item->category_id = $this->encryptSafe($item->category_id);
+                //     return $item;
+                // });
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
@@ -162,7 +163,8 @@ class ResumeTemplatesController extends Controller
                 return $this->errorResponse($validator->errors()->first(), 422);
             }
             $category     = $request->input('category');
-            $categoryId = $this->decryptSafe($request->category_id);
+            $categoryId = $request->category_id;
+            // $categoryId = $this->decryptSafe($request->category_id);
 
             $sub_category = $request->input('sub_category');
 

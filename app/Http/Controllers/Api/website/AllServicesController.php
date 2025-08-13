@@ -41,7 +41,8 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'microsite'          =>  $this->encryptSafe($service->microsite)
+                        // 'microsite'          =>  $this->encryptSafe($service->microsite)
+                        'microsite'          =>  $service->microsite
                     ];
                 });
 
@@ -92,7 +93,8 @@ class AllServicesController extends Controller
             }
             $category   = $request->input('category') ?? 'services';
             $categoryId = $request->input('sub_category');
-            $microsite = $this->decryptSafe($request->input('microsite'));
+            $microsite = $request->input('microsite');
+            // $microsite = $this->decryptSafe($request->input('microsite'));
 
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
@@ -110,8 +112,10 @@ class AllServicesController extends Controller
 
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'main'          => $this->encryptSafe($service->main),
-                        'microsite'          =>  $this->encryptSafe($service->microsite)
+                        // 'main'          => $this->encryptSafe($service->main),
+                        // 'microsite'          =>  $this->encryptSafe($service->microsite)
+                        'main'          => $service->main,
+                        'microsite'          =>  $service->microsite
                     ];
                 });
 
@@ -165,8 +169,10 @@ class AllServicesController extends Controller
             }
             $category   = $request->input('category') ?? 'services';
             $categoryId = $request->input('sub_category');
-            $main = $this->decryptSafe($request->input('main'));
-            $microsite = $this->decryptSafe($request->input('microsite'));
+            // $main = $this->decryptSafe($request->input('main'));
+            // $microsite = $this->decryptSafe($request->input('microsite'));
+            $main = $request->input('main');
+            $microsite = $request->input('microsite');
 
             $services   = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
