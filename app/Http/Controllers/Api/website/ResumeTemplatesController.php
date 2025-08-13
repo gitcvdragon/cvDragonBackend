@@ -34,9 +34,9 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get()
                 ->map(function ($item) {
-                    if (!empty($item->title)) {
+                    if (!empty($item->id)) {
                         try {
-                            $item->title =  $this->encryptSafe($item->title);
+                            $item->id =  $this->encryptSafe($item->id);
                         } catch (\Exception $e) {
 
                         }
