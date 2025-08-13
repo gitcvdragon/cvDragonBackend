@@ -78,7 +78,7 @@ class FeedController extends Controller
     public function getFeedListforsingle(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'postType' => 'required|string',
+            'postType' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
