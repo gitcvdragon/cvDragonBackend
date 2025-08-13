@@ -146,6 +146,7 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get();
             return $this->successResponse([
+                'heading'   => $categories,
                 'designs'      => $designs,
 
                 'testimonials' => $testimonials,
