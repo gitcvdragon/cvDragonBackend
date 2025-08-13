@@ -54,7 +54,8 @@ class ResumeTemplatesController extends Controller
                 ->get();
 
             $designs = DB::table('resource-profiledesign')
-                ->select('design_image')
+            ->select('design_image','designid as category_id')
+
                 ->where('status', 1)
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(5)
@@ -99,6 +100,15 @@ class ResumeTemplatesController extends Controller
             $category     = $request->input('category');
             $categoryId   = $request->input('category_id');
             $sub_category = $request->input('sub_category');
+
+
+            $categories = DB::table('resource_profile_design_categories')
+                ->select('id', 'title', 'description')
+                ->where('status', 1)
+                ->where('id',  $categoryId)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
 
             $designs = DB::table('resource-profiledesign')
                 ->select('design_image','designid as category_id')
@@ -169,7 +179,7 @@ class ResumeTemplatesController extends Controller
             $sub_category = $request->input('sub_category');
 
             $designs = DB::table('resource-profiledesign')
-                ->select('design_image','isPrivate','isDownload','rating','downloadTimes','heading')
+                ->select('designName','design_image','isPrivate','isDownload','rating','downloadTimes','heading')
                 ->where('status', 1)
                 ->where('designid', $categoryId)
                 ->first();
