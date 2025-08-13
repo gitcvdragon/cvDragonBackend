@@ -12,11 +12,13 @@ trait CryptHelper
     public function decryptSafe($value)
     {
         try {
-            return Crypt::decryptString($value);
+            $decrypted = Crypt::decryptString($value);
+            return substr(preg_replace('/\D/', '', $decrypted), 0, 5);
         } catch (\Exception $e) {
-            return $value; // return as-is if it's not encrypted
+            return null; // Or throw an error if you prefer
         }
     }
+
 
     /**
      * Safely encrypt a value
@@ -24,9 +26,18 @@ trait CryptHelper
     public function encryptSafe($value)
     {
         try {
-            return Crypt::encryptString($value);
+            // Only keep digits and limit to 5
+            $cleanValue = substr(preg_replace('/\D/', '', $value), 0, 5);
+
+            // Only encrypt if there's something left
+            if ($cleanValue !== '') {
+                return Crypt::encryptString($cleanValue);
+            }
+
+            return null; // or throw exception if empty
         } catch (\Exception $e) {
             return $value; // return as-is if encryption fails
         }
     }
+
 }
