@@ -54,7 +54,7 @@ class ResumeTemplatesController extends Controller
                 ->get();
 
             $designs = DB::table('resource-profiledesign')
-            ->select('design_image','designid as category_id')
+            ->select('design_image','categoryid as category_id')
 
                 ->where('status', 1)
                 ->orderBy('downloadTimes', 'desc')
