@@ -52,7 +52,8 @@ class FeedController extends Controller
                     //     : [$item->postImageLink];
 
                     return [
-                        'postType'       => $this->encryptSafe($item->postType),
+                        // 'postType'       => $this->encryptSafe($item->postType),
+                        'postType'       => $item->postType,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         // 'images'      => $images,
@@ -85,7 +86,8 @@ class FeedController extends Controller
         }
         try {
 
-            $postType = $this->decryptSafe($request->postType);
+            // $postType = $this->decryptSafe($request->postType);
+            $postType = $request->postType;
 
 
             $allFeeds = DB::table('kc-feed as kf')
