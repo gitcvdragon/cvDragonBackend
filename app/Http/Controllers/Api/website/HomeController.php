@@ -111,19 +111,11 @@ class HomeController extends Controller
             $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
                 return $items->take(5)->map(function ($item) {
                     // Handle images
-                    $images = ($item->postMultipleImage == 1)
-                        ? DB::table('kc-feed-gallery')
-                            ->where('feedID', $item->feedID)
-                            ->where('postID', $item->postID)
-                            ->where('status', 1)
-                            ->pluck('imageLink')
-                            ->toArray()
-                        : [$item->postImageLink];
 
                     return [
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
-                        'images'      => $images,
+                        'images'      => $item->postImageLink,
                         'video_link'  => $item->postVideoLink,
                         'link'        => $item->postLink,
                         'updated_at'  => $item->postUpdateDate,

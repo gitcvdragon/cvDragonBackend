@@ -53,12 +53,20 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get();
 
-            $designs = DB::table('resource-profiledesign')
-            ->select('design_image','categoryid as category_id')
-
-                ->where('status', 1)
-                ->orderBy('downloadTimes', 'desc')
-                ->limit(5)
+                $designs = DB::table('resource_profile_design_categories as c')
+                ->join('resource-profiledesign as d', 'c.id', '=', 'd.categoryid')
+                ->select(
+                    'c.id',
+                    'c.title',
+                    'c.description',
+                    'd.design_image',
+                    'd.designid as category_id'
+                )
+                ->where('c.status', 1)
+                ->where('d.status', 1)
+                ->where('c.id', $categoryId)
+                ->orderBy('d.downloadTimes', 'desc')
+                ->limit(3)
                 ->get();
 
             $testimonials = DB::table('resource_testimonials')
@@ -107,14 +115,21 @@ class ResumeTemplatesController extends Controller
                 ->where('status', 1)
                 ->where('id',  $categoryId)
                 ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
+                ->first();
 
-            $designs = DB::table('resource-profiledesign')
-                ->select('design_image','designid as category_id')
-                ->where('status', 1)
-                ->where('categoryid', $categoryId)
-                ->orderBy('downloadTimes', 'desc')
+                $designs = DB::table('resource_profile_design_categories as c')
+                ->join('resource-profiledesign as d', 'c.id', '=', 'd.categoryid')
+                ->select(
+                    'c.id',
+                    'c.title',
+                    'c.description',
+                    'd.design_image',
+                    'd.designid as category_id'
+                )
+                ->where('c.status', 1)
+                ->where('d.status', 1)
+                ->where('c.id', $categoryId)
+                ->orderBy('d.downloadTimes', 'desc')
                 ->limit(9)
                 ->get();
 
@@ -184,7 +199,12 @@ class ResumeTemplatesController extends Controller
                 ->where('status', 1)
                 ->where('designid', $categoryId)
                 ->first();
-
+                $categories = DB::table('resource_profile_design_categories')
+                ->select( 'title')
+                ->where('status', 1)
+                ->where('id',  $categoryId)
+                ->orderBy('created_at', 'desc')
+                ->first();
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
