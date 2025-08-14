@@ -18,7 +18,7 @@ class ChatController extends Controller
 
         // $user_id = auth()->user()->id;
 
-        $$id = auth()->user()->id;
+        $id = auth()->user()->id;
 
         $receiverID = 1;
         $chat = $request->input('chat');
