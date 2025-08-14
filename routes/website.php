@@ -38,3 +38,6 @@ Route::get('/service/category/main', [AllServicesController::class, 'getServices
 Route::get('/app-download', [AppDownload::class, 'appDownload']);
 Route::get('/patner-institute', [PartnerInstitute::class, 'partnerInstitute']);
 Route::get('/promotion', [PromotionController::class, 'promotion']);
+
+
+

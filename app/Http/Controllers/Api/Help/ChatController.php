@@ -18,8 +18,9 @@ class ChatController extends Controller
 
         // $user_id = auth()->user()->id;
 
-        $senderID = $request->input('senderID');
-        $receiverID = $request->input('receiverID');
+        $$id = auth()->user()->id;
+
+        $receiverID = 1;
         $chat = $request->input('chat');
         $type = $request->input('type');
         $now = Carbon::now();
@@ -46,9 +47,7 @@ class ChatController extends Controller
 
     public function userChatIndividual(Request $request)
     {
-        $id = $request->input('id');
-        $authkey = $request->input('authkey');
-
+     $id = auth()->user()->id;
 
 
         $chatList = DB::table('help-chat')

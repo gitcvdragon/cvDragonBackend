@@ -8,6 +8,8 @@ use App\Http\Controllers\CvSectionController;
 use App\Http\Controllers\OTPAuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\Api\Help\ChatController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,3 +68,6 @@ Route::post('/user-section-order-update', [CvProfileController::class, 'updateUs
 
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
 //Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
+Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
+
+Route::get('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
