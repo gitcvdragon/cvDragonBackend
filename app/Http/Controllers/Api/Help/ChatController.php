@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\Help;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ChatController extends Controller
 {
+    use ApiResponseTrait;
 
 
 
@@ -36,13 +38,11 @@ class ChatController extends Controller
         ]);
 
         if ($inserted) {
-            $senderName = DB::table('users')->where('id', $senderID)->value('name');
-
-
-            return response()->json(['status' => 1]);
+            return $this->successResponse('chat added successfully!');
         }
 
-        return response()->json(['status' => 0]);
+        return $this->successResponse('chat not added successfully!', 500);
+
     }
 
     public function userChatIndividual(Request $request)
@@ -62,6 +62,9 @@ class ChatController extends Controller
             ->orderBy('dateCreated', 'asc')
             ->get();
 
-        return response()->json($chatList);
+        return $this->successResponse([
+            'chats'   => $chatList
+
+        ], 'All Data Fetched!!');
     }
 }
