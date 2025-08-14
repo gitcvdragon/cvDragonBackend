@@ -14,7 +14,9 @@ use App\Http\Controllers\Api\website\AppDownload;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', [MenuController::class, 'groupByIndex']);
-Route::get('/help', [HelpController::class, 'allHelp']);
+Route::get('/help-videos', [HelpController::class, 'getHelpVideos']);
+Route::get('/help-faq', [HelpController::class, 'getHelpFaq']);
+Route::get('/help-chat', [HelpController::class, 'getNotifications']);
 
 Route::post('/chat/add', [ChatController::class, 'addChat']);
 Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);

@@ -5,23 +5,61 @@ namespace App\Http\Controllers\Api\Help;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Traits\ApiResponseTrait;
+use Illuminate\Support\Facades\Validator;
 class HelpController extends Controller
 {
-    public function allHelp(Request $request)
+    use ApiResponseTrait;
+
+    public function getHelpVideos(Request $request)
     {
-        // $id = $request->input('id');
-        // $authkey = $request->input('authkey');
+        $limit = $request->query('limit', 10);
+        $offset = $request->query('offset', 0);
+        $helpVideos = DB::table('help-videos')
+            ->where('status', 1)
+            ->limit($limit)
+            ->offset($offset)
+            ->get();
+            return $this->successResponse([
+            'help-videos' => $helpVideos
 
-        // if (!$this->isValidUser($id, $authkey)) {
-        //     return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
-        // }
 
-        return response()->json([
-            'status' => 'success',
-            'help-videos' => DB::table('help-videos')->where('status', 1)->get(),
-            'help-faq' => DB::table('help-faq')->where('status', 1)->get(),
-            'notifications' => DB::table('notifications')->select('id', 'displayImage')->where('status', 1)->get()
-        ]);
+            ], 'All Data Fetched!!');
+
+    }
+
+    public function getHelpFaq(Request $request)
+    {
+        $limit = $request->query('limit', 10);
+        $offset = $request->query('offset', 0);
+
+        $helpFaq = DB::table('help-faq')
+            ->where('status', 1)
+            ->limit($limit)
+            ->offset($offset)
+            ->get();
+            return $this->successResponse([
+                'help-faq' => $helpFaq
+
+            ], 'All Data Fetched!!');
+
+    }
+
+    public function getNotifications(Request $request)
+    {
+        $limit = $request->query('limit', 10);
+        $offset = $request->query('offset', 0);
+
+        $notifications = DB::table('notifications')
+            ->select('id', 'displayImage')
+            ->where('status', 1)
+            ->limit($limit)
+            ->offset($offset)
+            ->get();
+            return $this->successResponse([
+            'notifications' => $notifications
+
+            ], 'All Data Fetched!!');
+
     }
 }
