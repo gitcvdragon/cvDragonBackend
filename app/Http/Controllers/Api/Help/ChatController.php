@@ -38,10 +38,10 @@ class ChatController extends Controller
         ]);
 
         if ($inserted) {
-            return $this->successResponse('chat added successfully!');
+            return $this->successResponse([],'chat added successfully!');
         }
 
-        return $this->successResponse('chat not added successfully!', 500);
+        return $this->successResponse([],'chat not added successfully!', 500);
 
     }
 
