@@ -17,32 +17,36 @@ class ChatController extends Controller
 
     public function addChat(Request $request)
     {
-
-        // $user_id = auth()->user()->id;
-
         $senderID = auth()->user()->id;
-
-        $receiverID = 1;
+        $receiverID = 1; // admin or fixed receiver
         $chat = $request->input('chat');
         $type = $request->input('type');
         $now = Carbon::now();
 
-        $inserted = DB::table('help-chat')->insertGetId([
-            'senderID' => $senderID,
-            'receiverID' => $receiverID,
-            'chat' => $chat,
-            'type' => $type,
-            'dateCreated' => $now,
-            'dateUpdated' => $now,
-            'status' => 1
-        ]);
+        try {
+            DB::beginTransaction();
 
-        if ($inserted) {
-            return $this->successResponse([],'chat added successfully!');
+            $inserted = DB::table('help-chat')->insertGetId([
+                'senderID' => $senderID,
+                'receiverID' => $receiverID,
+                'chat' => $chat,
+                'type' => $type,
+                'dateCreated' => $now,
+                'dateUpdated' => $now,
+                'status' => 1
+            ]);
+
+            if (!$inserted) {
+                DB::rollBack();
+                return $this->successResponse([], 'Chat not added successfully!', 500);
+            }
+
+            DB::commit();
+            return $this->successResponse([], 'Chat added successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->successResponse([], 'An error occurred: ' . $e->getMessage(), 500);
         }
-
-        return $this->successResponse([],'chat not added successfully!', 500);
-
     }
 
     public function userChatIndividual(Request $request)
@@ -51,6 +55,7 @@ class ChatController extends Controller
 
 
         $chatList = DB::table('help-chat')
+        ->select('chat', 'type', 'dateCreated','isResolved')
             ->where(function ($query) use ($id) {
                 $query->where('receiverID', $id)
                     ->orWhere('senderID', $id)
