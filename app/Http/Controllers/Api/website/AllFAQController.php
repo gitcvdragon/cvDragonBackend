@@ -51,10 +51,7 @@ class AllFAQController extends Controller
             $faqs = $query->orderBy($sortBy, $sortOrder)
                 ->limit($limit)
                 ->offset($offset)
-                ->get()  ->map(function ($item) {
-                    $item->sn = $this->encryptSafe($item->sn);
-                    return $item;
-                });
+                ->get();
 
             return $this->successResponse(['faqs' => $faqs], 'All Data Fetched!!');
         } catch (\Exception $e) {
