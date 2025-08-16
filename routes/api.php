@@ -10,7 +10,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Api\Help\ChatController;
 use App\Http\Controllers\Api\website\MyfavController;
-
+use App\Http\Controllers\Api\website\DigitalCvController;
+use App\Http\Controllers\Api\website\MyDocumentsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,4 +73,13 @@ Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProf
 Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
 
 Route::get('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
-Route::get('/my-favorites', [MyfavController::class, 'getFavorites']);
+Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
+
+Route::get('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
+Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->middleware('auth:api');
+
+Route::post('/my-documents/upload', [MyDocumentsController::class, 'uploadDocument'])->middleware('auth:api');
+
+Route::get('/my-documents', [MyDocumentsController::class, 'getMyDocuments'])->middleware('auth:api');
+
+Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'deleteDocument'])->middleware('auth:api');

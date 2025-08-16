@@ -105,6 +105,13 @@ class OTPAuthController extends Controller
                     'authKey' => $userauthKey,
                 ]);
 
+                $createdId = $user->id;
+
+                $user->update([
+                    'username' => $createdId,
+                ]);
+
+
                 UserBasic::create([
                     'id' => $user->id,
                     'showWizard' => 1,
