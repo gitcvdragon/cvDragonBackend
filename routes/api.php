@@ -9,6 +9,7 @@ use App\Http\Controllers\OTPAuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Api\Help\ChatController;
+use App\Http\Controllers\Api\website\MyfavController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -71,3 +72,4 @@ Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProf
 Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
 
 Route::get('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
+Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
