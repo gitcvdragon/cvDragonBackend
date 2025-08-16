@@ -72,4 +72,4 @@ Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProf
 Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
 
 Route::get('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
-Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
+Route::get('/my-favorites', [MyfavController::class, 'getFavorites']);
