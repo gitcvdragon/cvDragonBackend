@@ -238,7 +238,7 @@ public function getSingleFeed(Request $request)
                 'kf.postUpdateDate',
                 'fm.kcName as postTypeDisplayName'
             )
-            ->where('kf.postType',$request->postType)
+            ->where('kf.postType','=',$request->postType)
             ->where('kf.status', 1)
             ->where('fm.status', 1)
             ->where('fm.isFeed', 1)
