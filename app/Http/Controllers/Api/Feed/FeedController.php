@@ -81,6 +81,7 @@ class FeedController extends Controller
             'postType' => 'required|integer',
              'limit'    => 'nullable|integer|min:1',
         'offset'   => 'nullable|integer|min:0',
+        'search'   => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -92,7 +93,7 @@ class FeedController extends Controller
             $postType = $request->postType;
          $limit    = $request->get('limit', 10);
         $offset   = $request->get('offset', 0);
-
+        $search   = $request->get('search', null);
             $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
                 ->select(
@@ -111,6 +112,12 @@ class FeedController extends Controller
                 ->where('fm.status', 1)
                 ->where('fm.isFeed', 1)
                 ->where('kf.postType', $postType)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('kf.postHeading', 'LIKE', "%{$search}%")
+                          ->orWhere('kf.postDescription', 'LIKE', "%{$search}%");
+                    });
+                })
                 ->orderByDesc('kf.postUpdateDate')
                   ->offset($offset)
             ->limit($limit)
