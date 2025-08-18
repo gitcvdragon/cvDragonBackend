@@ -89,15 +89,15 @@ public function getMyDocuments()
     }
 }
 
-public function deleteDocument(Request $request)
+public function deleteDocument($documentId)
 {
     try {
-        $request->validate([
-            'documentID' => 'required|integer',
-        ]);
+        // $request->validate([
+        //     'documentID' => 'required|integer',
+        // ]);
 
         $userId = auth()->id();
-        $documentId = $request->documentID;
+        // $documentId = $request->documentID;
 
         $updated = \DB::table('user-documents')
             ->where('id', $userId)
