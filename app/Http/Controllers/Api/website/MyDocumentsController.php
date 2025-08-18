@@ -4,9 +4,14 @@ namespace App\Http\Controllers\Api\website;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 class MyDocumentsController extends Controller
 {
+    use ApiResponseTrait;
+
     public function uploadDocument(Request $request)
 {
     try {
@@ -14,7 +19,7 @@ class MyDocumentsController extends Controller
         $request->validate([
             'documentTitle'      => 'required|string|max:255',
             'documentSection'    => 'nullable|integer',
-            'documentSubSection' => 'nullable|string|max:20',
+            'documentSubSection' => 'nullable|integer',
             'documentFile'       => 'required|string|',
         ]);
 
