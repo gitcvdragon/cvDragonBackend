@@ -66,7 +66,7 @@ class ChatController extends Controller
                     });
             })
             ->where('status', 1)
-            ->orderBy('dateCreated', 'asc')
+            ->orderBy('dateCreated', 'desc')
             ->limit($limit)
             ->offset($offset)
             ->get();
