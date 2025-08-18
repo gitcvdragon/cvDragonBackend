@@ -80,7 +80,10 @@ class DigitalCvController extends Controller
         try {
             $id = auth()->id();
 
-            $user = UserBasic::findOrFail($id);
+            $user = \DB::table('user-basic')->where('id', $id)->first();
+            if (!$user) {
+                return $this->errorResponse('User not found', 404);
+            }
 
             $user->showProfile = $user->showProfile == 1 ? 0 : 1;
 
