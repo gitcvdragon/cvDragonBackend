@@ -70,12 +70,14 @@ Route::post('/user-section-order-update', [CvProfileController::class, 'updateUs
 
 Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProfile'])->middleware('auth:api');
 //Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
+
+
 Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
 
 Route::post('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
 Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
 
-Route::get('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
+Route::post('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
 Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->middleware('auth:api');
 
 Route::post('/my-documents/upload', [MyDocumentsController::class, 'uploadDocument'])->middleware('auth:api');

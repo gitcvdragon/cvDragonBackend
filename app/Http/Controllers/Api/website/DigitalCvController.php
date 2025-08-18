@@ -61,7 +61,8 @@ class DigitalCvController extends Controller
             $user = \DB::table('user-basic')->where('id', $id)->first();
 
             return $this->successResponse(
-                ['user' => $user],
+                // ['user' => $user],
+                [],
                 'Data updated successfully!'
             );
 
