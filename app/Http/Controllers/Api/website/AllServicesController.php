@@ -72,6 +72,8 @@ class AllServicesController extends Controller
                 ->get();
 
             return $this->successResponse([
+                'category' => $category,
+
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
@@ -147,6 +149,9 @@ class AllServicesController extends Controller
                 ->get();
 
             return $this->successResponse([
+                'category' => $category,
+                'categoryId'=>$categoryId,
+
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
@@ -224,6 +229,8 @@ class AllServicesController extends Controller
                 ->get();
 
             return $this->successResponse([
+                'category' => $category,
+                'categoryId'=>$categoryId,
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,

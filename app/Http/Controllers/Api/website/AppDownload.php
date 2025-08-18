@@ -62,6 +62,8 @@ class AppDownload extends Controller
 
 
             return $this->successResponse([
+                'category' => $category,
+
                 'companies' => $companies,
                 'testimonials' => $testimonials,
 

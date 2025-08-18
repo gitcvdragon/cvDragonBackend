@@ -79,6 +79,8 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get();
             return $this->successResponse([
+                'category' => $category,
+
                 'categories'   => $categories,
                 'designs'      => $designs,
 
@@ -161,6 +163,8 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get();
             return $this->successResponse([
+                'category' => $category,
+'sub_category'=>$sub_category,
                 'heading'   => $categories,
                 'designs'      => $designs,
 
@@ -229,6 +233,8 @@ class ResumeTemplatesController extends Controller
                 ->limit(5)
                 ->get();
             return $this->successResponse([
+                'category' => $category,
+                'sub_category'=>$sub_category,
                 'heading'   => $categories,
                 'designs'      => $designs,
 

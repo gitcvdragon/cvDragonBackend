@@ -25,8 +25,8 @@ class PartnerInstitute extends Controller
             $category = $request->input('category') ?? 'patner-institute';
 
             $institutes = DB::table('resource-marketing-institue-placed')
-    ->select('sn', 'institue_name', 'institue_logo', 'created_at')
-    ->where([
+                ->select('sn', 'institue_name', 'institue_logo', 'created_at')
+     ->where([
         ['category', '=', $category],
         ['status', '=', 1],
     ])
@@ -48,6 +48,8 @@ class PartnerInstitute extends Controller
 
 
             return $this->successResponse([
+                'category' => $category,
+
                 'institutes' => $institutes,
                 'faqs'       => $faqs,
             ], 'All Services Fetched!!');

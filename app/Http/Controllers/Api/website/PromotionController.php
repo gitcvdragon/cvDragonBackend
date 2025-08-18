@@ -49,6 +49,8 @@ class PromotionController extends Controller
                 ->get();
 
             return $this->successResponse([
+                'category' => $category,
+
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
             ], 'All Services Fetched!!');
