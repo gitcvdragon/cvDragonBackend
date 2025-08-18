@@ -35,7 +35,7 @@ class DigitalCvController extends Controller
                 return $this->errorResponse($validator->errors()->first(), 422);
             }
 
-            \DB::table('user')
+            \DB::table('users')
                 ->where('id', $id)
                 ->update([
                     'username' => $request->username,
