@@ -13,54 +13,51 @@ class DigitalCvController extends Controller
 {
     use ApiResponseTrait;
 
+
     public function createDigitalCv(Request $request)
     {
         try {
             $id = auth()->id();
 
-            // Always update username
-            \DB::table('user-basic')
+            $validator = Validator::make($request->all(), [
+                'username'            => 'required|string|max:255',
+                'profileImageUrl'     => 'nullable|url',
+                'profileVideoURL'     => 'nullable|url',
+                'publicProfileStatus' => 'nullable|in:0,1',
+                'publicProfile'       => 'nullable|string|max:255',
+                'publicProfileDesign' => 'nullable|string|max:255',
+                'showMobile'          => 'nullable|in:0,1',
+                'showProfile'         => 'nullable|in:0,1',
+                'showEmail'           => 'nullable|in:0,1',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse($validator->errors()->first(), 422);
+            }
+
+            \DB::table('user')
                 ->where('id', $id)
                 ->update([
                     'username' => $request->username,
                 ]);
 
-            // Build update data dynamically
-            $updateData = [];
+            $updateData = $request->only([
+                'profileImageUrl',
+                'profileVideoURL',
+                'publicProfileStatus',
+                'publicProfile',
+                'publicProfileDesign',
+                'showMobile',
+                'showProfile',
+                'showEmail',
+            ]);
 
-            if ($request->filled('profileImageUrl')) {
-                $updateData['profileImageUrl'] = $request->profileImageUrl;
-            }
-            if ($request->filled('profileVideoURL')) {
-                $updateData['profileVideoURL'] = $request->profileVideoURL;
-            }
-            if ($request->filled('publicProfileStatus')) {
-                $updateData['publicProfileStatus'] = $request->publicProfileStatus;
-            }
-            if ($request->filled('publicProfile')) {
-                $updateData['publicProfile'] = $request->publicProfile;
-            }
-            if ($request->filled('publicProfileDesign')) {
-                $updateData['publicProfileDesign'] = $request->publicProfileDesign;
-            }
-            if ($request->filled('showMobile')) {
-                $updateData['showMobile'] = $request->showMobile;
-            }
-            if ($request->filled('showProfile')) {
-                $updateData['showProfile'] = $request->showProfile;
-            }
-            if ($request->filled('showEmail')) {
-                $updateData['showEmail'] = $request->showEmail;
-            }
-
-            // Update DB if there’s anything to update
             if (!empty($updateData)) {
                 \DB::table('user-basic')
                     ->where('id', $id)
                     ->update($updateData);
             }
 
-            // Get updated user
             $user = \DB::table('user-basic')->where('id', $id)->first();
 
             return $this->successResponse(
