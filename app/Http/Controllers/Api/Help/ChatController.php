@@ -51,11 +51,14 @@ class ChatController extends Controller
 
     public function userChatIndividual(Request $request)
     {
-     $id = auth()->user()->id;
+        $id = auth()->user()->id;
 
+        // Get limit & offset from request (default: 10 items, offset 0)
+        $limit  = $request->input('limit', 10);
+        $offset = $request->input('offset', 0);
 
         $chatList = DB::table('help-chat')
-        ->select('chat', 'type', 'dateCreated','isResolved')
+            ->select('chat', 'type', 'dateCreated','isResolved','receiverID', 'senderID')
             ->where(function ($query) use ($id) {
                 $query->where('receiverID', $id)
                     ->orWhere('senderID', $id)
@@ -65,11 +68,15 @@ class ChatController extends Controller
             })
             ->where('status', 1)
             ->orderBy('dateCreated', 'asc')
+            ->limit($limit)
+            ->offset($offset)
             ->get();
 
         return $this->successResponse([
-            'chats'   => $chatList
-
+            'chats'   => $chatList,
+            'limit'   => $limit,
+            'offset'  => $offset,
         ], 'All Data Fetched!!');
     }
+
 }

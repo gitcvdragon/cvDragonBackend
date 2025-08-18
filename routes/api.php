@@ -72,7 +72,7 @@ Route::post('/user-profile-delete', [CvProfileController::class, 'deleteUserProf
 //Route::any('{any}', [FallbackController::class, 'handle'])->where('any', '.*');
 Route::post('/help-chat/add', [ChatController::class, 'addChat'])->middleware('auth:api');
 
-Route::get('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
+Route::post('/help-chat/user', [ChatController::class, 'userChatIndividual'])->middleware('auth:api');
 Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
 
 Route::get('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
