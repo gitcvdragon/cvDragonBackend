@@ -17,45 +17,51 @@ class DigitalCvController extends Controller
     {
         try {
             $id = auth()->id();
-            $user = UserBasic::findOrFail($id);
 
-            $user->update([
+            // Always update username
+            \DB::table('user-basic')
+                ->where('id', $id)
+                ->update([
+                    'username' => $request->username,
+                ]);
 
-                'username'   => $request->username,
-            ]);
-
-
-
-            $user = UserBasic::findOrFail($id);
+            // Build update data dynamically
+            $updateData = [];
 
             if ($request->filled('profileImageUrl')) {
-                $user->profileImageUrl = $request->profileImageUrl;
+                $updateData['profileImageUrl'] = $request->profileImageUrl;
             }
             if ($request->filled('profileVideoURL')) {
-                $user->profileVideoURL = $request->profileVideoURL;
+                $updateData['profileVideoURL'] = $request->profileVideoURL;
             }
             if ($request->filled('publicProfileStatus')) {
-                $user->publicProfileStatus = $request->publicProfileStatus;
+                $updateData['publicProfileStatus'] = $request->publicProfileStatus;
             }
             if ($request->filled('publicProfile')) {
-                $user->publicProfile = $request->publicProfile;
+                $updateData['publicProfile'] = $request->publicProfile;
             }
             if ($request->filled('publicProfileDesign')) {
-                $user->publicProfileDesign = $request->publicProfileDesign;
+                $updateData['publicProfileDesign'] = $request->publicProfileDesign;
             }
-
-
             if ($request->filled('showMobile')) {
-                $user->showMobile = $request->showMobile;
+                $updateData['showMobile'] = $request->showMobile;
             }
             if ($request->filled('showProfile')) {
-                $user->showProfile = $request->showProfile;
+                $updateData['showProfile'] = $request->showProfile;
             }
             if ($request->filled('showEmail')) {
-                $user->showEmail = $request->showEmail;
+                $updateData['showEmail'] = $request->showEmail;
             }
 
-            $user->save();
+            // Update DB if there’s anything to update
+            if (!empty($updateData)) {
+                \DB::table('user-basic')
+                    ->where('id', $id)
+                    ->update($updateData);
+            }
+
+            // Get updated user
+            $user = \DB::table('user-basic')->where('id', $id)->first();
 
             return $this->successResponse(
                 ['user' => $user],
@@ -69,6 +75,7 @@ class DigitalCvController extends Controller
             );
         }
     }
+
 
     public function showDigitalCv(Request $request)
     {
