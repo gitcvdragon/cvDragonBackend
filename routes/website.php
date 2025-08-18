@@ -15,9 +15,9 @@ use App\Http\Controllers\Api\website\DigitalCvController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', [MenuController::class, 'groupByIndex']);
-Route::get('/help-videos', [HelpController::class, 'getHelpVideos']);
-Route::get('/help-faq', [HelpController::class, 'getHelpFaq']);
-Route::get('/help-chat', [HelpController::class, 'getNotifications']);
+Route::get('/help-videos', [HelpController::class, 'getHelpVideos'])->middleware('auth:api');
+Route::get('/help-faq', [HelpController::class, 'getHelpFaq'])->middleware('auth:api');
+Route::get('/help-chat', [HelpController::class, 'getNotifications'])->middleware('auth:api');
 
 Route::post('/chat/add', [ChatController::class, 'addChat']);
 Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);
