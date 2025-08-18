@@ -41,7 +41,7 @@ class HelpController extends Controller
             ->offset($offset)
             ->get();
             return $this->successResponse([
-                'help-faq' => $helpFaq
+                'helpFaq' => $helpFaq
 
             ], 'All Data Fetched!!');
 
