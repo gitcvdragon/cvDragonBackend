@@ -25,6 +25,8 @@ Route::post('/chat/list', [ChatController::class, 'userChatIndividual']);
 Route::get('/guideshala', [FeedController::class, 'getFeedList']);
 Route::get('/guideshala/category', [FeedController::class, 'getAllFeedTypes']);
 Route::get('/guideshala/individual', [FeedController::class, 'getFeedListforsingle']);
+Route::post('/guideshala/view', [FeedController::class, 'getSingleFeed']);
+
 Route::get('/home', [HomeController::class, 'fetchMarketingResources']);
 Route::get('/template', [ResumeTemplatesController::class, 'templatesCategory']);
 Route::get('/template/view-all', [ResumeTemplatesController::class, 'getDesignsByCategory']);

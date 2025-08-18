@@ -151,7 +151,7 @@ public function getAllFeedTypes()
 {
     try {
         $feeds = DB::table('kc-main')
-            ->select('kcid', 'kcName')
+            ->select('kcid', 'kcName','icon')
             ->where('isFeed', 1)
             ->where('status', 1)
             ->orderBy('kcName', 'asc')
@@ -160,6 +160,99 @@ public function getAllFeedTypes()
         return $this->successResponse([
             'feedTypes' => $feeds,
         ], 'Feed types fetched successfully!');
+    } catch (\Exception $e) {
+        return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
+    }
+}
+public function getSingleFeed(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'postType' => 'required|integer',
+        'feedID' => 'required|integer',
+        'limit'  => 'nullable|integer|min:1',
+        'offset' => 'nullable|integer|min:0',
+    ]);
+
+    if ($validator->fails()) {
+        return $this->errorResponse($validator->errors()->first(), 422);
+    }
+
+    try {
+        $feed = DB::table('kc-feed as kf')
+            ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
+            ->select(
+                'kf.feedID',
+                'kf.postID',
+                'kf.postHeading',
+                'kf.postDescription',
+                'kf.postImageLink',
+                'kf.postVideoLink',
+                'kf.postMultipleImage',
+                'kf.postLink',
+                'kf.postUpdateDate',
+                'fm.kcName as postTypeDisplayName'
+            )
+            ->where('kf.status', 1)
+            ->where('fm.status', 1)
+            ->where('fm.isFeed', 1)
+            ->where('kf.feedID', $request->feedID)
+            ->first();
+
+        if (!$feed) {
+            return $this->errorResponse('Feed not found', 404);
+        }
+
+        $images = ($feed->postMultipleImage == 1)
+            ? DB::table('kc-feed-gallery')
+                ->where('feedID', $feed->feedID)
+                ->where('postID', $feed->postID)
+                ->where('status', 1)
+                ->pluck('imageLink')
+                ->toArray()
+            : [$feed->postImageLink];
+
+        $data = [
+            'feedID'       => $feed->feedID,
+            'title'        => $feed->postHeading,
+            'description'  => $feed->postDescription,
+            'images'       => $images,
+            'video_link'   => $feed->postVideoLink,
+            'link'         => $feed->postLink,
+            'updated_at'   => $feed->postUpdateDate,
+            'postType'     => $feed->postTypeDisplayName,
+        ];
+
+        $limit  = $request->get('limit', 3);
+        $offset = $request->get('offset', 0);
+
+        $trendingTutorials = DB::table('kc-feed as kf')
+            ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
+            ->select(
+                'kf.feedID',
+                'kf.postID',
+                'kf.postHeading as title',
+                'kf.postDescription as description',
+                'kf.postImageLink',
+                'kf.postVideoLink',
+                'kf.postLink',
+                'kf.postUpdateDate',
+                'fm.kcName as postTypeDisplayName'
+            )
+            ->where('kf.postType',$request->postType)
+            ->where('kf.status', 1)
+            ->where('fm.status', 1)
+            ->where('fm.isFeed', 1)
+            ->where('fm.kcType', 'tutorial')
+            ->orderByDesc('kf.postUpdateDate')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+
+        return $this->successResponse([
+            'feed'              => $data,
+            'trendingTutorials' => $trendingTutorials,
+        ], 'Feed details fetched successfully!');
+
     } catch (\Exception $e) {
         return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
     }
