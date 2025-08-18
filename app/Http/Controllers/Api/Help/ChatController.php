@@ -57,7 +57,7 @@ class ChatController extends Controller
         $offset = $request->input('offset', 0);
 
         $chatList = DB::table('help-chat')
-            ->select('chat', 'type', 'dateCreated', 'isResolved',)
+            ->select('chat', 'type', 'dateCreated','isResolved','receiverID', 'senderID')
             ->where(function ($query) use ($id) {
                 $query->where('receiverID', $id)
                     ->orWhere('senderID', $id)
