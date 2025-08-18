@@ -48,7 +48,6 @@ class ChatController extends Controller
             return $this->successResponse([], 'An error occurred: ' . $e->getMessage(), 500);
         }
     }
-
     public function userChatIndividual(Request $request)
     {
         $id = auth()->user()->id;
@@ -58,7 +57,7 @@ class ChatController extends Controller
         $offset = $request->input('offset', 0);
 
         $chatList = DB::table('help-chat')
-            ->select('chat', 'type', 'dateCreated','isResolved','receiverID', 'senderID')
+            ->select('chat', 'type', 'dateCreated', 'isResolved',)
             ->where(function ($query) use ($id) {
                 $query->where('receiverID', $id)
                     ->orWhere('senderID', $id)
@@ -72,11 +71,17 @@ class ChatController extends Controller
             ->offset($offset)
             ->get();
 
+        $chatList = $chatList->map(function ($chat) use ($id) {
+            $chat->myChat = ($chat->senderID == $id) ? 'yes' : 'no';
+            return $chat;
+        });
+
         return $this->successResponse([
             'chats'   => $chatList,
             'limit'   => $limit,
             'offset'  => $offset,
         ], 'All Data Fetched!!');
     }
+
 
 }
