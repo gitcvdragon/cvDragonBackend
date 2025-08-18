@@ -59,8 +59,9 @@ public function getMyDocuments()
         $userId = auth()->id();
 
         $documents = \DB::table('user-documents as ud')
-            ->join('master_cv_sections as mcs', 'ud.documentSection', '=', 'mcs.id')
-            ->join('resource-section as rs', 'ud.documentSubSection', '=', 'rs.id')
+            ->join('resource-section as rs', 'ud.documentSection', '=', 'rs.id')
+            ->join('master_cv_sections as mcs', 'rs.master_cv_sections_id', '=', 'mcs.id')
+
             ->where('ud.id', $userId)
             ->where('ud.status', 1)
             ->select(
