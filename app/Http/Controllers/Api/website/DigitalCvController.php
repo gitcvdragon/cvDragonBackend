@@ -74,7 +74,6 @@ class DigitalCvController extends Controller
         }
     }
 
-
     public function showDigitalCv(Request $request)
     {
         try {
@@ -85,12 +84,19 @@ class DigitalCvController extends Controller
                 return $this->errorResponse('User not found', 404);
             }
 
-            $user->showProfile = $user->showProfile == 1 ? 0 : 1;
+            // Toggle the value
+            $newValue = $user->showProfile == 1 ? 0 : 1;
 
-            $user->save();
+            // Update in DB
+            \DB::table('user-basic')
+                ->where('id', $id)
+                ->update(['showProfile' => $newValue]);
+
+            // Reflect the new value in response
+            $user->showProfile = $newValue;
 
             return $this->successResponse(
-                ['user' => $user],
+                [],
                 'Profile visibility toggled successfully!'
             );
 
