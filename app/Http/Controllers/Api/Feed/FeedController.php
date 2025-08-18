@@ -40,7 +40,7 @@ class FeedController extends Controller
                 ->get();
 
             $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
-                return $items->take(5)->map(function ($item) {
+                return $items->take(4)->map(function ($item) {
                     // Handle images
                     // $images = ($item->postMultipleImage == 1)
                     //     ? DB::table('kc-feed-gallery')
@@ -79,6 +79,8 @@ class FeedController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'postType' => 'required|integer',
+             'limit'    => 'nullable|integer|min:1',
+        'offset'   => 'nullable|integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -88,7 +90,8 @@ class FeedController extends Controller
 
             // $postType = $this->decryptSafe($request->postType);
             $postType = $request->postType;
-
+         $limit    = $request->get('limit', 10);
+        $offset   = $request->get('offset', 0);
 
             $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
@@ -109,6 +112,8 @@ class FeedController extends Controller
                 ->where('fm.isFeed', 1)
                 ->where('kf.postType', $postType)
                 ->orderByDesc('kf.postUpdateDate')
+                  ->offset($offset)
+            ->limit($limit)
                 ->get();
 
             $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
@@ -142,5 +147,22 @@ class FeedController extends Controller
             return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
         }
     }
+public function getAllFeedTypes()
+{
+    try {
+        $feeds = DB::table('kc-main')
+            ->select('kcid', 'kcName')
+            ->where('isFeed', 1)
+            ->where('status', 1)
+            ->orderBy('kcName', 'asc')
+            ->get();
+
+        return $this->successResponse([
+            'feedTypes' => $feeds,
+        ], 'Feed types fetched successfully!');
+    } catch (\Exception $e) {
+        return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
+    }
+}
 
 }
