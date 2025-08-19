@@ -35,7 +35,7 @@ class HelpController extends Controller
         $offset = $request->query('offset', 0);
 
         $helpFaq = DB::table('help-faq')
-        ->select('faqID','faq',  'answer')
+        ->select('faqID','faq',  'answer','created_at')
             ->where('status', 1)
             ->limit($limit)
             ->offset($offset)
