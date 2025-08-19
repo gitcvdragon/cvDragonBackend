@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Api\Help\ChatController;
 use App\Http\Controllers\Api\website\MyfavController;
+use App\Http\Controllers\Api\website\AllTemplateswithCategory;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\MyDocumentsController;
 use Illuminate\Support\Facades\Route;
@@ -83,5 +84,6 @@ Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->m
 Route::post('/my-documents/upload', [MyDocumentsController::class, 'uploadDocument'])->middleware('auth:api');
 
 Route::get('/my-documents', [MyDocumentsController::class, 'getMyDocuments'])->middleware('auth:api');
+Route::get('/all-templates', [AllTemplateswithCategory::class, 'getAllTemplatesWithCategory'])->middleware('auth:api');
 
 Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'deleteDocument'])->middleware('auth:api');
