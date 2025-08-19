@@ -22,7 +22,7 @@ class HelpController extends Controller
             ->offset($offset)
             ->get();
             return $this->successResponse([
-            'help-videos' => $helpVideos
+            'HelpVideos' => $helpVideos
 
 
             ], 'All Data Fetched!!');
