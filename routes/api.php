@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
 Route::post('/verify-otp', [OTPAuthController::class, 'verifyOtp']);
 Route::get('/social-login', [OTPAuthController::class, 'socialLogin']);
+Route::get('/logout', [OTPAuthController::class, 'logout'])->middleware('auth:api');
 
 // resouce-career options
 Route::get('/resource-careers', [CvCommonController::class, 'getResourceCarrer']);

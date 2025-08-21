@@ -10,7 +10,7 @@ use App\Traits\OtpTrait;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\{CreateCvprofile, CreateCvuserprofile, CvBasicInfo, CvContact, User, UserBasic};
-
+use Tymon\JWTAuth\Exceptions\JWTException;
 class OTPAuthController extends Controller
 {
     use OtpTrait, ApiResponseTrait;
@@ -79,6 +79,20 @@ class OTPAuthController extends Controller
 
         if ($user) {
             $token = JWTAuth::fromUser($user);
+            $record = DB::table('user_otps')
+    ->where('identifier', $request->identifier)
+    ->where('otp', $request->otp)
+    ->first();
+
+if (!$record) {
+    return $this->errorResponse('OTP is not valid!', 401);
+}
+
+DB::table('user_otps')
+    ->where('identifier', $request->identifier)
+    ->where('otp', $request->otp)
+    ->delete();
+
             $user = User::with('userBasic')->find($user->id);
             $showWizard = $user->userBasic ? $user->userBasic->showWizard : null;
             return $this->successResponse(
@@ -244,4 +258,15 @@ class OTPAuthController extends Controller
             );
         }
     }
+
+
+    public function logout(Request $request)
+{
+    try {
+        JWTAuth::invalidate(JWTAuth::getToken());
+        return $this->successResponse([], 'User logged out successfully!');
+    } catch (JWTException $e) {
+        return $this->errorResponse('Failed to logout, token invalid or expired.', 401);
+    }
+}
 }
