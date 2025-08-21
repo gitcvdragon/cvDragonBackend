@@ -22,6 +22,7 @@ class FeedController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
+                    'kf.tags',
                     'kf.postHeading',
                     'kf.postType',
                     'kf.postDescription',
@@ -99,6 +100,7 @@ class FeedController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
+                    'kf.tags',
                     'kf.postHeading',
                     'kf.postDescription',
                     'kf.postImageLink',
@@ -138,6 +140,7 @@ class FeedController extends Controller
                     return [
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
+                        'tags' => $item->tags,
                         'images'      => $images,
                         'video_link'  => $item->postVideoLink,
                         'postImageLink'  => $item->postImageLink,
@@ -190,6 +193,7 @@ public function getSingleFeed(Request $request)
             ->select(
                 'kf.feedID',
                 'kf.postID',
+                'kf.tags',
                 'kf.postHeading',
                 'kf.postDescription',
                 'kf.postImageLink',
@@ -224,6 +228,7 @@ public function getSingleFeed(Request $request)
             'description'  => $feed->postDescription,
             'images'       => $images,
             'video_link'   => $feed->postVideoLink,
+            'tags'         => $feed->tags,
             'link'         => $feed->postLink,
             'updated_at'   => $feed->postUpdateDate,
             'postType'     => $feed->postTypeDisplayName,
@@ -237,6 +242,7 @@ public function getSingleFeed(Request $request)
             ->select(
                 'kf.feedID',
                 'kf.postID',
+                'kf.tags',
                 'kf.postHeading as title',
                 'kf.postDescription as description',
                 'kf.postImageLink',
