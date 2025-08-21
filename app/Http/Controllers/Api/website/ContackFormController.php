@@ -25,7 +25,7 @@ class ContackFormController extends Controller
             ]);
 
             // Insert into database using DB facade
-            $id = DB::table('contact_form')->insertGetId([
+            $id = DB::table('contact_us')->insertGetId([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
