@@ -20,7 +20,7 @@ class ContackFormController extends Controller
                 'name' => 'required|string|max:100',
                 'email' => 'required|email|max:100',
                 'phone' => 'required|string|max:20',
-                'service_id' => 'required|integer|exists:microservice,id',
+                'service_id' => 'required|integer|exists:microservice,sn',
                 'message' => 'required|string',
             ]);
 
