@@ -140,7 +140,7 @@ class DigitalCvController extends Controller
                 ->update($updates);
 
             return $this->successResponse(
-                $updates,
+               [],
                 'Profile visibility updated successfully!'
             );
 
