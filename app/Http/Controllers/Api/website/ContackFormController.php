@@ -34,15 +34,19 @@ class ContackFormController extends Controller
                 'submitted_at' => now(),
             ]);
 
-            // Return success response
-            return $this->successResponse([
-                'message' => 'Contact form submitted successfully!',
-                // 'id' => $id
-            ]);
+
+
+            return $this->successResponse(
+                // ['user' => $user],
+                [],
+                'Contact form submitted successfully!'
+            );
 
         } catch (\Exception $e) {
-            // Return error response
-            return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->errorResponse(
+                'Something went wrong! ' . $e->getMessage(),
+                500
+            );
         }
     }
 
