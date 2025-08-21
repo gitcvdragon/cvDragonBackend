@@ -32,7 +32,7 @@ class FeedController extends Controller
                     'kf.postLink',
                     'kf.postUpdateDate',
                     'fm.kcName as postTypeDisplayName',
-                    'fm.kcType as tags'
+                    'fm.kcType'
                 )
                 ->where('kf.status', 1)
                 ->where('fm.status', 1)
