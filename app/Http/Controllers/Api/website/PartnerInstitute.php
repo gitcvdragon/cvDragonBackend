@@ -35,7 +35,18 @@ class PartnerInstitute extends Controller
     ->get();
 
 
-            $faqs = DB::table('resource_faqs')
+            $images = DB::table('enhance_career_image')
+                ->select('sn','image')
+                ->where([
+                    ['category', '=', $category],
+
+                    ['status', '=', 1],
+                ])
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+
+                $faqs = DB::table('resource_faqs')
                 ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
@@ -49,7 +60,7 @@ class PartnerInstitute extends Controller
 
             return $this->successResponse([
                 'category' => $category,
-
+'images'=> $images,
                 'institutes' => $institutes,
                 'faqs'       => $faqs,
             ], 'All Services Fetched!!');
