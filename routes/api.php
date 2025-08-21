@@ -81,7 +81,7 @@ Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middlewar
 
 Route::post('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
 Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->middleware('auth:api');
-Route::get('/digital-cv-show-from-profile', [DigitalCvController::class, 'showallDigitalCv'])->middleware('auth:api');
+Route::post('/digital-cv-show-from-profile', [DigitalCvController::class, 'showallDigitalCv'])->middleware('auth:api');
 
 Route::post('/my-documents/upload', [MyDocumentsController::class, 'uploadDocument'])->middleware('auth:api');
 
