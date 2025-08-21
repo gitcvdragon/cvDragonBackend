@@ -109,4 +109,47 @@ class DigitalCvController extends Controller
     }
 
 
+    public function showallDigitalCv(Request $request)
+    {
+        try {
+            $id = auth()->id();
+
+            $user = \DB::table('user-basic')->where('id', $id)->first();
+            if (!$user) {
+                return $this->errorResponse('User not found', 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'showMobile' => 'nullable|in:0,1',
+                'showProfile' => 'nullable|in:0,1',
+                'showEmail' => 'nullable|in:0,1',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse($validator->errors()->first(), 422);
+            }
+
+            $updates = $validator->validated();
+
+            if (empty($updates)) {
+                return $this->errorResponse('No valid fields provided to update', 400);
+            }
+
+            \DB::table('user-basic')
+                ->where('id', $id)
+                ->update($updates);
+
+            return $this->successResponse(
+                $updates,
+                'Profile visibility updated successfully!'
+            );
+
+        } catch (\Exception $e) {
+            return $this->errorResponse(
+                'Something went wrong! ' . $e->getMessage(),
+                500
+            );
+        }
+    }
+
 }
