@@ -40,8 +40,9 @@ class AllServicesController extends Controller
                         'cost'        => $service->cost,
                         'textDown'        =>$service->textDown,
                         'textRight'        =>$service->textRight,
+                        'color1'        => $service->color1,
+
                         'color2'        => $service->color2,
-                         'color2'        => $service->color2,
 
                         'button'      => $service->button,
                         'link'        => $service->link,
