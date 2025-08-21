@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\website\PromotionController;
 use App\Http\Controllers\Api\website\PartnerInstitute;
 use App\Http\Controllers\Api\website\AppDownload;
 use App\Http\Controllers\Api\website\DigitalCvController;
+use App\Http\Controllers\Api\website\ContackFormController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', [MenuController::class, 'groupByIndex']);
@@ -43,5 +45,7 @@ Route::get('/app-download', [AppDownload::class, 'appDownload']);
 Route::get('/patner-institute', [PartnerInstitute::class, 'partnerInstitute']);
 Route::get('/promotion', [PromotionController::class, 'promotion']);
 
+
+Route::post('/contact-form', [ContackFormController::class, 'submitContactForm']);
 
 
