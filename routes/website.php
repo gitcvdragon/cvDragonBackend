@@ -40,6 +40,7 @@ Route::get('/faq/category/view-all', [AllFAQController::class, 'AllFaqBasedOnCat
 Route::get('/service-all', [AllServicesController::class, 'getServicesBlock']);
 Route::get('/service/category', [AllServicesController::class, 'getServicesBlockonClick']);
 Route::get('/service/category/main', [AllServicesController::class, 'getServicesBlockonClickMain']);
+Route::get('/all-services', [AllServicesController::class, 'allServicesBlock']);
 
 Route::get('/app-download', [AppDownload::class, 'appDownload']);
 Route::get('/patner-institute', [PartnerInstitute::class, 'partnerInstitute']);

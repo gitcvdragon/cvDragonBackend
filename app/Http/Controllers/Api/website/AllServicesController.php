@@ -241,4 +241,36 @@ class AllServicesController extends Controller
             return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
         }
     }
+
+
+    public function allServicesBlock(Request $request)
+    {
+        try {
+
+
+            $category = $request->input('category') ?? 'services';
+
+            $services = DB::table('microservice')
+                ->where('microsite', 'services')
+                ->orderBy('order-no', 'asc')
+                ->get()
+                ->map(function ($service) {
+                    return [
+                        'sn'       => $service->sn,
+                        'name'       => $service->category,
+
+                    ];
+                });
+
+
+            return $this->successResponse([
+
+                'services'     => $services,
+
+            ], 'All Services Fetched!!');
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
+        }
+    }
 }
