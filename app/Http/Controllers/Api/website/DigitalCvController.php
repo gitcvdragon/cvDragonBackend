@@ -173,7 +173,7 @@ class DigitalCvController extends Controller
         if (!empty($user->publicProfile)) {
             $profileQuery->where('id', $userId);
         } else {
-            $profileQuery->where('cvid', $userId);
+            $profileQuery->where('cvid', $user->publicProfile);
         }
 
         // Get profiles
