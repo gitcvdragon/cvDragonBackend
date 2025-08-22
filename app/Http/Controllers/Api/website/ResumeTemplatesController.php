@@ -44,7 +44,7 @@ class ResumeTemplatesController extends Controller
                 // });
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category','bgcolour')
                 ->where([
                     ['category', '=', $category],
                     ['status', '=', 1],

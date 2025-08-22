@@ -81,7 +81,7 @@ class HomeController extends Controller
                 ->select('design_image')
                 ->where('status', 1)
                 ->orderBy('downloadTimes', 'desc')
-                ->limit(5)
+                ->limit(15)
                 ->get();
                 $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')

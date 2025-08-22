@@ -67,9 +67,19 @@ class FeedController extends Controller
                     ];
                 });
             });
+            $images = DB::table('enhance_career_image')
+            ->select('sn','image')
+            ->where([
+                ['category', '=', $category],
 
+                ['status', '=', 1],
+            ])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
             return $this->successResponse([
                 'guideshala' => $grouped,
+                'article_bg_images' => $images,
             ], 'Public feed fetched successfully!');
         } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong: ' . $e->getMessage(), 500);
