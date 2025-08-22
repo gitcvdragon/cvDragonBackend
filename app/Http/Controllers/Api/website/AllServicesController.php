@@ -106,6 +106,8 @@ class AllServicesController extends Controller
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->orderBy('order-no', 'asc')
+                ->limit(2)
+
                 ->get()
                 ->map(function ($service) {
                     return [
@@ -122,7 +124,8 @@ class AllServicesController extends Controller
                         // 'main'          => $this->encryptSafe($service->main),
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
                         'main'          => $service->main,
-                        'microsite'          =>  $service->microsite
+                        'microsite'          =>  $service->microsite,
+                        'persons_image'      => json_decode($service->persons_image),
                     ];
                 });
 
