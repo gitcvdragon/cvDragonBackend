@@ -61,7 +61,7 @@ class ResumeTemplatesController extends Controller
                     'c.description',
                     'd.design_image',
                     'd.designid as category_id'
-                    ,'bgcolour'
+                    ,'bgcolour as bg'
                 )
                 ->where('c.status', 1)
                 ->where('d.status', 1)
