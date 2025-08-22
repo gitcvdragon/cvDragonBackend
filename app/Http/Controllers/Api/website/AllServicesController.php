@@ -155,7 +155,7 @@ class AllServicesController extends Controller
 
             return $this->successResponse([
                 'category' => $category,
-                'categoryId'=>$categoryId,
+                'sub_category'=>$categoryId,
 
                 'services'     => $services,
                 'testimonials' => $testimonials,
