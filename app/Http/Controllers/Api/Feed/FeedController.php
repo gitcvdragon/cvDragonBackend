@@ -70,7 +70,7 @@ class FeedController extends Controller
             $images = DB::table('enhance_career_image')
             ->select('sn','image')
             ->where([
-                ['category', '=', $category],
+                ['category', '=', 'guidesala'],
 
                 ['status', '=', 1],
             ])
