@@ -206,7 +206,8 @@ class AllServicesController extends Controller
                         'cost'        => $service->cost,
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        // 'sn'          => $service->sn,
+                        'color1'          => $service->color1,
+                        'color2'          => $service->color2,
                     ];
                 });
 
