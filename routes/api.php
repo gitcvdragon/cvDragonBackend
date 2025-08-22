@@ -80,6 +80,7 @@ Route::post('/help-chat/user', [ChatController::class, 'userChatIndividual'])->m
 Route::get('/my-favorites', [MyfavController::class, 'getFavorites'])->middleware('auth:api');
 
 Route::post('/digital-cv-create', [DigitalCvController::class, 'createDigitalCv'])->middleware('auth:api');
+Route::get('/digital-cv/{userId}', [DigitalCvController::class, 'DigitalCv']);
 Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->middleware('auth:api');
 Route::post('/digital-cv-show-from-profile', [DigitalCvController::class, 'showallDigitalCv'])->middleware('auth:api');
 

@@ -151,5 +151,60 @@ class DigitalCvController extends Controller
             );
         }
     }
+    public function DigitalCv(Request $request, $userId)
+    {
+        // Fetch user
+        $user = \DB::table('user-basic')->where('id', $userId)->first();
 
+        if (!$user) {
+            return $this->errorResponse('User not found', 404);
+        }
+
+        // Check if public profile is enabled
+        if ($user->publicProfileStatus != 1) {
+            return $this->errorResponse('User profile is not public', 403);
+        }
+
+        // Build query based on publicProfile field
+        $profileQuery = CreateCvuserprofile::with('cvProfileSection')
+            ->where('status', 1);
+
+        if (!empty($user->publicProfile)) {
+            $profileQuery->where('id', $userId);
+        } else {
+            $profileQuery->where('cvid', $userId);
+        }
+
+        // Get profiles
+        $profiles = $profileQuery->get();
+
+        if ($profiles->isEmpty()) {
+            return $this->successResponse(
+                ['profiles' => null],
+                'No Profiles Fetched!!'
+            );
+        }
+
+        // Transform profiles
+        $profilesWithSections = $profiles->map(function ($profile) {
+            $profileData = $profile->toArray();
+
+            $profileData['profile_id'] = $profile->cvid ?? null;
+
+            $profileData['sections'] = is_array($profile->sections)
+                ? $profile->sections
+                : json_decode($profile->sections, true);
+
+            $profileData['sectionOrder'] = is_array($profile->sectionOrder)
+                ? $profile->sectionOrder
+                : json_decode($profile->sectionOrder, true);
+
+            return $profileData;
+        });
+
+        return $this->successResponse(
+            ['profiles' => $profilesWithSections],
+            'All Profiles Fetched!!'
+        );
+    }
 }
