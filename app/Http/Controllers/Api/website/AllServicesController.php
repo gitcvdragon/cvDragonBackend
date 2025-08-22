@@ -124,6 +124,8 @@ class AllServicesController extends Controller
                         'link'        => $service->link,
                         // 'main'          => $this->encryptSafe($service->main),
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
+                        'color1'          => $service->color1,
+                        'color2'          => $service->color2,
                         'main'          => $service->main,
                         'microsite'          =>  $service->microsite,
                         'persons_image'      => json_decode($service->persons_image),
@@ -206,8 +208,8 @@ class AllServicesController extends Controller
                         'cost'        => $service->cost,
                         'button'      => $service->button,
                         'link'        => $service->link,
-                        'color1'          => $service->color1,
-                        'color2'          => $service->color2,
+                        // 'color1'          => $service->color1,
+                        // 'color2'          => $service->color2,
                     ];
                 });
 
