@@ -105,6 +105,7 @@ class AllServicesController extends Controller
 
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
+                ->where('microsite', '!=', 'main')
                 ->orderBy('order-no', 'asc')
                 ->limit(2)
 
