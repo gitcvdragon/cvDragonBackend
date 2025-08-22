@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\website;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
+use App\Models\{CreateCvuserprofile, CvImages, CvInterest, CvLanguages, CVSkill, CvTechnical, User};
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
