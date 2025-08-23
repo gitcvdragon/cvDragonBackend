@@ -124,6 +124,28 @@ class HomeController extends Controller
                     ];
                 });
             });
+            $statistics = [
+                [
+                    "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Downloads",
+                    "total" => 12
+                ],
+                [
+                    "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" =>"cv Created",
+                    "total" => 8
+                ],
+                [
+                    "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Trained",
+                    "total" => 6
+                ],
+                [
+                    "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Downloads",
+                    "total" => 3
+                ]
+            ];
 
             return $this->successResponse([
                 'category' => $category,
@@ -134,7 +156,7 @@ class HomeController extends Controller
                 'faqs'         => $faqs,
                 'designs'         => $designs,
                 'guideshala' => $grouped,
-
+'statistics' => $statistics
             ], 'All Data Fetched!!');
 
         } catch (\Exception $e) {
