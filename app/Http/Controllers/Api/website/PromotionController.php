@@ -48,11 +48,65 @@ class PromotionController extends Controller
                 ->limit(5)
                 ->get();
 
+
+                $services = DB::table('microservice')
+                ->where('microsite', '=', 'services')
+                ->where('microsite', '!=', 'main')
+                ->orderBy('order-no', 'asc')
+                ->limit(2)
+
+                ->get()
+                ->map(function ($service) {
+                    return [
+                        'image'       => $service->image,
+                        'icon'        => $service->icon,
+                        'purchases'   => $service->purchases,
+                        'name'        => $service->heading,
+                        'description' => $service->description,
+                        'rating'      => $service->rating,
+                        'cost'        => $service->cost,
+
+                        'button'      => $service->button,
+                        'link'        => $service->link,
+                        // 'main'          => $this->encryptSafe($service->main),
+                        // 'microsite'          =>  $this->encryptSafe($service->microsite)
+                        'color1'          => $service->color1,
+                        'color2'          => $service->color2,
+                        'main'          => $service->main,
+                        'microsite'          =>  $service->microsite,
+                        'persons_image'      => json_decode($service->persons_image),
+                    ];
+                });
+
+                $statistics = [
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Downloads",
+                        "total" => 12
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" =>"cv Created",
+                        "total" => 8
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Trained",
+                        "total" => 6
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Downloads",
+                        "total" => 3
+                    ]
+                ];
+
             return $this->successResponse([
                 'category' => $category,
 
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
+                'statistics'  => $statistics,
             ], 'All Services Fetched!!');
 
         } catch (\Exception $e) {
