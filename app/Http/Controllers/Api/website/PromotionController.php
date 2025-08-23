@@ -107,6 +107,7 @@ class PromotionController extends Controller
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
                 'statistics'  => $statistics,
+                'services'    => $services,
             ], 'All Services Fetched!!');
 
         } catch (\Exception $e) {
