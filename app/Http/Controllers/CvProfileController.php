@@ -272,7 +272,7 @@ $profile->save();
         $profile_id = $request->input('profile_id');
         $section_id = $request->input('section_id');
         // $user_id    = $request->input('user_id');
-    $user_id = auth()->user()->id;
+         $user_id = auth()->user()->id;
 
 
         if (! $recordId || ! $profile_id || ! $section_id || ! $user_id) {
@@ -301,10 +301,10 @@ $profile->save();
 
             $newRecordIds = [strval($recordId)];
 
-            if ($existingCvProfileSection && $defaultSection == 1) {
-                DB::rollBack();
-                return $this->errorResponse('Data already available.', 400);
-            }
+            // if ($existingCvProfileSection && $defaultSection == 1) {
+            //     DB::rollBack();
+            //     return $this->errorResponse('Data already available.', 400);
+            // }
 
             if ($existingCvProfileSection && $defaultSection == 0) {
                 $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
