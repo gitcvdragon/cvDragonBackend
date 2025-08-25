@@ -46,6 +46,29 @@ class CvProfileController extends Controller
             ? $profile->sectionOrder
             : json_decode($profile->sectionOrder, true);
 
+
+            if (empty($profile->cv_profile_section) || $profile->cv_profile_section == "[]") {
+                $sections = DB::table('resource-section')
+    ->where('status', 1)
+    ->orderBy('orderSection')
+    ->get();
+                $cvProfileSection = $sections->map(function ($section) use ($profile) {
+                    return [
+                        'cvid'       => $profile->cvid,
+                        'section'    => (int) $section->id,
+                        'subsection' => [],
+                        'showName'   => $section->sectionName,
+                    ];
+                })->toArray();
+
+                $profileData['cv_profile_section'] = $cvProfileSection;
+            } else {
+                // Decode existing if stored as JSON
+                // $profileData['cv_profile_section'] = is_array($profile->cv_profile_section)
+                //     ? $profile->cv_profile_section
+                //     : json_decode($profile->cv_profile_section, true);
+            }
+
         return $profileData;
     });
 
