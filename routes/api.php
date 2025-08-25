@@ -13,10 +13,12 @@ use App\Http\Controllers\Api\website\MyfavController;
 use App\Http\Controllers\Api\website\AllTemplateswithCategory;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\MyDocumentsController;
-use App\Http\Controllers\Api\website\Subscription\SubscriptionController;
+use App\Http\Controllers\Api\website\Subscription\MySubscriptionController;
 use Illuminate\Support\Facades\Route;
 
-/*
+/*namespace App\Http\Controllers\Api\website\Subscription;
+
+use App\Http\Controllers\Controller;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
@@ -91,4 +93,4 @@ Route::get('/my-documents', [MyDocumentsController::class, 'getMyDocuments'])->m
 Route::get('/all-templates', [AllTemplateswithCategory::class, 'getAllTemplatesWithCategory'])->middleware('auth:api');
 
 Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'deleteDocument'])->middleware('auth:api');
-Route::get('/subscriptions/active', [SubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
+Route::get('/subscriptions/active', [MySubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
