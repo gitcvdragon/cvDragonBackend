@@ -18,6 +18,7 @@ class MySubscriptionController extends Controller
     // Get all active subscriptions
     $userId = auth()->user()->id;
     $subscriptions = DB::table('user-subscription')
+    ->select('design','activate','expiry')
         ->where('user_id', $userId)
         ->where('status', 1)
         ->where('expiry', '>=', now())
@@ -29,6 +30,13 @@ class MySubscriptionController extends Controller
 
     // Loop through each subscription and attach design + category
     $subscriptions->transform(function ($subscription) {
+
+
+        $subscription->daysLeft = \Carbon\Carbon::now()->diffInDays(
+            \Carbon\Carbon::parse($subscription->expiry),
+            false
+        );
+
         $design = DB::table('resource-profiledesign')
         ->select('designName','categoryid')
             ->where('designid', $subscription->design)
@@ -54,7 +62,7 @@ class MySubscriptionController extends Controller
 
     return $this->successResponse([
         'subscriptions' => $subscriptions
-    ], 'All active subscriptions with designs fetched successfully!');
+    ], 'All active subscriptions fetched successfully!');
 }
 
 }
