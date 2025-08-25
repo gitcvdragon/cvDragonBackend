@@ -45,7 +45,7 @@ class MySubscriptionController extends Controller
                 ->where('status', 1)
                 ->first();
 
-            $design->category = $category->title;
+                $design->category = $category ? $category->title : null;
         }
 
         $subscription->designDetails = $design;
