@@ -90,3 +90,4 @@ Route::get('/my-documents', [MyDocumentsController::class, 'getMyDocuments'])->m
 Route::get('/all-templates', [AllTemplateswithCategory::class, 'getAllTemplatesWithCategory'])->middleware('auth:api');
 
 Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'deleteDocument'])->middleware('auth:api');
+Route::get('/subscriptions/active', [SubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
