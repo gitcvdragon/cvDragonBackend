@@ -127,7 +127,7 @@ class ResumeTemplatesController extends Controller
                     'c.title',
                     'c.description',
                     'd.design_image',
-                    'd.id as category_id'
+                    'c.id as category_id'
                 )
                 ->where('c.status', 1)
                 ->where('d.status', 1)
