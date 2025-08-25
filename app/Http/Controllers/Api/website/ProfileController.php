@@ -21,7 +21,7 @@ class ProfileController extends Controller
     {
         $userId = $request->input('user_id');
 
-        DB::table('users_basic')
+        DB::table('user-basic')
             ->where('id', $userId)
             ->update(['status' => 0]);
         DB::table('users')
@@ -51,8 +51,8 @@ class ProfileController extends Controller
         $userId                   = auth()->id(); // or JWTAuth::user()->id
         $wizardEducationProfileID = $request->input('wizardEducationProfileID');
 
-        // Update users_basic table
-        DB::table('users_basic')
+        // Update user-basic table
+        DB::table('user-basic')
             ->where('id', $userId)
             ->update(['wizardEducationProfileID' => $wizardEducationProfileID]);
 
@@ -87,7 +87,7 @@ class ProfileController extends Controller
         'sendSMSNoti',
     ]);
 
-    DB::table('users_basic')
+    DB::table('user-basic')
         ->where('id', $userId)
         ->update($updateData);
 
