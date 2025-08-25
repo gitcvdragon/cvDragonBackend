@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\ContackFormController;
 use App\Http\Controllers\Api\Website\ProfileController;
 
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', [MenuController::class, 'groupByIndex']);
@@ -52,6 +53,9 @@ Route::post('/contact-form', [ContackFormController::class, 'submitContactForm']
 
 
 
-Route::post('/user-delete', [ProfileController::class, 'deleteAccount'])->middleware('auth:api');
-Route::post('/update-notification-setting', [ProfileController::class, 'updateNotificationSettings'])->middleware('auth:api');
-Route::post('/update-work-profile', [ProfileController::class, 'updateWizardEducationProfile'])->middleware('auth:api');
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/user-delete', [ProfileController::class, 'deleteAccount']);
+    Route::post('/update-notification-setting', [ProfileController::class, 'updateNotificationSettings']);
+    Route::post('/update-work-profile', [ProfileController::class, 'updateWizardEducationProfile']);
+});
