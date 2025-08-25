@@ -47,7 +47,7 @@ class CvProfileController extends Controller
             : json_decode($profile->sectionOrder, true);
 
 
-            if (empty($profile->cv_profile_section) || $profile->cv_profile_section == "[]") {
+            if (empty($profile->cv_profile_section) || $profile->cv_profile_section == []) {
                 $sections = DB::table('resource-section')
     ->where('status', 1)
     ->orderBy('orderSection')
