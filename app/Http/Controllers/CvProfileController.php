@@ -73,13 +73,11 @@ class CvProfileController extends Controller
 
         // Extract section IDs from JSON field (assumed)
         $profilesWithSections = $profiles->map(function ($profile) {
-          $profileData               = $profile->toArray();
-            $profileData['profile_id'] = $profile->cvid ?? null;
-          $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
+        $profileData               = $profile->toArray();
+        $profileData['profile_id'] = $profile->cvid ?? null;
+        $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
         $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
-        //     // $sections = ResourceSection::whereIn('id', $sectionIds ?? [])->get();
 
-        //     //  $profileData['sections'] = $sections;
 
            return $profileData;
          });

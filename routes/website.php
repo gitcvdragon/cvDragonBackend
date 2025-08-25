@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\website\PartnerInstitute;
 use App\Http\Controllers\Api\website\AppDownload;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\ContackFormController;
+use App\Http\Controllers\Api\Website\ProfileController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -50,3 +51,7 @@ Route::get('/promotion', [PromotionController::class, 'promotion']);
 Route::post('/contact-form', [ContackFormController::class, 'submitContactForm']);
 
 
+
+Route::post('/user-delete', [ProfileController::class, 'deleteAccount'])->middleware('auth:api');
+Route::post('/update-notification-setting', [ProfileController::class, 'updateNotificationSettings'])->middleware('auth:api');
+Route::post('/update-work-profile', [ProfileController::class, 'updateWizardEducationProfile'])->middleware('auth:api');

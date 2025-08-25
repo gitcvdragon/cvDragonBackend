@@ -47,7 +47,7 @@ Route::post('/user-uploadProfileImage', [UserController::class, 'uploadProfileIm
 Route::post('/user-skill-technical-lang-interest-store', [UserController::class, 'userSkillTechnicalLangInterestStore'])->middleware('auth:api');
 Route::post('/user-sections-details', [CvSectionController::class, 'getUserSectionDetails'])->middleware('auth:api');
 Route::post('/user-sections-details-add', [CvSectionController::class, 'addData'])->middleware('auth:api');
-Route::post('/user-sections-details-update', [CvSectionController::class, 'getUserSectionDetailsUpdate'])->middleware('auth:api');
+Route::post('/user-sections-details-update', [CvSectionController::class, 'profile-add'])->middleware('auth:api');
 Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete'])->middleware('auth:api');
 Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete'])->middleware('auth:api');
 // Route::post('/get-config', [AppConfigController::class, 'getConfig']);

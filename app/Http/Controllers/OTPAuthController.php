@@ -147,6 +147,13 @@ DB::table('user_otps')
                 DB::commit();
                 $token = JWTAuth::fromUser($user);
 
+                $user = \App\Models\User::find($userId);
+
+                if ($user) {
+                    $token = JWTAuth::fromUser($user);
+                    JWTAuth::invalidate($token, true);
+                }
+
                 return $this->successResponse(
                     [
                         'user_id' => $user->id,
