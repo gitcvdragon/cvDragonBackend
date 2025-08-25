@@ -236,7 +236,7 @@ class ResumeTemplatesController extends Controller
             return $this->successResponse([
                 'category' => $category,
                 'sub_category'=>$sub_category,
-                'type'   => $typeofcategory,
+                'type'   => $typeofcategory->title,
                 'heading'   => $typeofcategory,
                 'designs'      => $designs,
 
