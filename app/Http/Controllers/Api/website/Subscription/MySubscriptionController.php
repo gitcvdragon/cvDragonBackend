@@ -13,7 +13,7 @@ class MySubscriptionController extends Controller
 {
     use ApiResponseTrait;
 
-    public function getActiveSubscriptions($userId)
+    public function getActiveSubscriptions(Request $request)
 {
     // Get all active subscriptions
     $userId = auth()->user()->id;
