@@ -78,11 +78,13 @@ class HomeController extends Controller
                 ->get();
 
                 $designs = DB::table('resource-profiledesign')
-                ->select('design_image')
+                ->select('design_image','designid','categoryid')
                 ->where('status', 1)
                 ->orderBy('downloadTimes', 'desc')
                 ->limit(15)
                 ->get();
+
+
                 $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
                 ->select(
