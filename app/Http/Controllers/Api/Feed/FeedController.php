@@ -53,7 +53,8 @@ class FeedController extends Controller
                     //     : [$item->postImageLink];
 
                     return [
-                        // 'postType'       => $this->encryptSafe($item->postType),
+
+                        'feedID'       => $item->feedID,
                         'postType'       => $item->postType,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
@@ -148,6 +149,8 @@ class FeedController extends Controller
                         : [];
 
                     return [
+                        'feedID'       => $item->feedID,
+                        'postType'       => $item->postType,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         'tags' => $item->tags,
