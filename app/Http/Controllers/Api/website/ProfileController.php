@@ -82,7 +82,8 @@ class ProfileController extends Controller
         'notiHelp',
         'notiDesign',
         'notiPlacement',
-        'notiOthersendMailNoti',
+        'notiOther',
+        'sendMailNoti',
         'sendWhatsAppNoti',
         'sendSMSNoti',
     ]);
