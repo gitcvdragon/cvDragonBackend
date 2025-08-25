@@ -64,9 +64,9 @@ class CvProfileController extends Controller
                 $profileData['cv_profile_section'] = $cvProfileSection;
             } else {
                 // Decode existing if stored as JSON
-                // $profileData['cv_profile_section'] = is_array($profile->cv_profile_section)
-                //     ? $profile->cv_profile_section
-                //     : json_decode($profile->cv_profile_section, true);
+                $profileData['cv_profile_section'] = is_array($profile->cv_profile_section)
+                    ? $profile->cv_profile_section
+                    : json_decode($profile->cv_profile_section, true);
             }
 
         return $profileData;
