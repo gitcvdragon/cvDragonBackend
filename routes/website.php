@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\website\PartnerInstitute;
 use App\Http\Controllers\Api\website\AppDownload;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\ContackFormController;
-use App\Http\Controllers\Api\Website\ProfileController;
+use App\Http\Controllers\Api\website\ProfileController;
 
 
 use Illuminate\Support\Facades\Route;
