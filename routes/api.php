@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\website\MyfavController;
 use App\Http\Controllers\Api\website\AllTemplateswithCategory;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\MyDocumentsController;
+use App\Http\Controllers\Api\website\Subscription\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
