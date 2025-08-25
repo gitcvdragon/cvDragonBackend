@@ -37,9 +37,6 @@ class MySubscriptionController extends Controller
 
         if ($design) {
             // Decode sectionOrder JSON
-            $design->sectionOrder = !empty($design->sectionOrder)
-                ? json_decode($design->sectionOrder, true)
-                : [];
 
             // Fetch design category
             $category = DB::table('resource_profile_design_categories')
@@ -48,7 +45,7 @@ class MySubscriptionController extends Controller
                 ->where('status', 1)
                 ->first();
 
-            $design->category = $category;
+            $design->category = $category->title;
         }
 
         $subscription->designDetails = $design;
