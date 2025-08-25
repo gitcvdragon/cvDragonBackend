@@ -299,12 +299,10 @@ $profile->save();
 
             $newRecordIds = [strval($recordId)];
 
-            // if ($existingCvProfileSection && $defaultSection == 1) {
-            //     DB::rollBack();
-            //     return $this->errorResponse('Data already available.', 400);
-            // }
 
-            if ($existingCvProfileSection && $defaultSection == 0) {
+if ($existingCvProfileSection) {
+            if ($defaultSection == 0){
+				//($existingCvProfileSection);
                 $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];
                 $existingSubsection = array_map('strval', $existingSubsection);
                 $mergedSubsection   = array_unique(array_merge($existingSubsection, $newRecordIds));
@@ -318,16 +316,29 @@ $profile->save();
                         'subsection' => json_encode($mergedSubsection),
                         'showName'   => $section_name,
                     ]);
-            } else {
-                DB::table('create-cvprofilesection')->insert([
-                    'cvid'       => $profile_id,
-                    'section'    => $section_id,
-                    'id'         => $user_id,
-                    'subsection' => json_encode($newRecordIds),
+            }else{
+				 DB::table('create-cvprofilesection')
+                    ->where('cvid', $profile_id)
+                    ->where('section', $section_id)
+                    ->where('id', $user_id)
+                    ->where('status', 1)
+                    ->update([
+                        'subsection' => json_encode($newRecordIds),
                     'showName'   => $section_name,
-                ]);
-            }
+                    ]);
 
+			}
+}else{
+   DB::table('create-cvprofilesection')->insert([
+        'cvid'       => $profile_id,
+        'section'    => $section_id,
+        'id'         => $user_id,
+        'subsection' => json_encode($newRecordIds),
+        'showName'   => $section_name,
+        'status'     => 1,
+        'dateCreated' => now(),
+    ]);
+}
             DB::commit();
 
             return response()->json([
