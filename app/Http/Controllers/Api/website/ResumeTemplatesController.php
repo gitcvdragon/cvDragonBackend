@@ -127,7 +127,7 @@ class ResumeTemplatesController extends Controller
                     'c.title',
                     'c.description',
                     'd.design_image',
-                    'd.designid as category_id'
+                    'd.id as category_id'
                 )
                 ->where('c.status', 1)
                 ->where('d.status', 1)
@@ -204,11 +204,11 @@ class ResumeTemplatesController extends Controller
                 ->where('status', 1)
                 ->where('designid', $categoryId)
                 ->first();
-                $categories = DB::table('resource_profile_design_categories')
+                $typeofcategory = DB::table('resource_profile_design_categories')
                 ->select( 'title')
                 ->where('status', 1)
                 ->where('id',  $categoryId)
-                ->orderBy('created_at', 'desc')
+
                 ->first();
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
@@ -236,8 +236,8 @@ class ResumeTemplatesController extends Controller
             return $this->successResponse([
                 'category' => $category,
                 'sub_category'=>$sub_category,
-                'type'   => $categories,
-                'heading'   => $categories,
+                'type'   => $typeofcategory,
+                'heading'   => $typeofcategory,
                 'designs'      => $designs,
 
                 'testimonials' => $testimonials,
