@@ -154,7 +154,28 @@ class AllServicesController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
-
+                $statistics = [
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Downloads",
+                        "total" => 12
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" =>"cv Created",
+                        "total" => 8
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Trained",
+                        "total" => 6
+                    ],
+                    [
+                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                        "description" => "cv Downloads",
+                        "total" => 3
+                    ]
+                ];
             return $this->successResponse([
                 'category' => $category,
                 'sub_category'=>$categoryId,
@@ -162,6 +183,7 @@ class AllServicesController extends Controller
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
+                'statistics'  => $statistics,
             ], 'All Services Fetched!!');
 
         } catch (\Exception $e) {
@@ -237,28 +259,7 @@ class AllServicesController extends Controller
                 ->get();
 
 
-                $statistics = [
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Downloads",
-                        "total" => 12
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" =>"cv Created",
-                        "total" => 8
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Trained",
-                        "total" => 6
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Downloads",
-                        "total" => 3
-                    ]
-                ];
+
 
             return $this->successResponse([
                 'category' => $category,
@@ -266,7 +267,7 @@ class AllServicesController extends Controller
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
-                'statistics'  => $statistics,
+                // 'statistics'  => $statistics,
             ], 'All Services Fetched!!');
 
         } catch (\Exception $e) {
