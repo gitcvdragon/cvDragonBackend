@@ -30,6 +30,7 @@ class MySubscriptionController extends Controller
     // Loop through each subscription and attach design + category
     $subscriptions->transform(function ($subscription) {
         $design = DB::table('resource-profiledesign')
+        ->select('designName','categoryid')
             ->where('designid', $subscription->design)
             ->where('status', 1)
             ->first();
@@ -42,6 +43,7 @@ class MySubscriptionController extends Controller
 
             // Fetch design category
             $category = DB::table('resource_profile_design_categories')
+            ->select('title')
                 ->where('id', $design->categoryid)
                 ->where('status', 1)
                 ->first();
