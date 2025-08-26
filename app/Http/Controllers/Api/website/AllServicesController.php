@@ -112,6 +112,7 @@ class AllServicesController extends Controller
                 ->get()
                 ->map(function ($service) {
                     return [
+                        'sn'       => $service->sn,
                         'image'       => $service->image,
                         'icon'        => $service->icon,
                         'purchases'   => $service->purchases,
@@ -194,11 +195,12 @@ class AllServicesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'sn' => 'required|integer|exists:microservice,sn',
                 'category'     => 'required|string|max:50',
                 'sub_category' => 'required|string|max:100',
 
-                'main'      => 'required|string',
                 'microsite'      => 'required|string',
+                'main'      => 'required|string',
 
             ]);
 
@@ -209,13 +211,13 @@ class AllServicesController extends Controller
             $categoryId = $request->input('sub_category');
             // $main = $this->decryptSafe($request->input('main'));
             // $microsite = $this->decryptSafe($request->input('microsite'));
-            $main = $request->input('main');
+            $sn = $request->input('sn');
             $microsite = $request->input('microsite');
 
             $services   = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->where('category', '=', "main")
-                ->where('main', '=', $main)
+                ->where('sn', $sn)
 
                 ->orderBy('order-no', 'asc')
                 ->get()
