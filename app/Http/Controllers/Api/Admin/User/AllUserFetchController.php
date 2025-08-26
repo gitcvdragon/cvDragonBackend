@@ -25,12 +25,13 @@ class AllUserFetchController extends Controller
 
             $users = DB::table('users as u')
             ->leftJoin('user_categories as uc', 'u.categoryid', '=', 'uc.usercategoryid')
+            ->leftJoin('user-basic as ub', 'ub.id', '=', 'u.id')
             ->select(
                 'u.id',
-                'u.fullName as name',          // use fullName instead of username
-                'u.emailAddress as userEmail', // use emailAddress instead of userEmail
-                'u.phoneNumber as userMobile', // use phoneNumber instead of userMobile
-                'u.profileImageUrl as profileImg', // <-- fix here
+                'ub.fullName as name',
+                'ub.emailAddress as userEmail',
+                'ub.phoneNumber as userMobile',
+                'ub.profileImageUrl as profileImg',
                 'uc.category as accountType',
                 DB::raw("DATE(u.dateUpdated) as dateOfRegistration"),
                 'u.socialType as platformType'
@@ -40,8 +41,8 @@ class AllUserFetchController extends Controller
             ->limit($limit)
             ->orderBy('u.id', 'desc')
             ->get();
-        
-             
+
+
             // Format for frontend JSON
             $data = $users->map(function ($user) {
                 return [
