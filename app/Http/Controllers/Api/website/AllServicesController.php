@@ -27,6 +27,7 @@ class AllServicesController extends Controller
 
             $services = DB::table('microservice')
                 ->where('microsite', 'services')
+                ->where('status', 1)
                 ->orderBy('order-no', 'asc')
                 ->get()
                 ->map(function ($service) {
@@ -106,6 +107,8 @@ class AllServicesController extends Controller
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->where('microsite', '!=', 'main')
+                ->where('status', 1)
+
                 ->orderBy('order-no', 'asc')
                 ->limit(2)
 
@@ -217,6 +220,7 @@ class AllServicesController extends Controller
                 // ->where('microsite', '=', $microsite)
                 // ->where('category', '=', "main")
                 ->where('sn', $sn)
+                ->where('status', 1)
 
                 ->orderBy('order-no', 'asc')
                 ->get()
@@ -287,6 +291,8 @@ class AllServicesController extends Controller
             $services = DB::table('microservice')
                 ->where('microsite', 'services')
                 ->orderBy('order-no', 'asc')
+                ->where('status', 1)
+
                 ->get()
                 ->map(function ($service) {
                     return [
