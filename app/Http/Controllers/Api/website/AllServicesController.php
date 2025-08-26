@@ -32,6 +32,8 @@ class AllServicesController extends Controller
                 ->get()
                 ->map(function ($service) {
                     return [
+                        'sn'                  => $service->sn,
+
                         'image'       => $service->image,
                         'icon'        => $service->icon,
                         'purchases'   => $service->purchases,
@@ -103,14 +105,16 @@ class AllServicesController extends Controller
             $categoryId = $request->input('sub_category');
             $microsite = $request->input('microsite');
             // $microsite = $this->decryptSafe($request->input('microsite'));
-
+            $limit  = $request->input('limit', 2);
+            $offset = $request->input('offset', 0);
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->where('microsite', '!=', 'main')
                 ->where('status', 1)
 
                 ->orderBy('order-no', 'asc')
-                ->limit(2)
+                ->offset($offset)
+                ->limit($limit)
 
                 ->get()
                 ->map(function ($service) {
@@ -225,7 +229,7 @@ class AllServicesController extends Controller
         $service = [
             'sn'                  => $service->sn,
             'image'               => $service->image,
-            'name'                => $service->heading, // alias heading → name
+            'name'                => $service->heading,
             'description'         => $service->description,
             'content'             => $service->content,
             'heading1'            => $service->heading1,
