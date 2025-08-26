@@ -111,6 +111,7 @@ class FeedController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
+
                     'kf.tags',
                     'kf.postHeading',
                     'kf.postDescription',
@@ -119,7 +120,8 @@ class FeedController extends Controller
                     'kf.postMultipleImage',
                     'kf.postLink',
                     'kf.postUpdateDate',
-                    'fm.kcName as postTypeDisplayName'
+                    'fm.kcName as postTypeDisplayName',
+                    'fm.kcName as postType'
                 )
                 ->where('kf.status', 1)
                 ->where('fm.status', 1)
@@ -138,7 +140,7 @@ class FeedController extends Controller
 
             $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) {
                 return $items->take(7)->map(function ($item) {
-                    // Handle images
+                    // Handle images:$postType
                     $images = ($item->postMultipleImage == 1)
                         ? DB::table('kc-feed-gallery')
                             ->where('feedID', $item->feedID)
