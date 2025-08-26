@@ -216,29 +216,23 @@ class AllServicesController extends Controller
             $sn = $request->input('sn');
             $microsite = $request->input('microsite');
 
-            $services   = DB::table('microservice')
-                // ->where('microsite', '=', $microsite)
-                // ->where('category', '=', "main")
-                ->where('sn', $sn)
-                ->where('status', 1)
+            $service = DB::table('microservice')
+            ->where('sn', $sn)
+            ->where('status', 1)
+            ->orderBy('order-no', 'asc')
+            ->first();
 
-                ->orderBy('order-no', 'asc')
-                ->get()
-                ->map(function ($service) {
-                    return [
-                        'image'       => $service->image,
-                        'icon'        => $service->icon,
-                        'purchases'   => $service->purchases,
-                        'name'        => $service->heading,
-                        'description' => $service->description,
-                        'rating'      => $service->rating,
-                        'cost'        => $service->cost,
-                        'button'      => $service->button,
-                        'link'        => $service->link,
-                        // 'color1'          => $service->color1,
-                        // 'color2'          => $service->color2,
-                    ];
-                });
+        $service = [
+            'image'       => $service->image,
+            'icon'        => $service->icon,
+            'purchases'   => $service->purchases,
+            'name'        => $service->heading,
+            'description' => $service->description,
+            'rating'      => $service->rating,
+            'cost'        => $service->cost,
+            'button'      => $service->button,
+            'link'        => $service->link,
+        ];
 
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
