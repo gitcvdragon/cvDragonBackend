@@ -200,7 +200,6 @@ class AllServicesController extends Controller
                 'sub_category' => 'required|string|max:100',
 
                 'microsite'      => 'required|string',
-                'main'      => 'required|string',
 
             ]);
 
