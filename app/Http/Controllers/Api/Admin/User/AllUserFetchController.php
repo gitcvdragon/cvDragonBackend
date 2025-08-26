@@ -24,23 +24,24 @@ class AllUserFetchController extends Controller
             $offset = (int) $request->input('offset', 0);
 
             $users = DB::table('users as u')
-                ->leftJoin('user_categories as uc', 'u.categoryid', '=', 'uc.usercategoryid')
-                ->select(
-                    'u.id',
-                    'u.username as name',
-                    'u.userEmail',
-                    'u.userMobile',
-                    'u.profileImg',
-                    'uc.category as accountType',
-                    DB::raw("DATE(u.dateUpdated) as dateOfRegistration"),
-                    'u.socialType as platformType'
-                )
-                ->where('u.status', 1)
-                ->offset($offset)
-                ->limit($limit)
-                ->orderBy('u.id', 'desc')
-                ->get();
-
+            ->leftJoin('user_categories as uc', 'u.categoryid', '=', 'uc.usercategoryid')
+            ->select(
+                'u.id',
+                'u.fullName as name',          // use fullName instead of username
+                'u.emailAddress as userEmail', // use emailAddress instead of userEmail
+                'u.phoneNumber as userMobile', // use phoneNumber instead of userMobile
+                'u.profileImageUrl as profileImg', // <-- fix here
+                'uc.category as accountType',
+                DB::raw("DATE(u.dateUpdated) as dateOfRegistration"),
+                'u.socialType as platformType'
+            )
+            ->where('u.status', 1)
+            ->offset($offset)
+            ->limit($limit)
+            ->orderBy('u.id', 'desc')
+            ->get();
+        
+             
             // Format for frontend JSON
             $data = $users->map(function ($user) {
                 return [
