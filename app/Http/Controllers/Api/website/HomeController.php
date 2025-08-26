@@ -90,6 +90,8 @@ class HomeController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
+                    'kf.faq_category as category',
+
                     'kf.postHeading',
                     'kf.postDescription',
                     'kf.postImageLink',
@@ -115,6 +117,7 @@ class HomeController extends Controller
                     // Handle images
 
                     return [
+                        'category'       => $item->category,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
                         'images'      => $item->postImageLink,

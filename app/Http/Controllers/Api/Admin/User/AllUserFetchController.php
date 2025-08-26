@@ -25,6 +25,7 @@ class AllUserFetchController extends Controller
 
             $users = DB::table('users as u')
             ->leftJoin('user_categories as uc', 'u.categoryid', '=', 'uc.usercategoryid')
+
             ->leftJoin('user-basic as ub', 'ub.id', '=', 'u.id')
             ->select(
                 'u.id',
@@ -33,8 +34,8 @@ class AllUserFetchController extends Controller
                 'ub.phoneNumber as userMobile',
                 'ub.profileImageUrl as profileImg',
                 'uc.category as accountType',
-                DB::raw("DATE(u.dateUpdated) as dateOfRegistration"),
-                'u.socialType as platformType'
+                DB::raw("DATE(ub.dateCreated) as dateOfRegistration"),
+                'ub.wizardProfile'
             )
             ->where('u.status', 1)
             ->offset($offset)
