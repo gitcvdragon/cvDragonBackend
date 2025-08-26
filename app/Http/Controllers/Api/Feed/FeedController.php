@@ -20,6 +20,8 @@ class FeedController extends Controller
             $allFeeds = DB::table('kc-feed as kf')
                 ->join('kc-main as fm', 'kf.postType', '=', 'fm.kcid')
                 ->select(
+                    'kf.faq_category as category',
+                    'kf.faq_category_sub_category as sub_category',
                     'kf.feedID',
                     'kf.postID',
                     'kf.tags',
@@ -55,6 +57,8 @@ class FeedController extends Controller
                     return [
 
                         'feedID'       => $item->feedID,
+                        'category'       => $item->category,
+                        'sub_category'       => $item->sub_category,
                         'postType'       => $item->postType,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
@@ -111,7 +115,8 @@ class FeedController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
-
+'kf.faq_category as category',
+                    'kf.faq_category_sub_category as sub_category',
                     'kf.tags',
                     'kf.postHeading',
                     'kf.postDescription',
@@ -152,6 +157,8 @@ class FeedController extends Controller
 
                     return [
                         'feedID'       => $item->feedID,
+                        'category'       => $item->category,
+                        'sub_category'       => $item->sub_category,
                         'postType'       => $item->postType,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
@@ -208,6 +215,8 @@ public function getSingleFeed(Request $request)
             ->select(
                 'kf.feedID',
                 'kf.postID',
+                'kf.faq_category as category',
+                    'kf.faq_category_sub_category as sub_category',
                 'kf.tags',
                 'kf.postHeading',
                 'kf.postDescription',
@@ -239,6 +248,8 @@ public function getSingleFeed(Request $request)
 
         $data = [
             'feedID'       => $feed->feedID,
+            'category'       => $item->category,
+            'sub_category'       => $item->sub_category,
             'title'        => $feed->postHeading,
             'description'  => $feed->postDescription,
             'images'       => $images,

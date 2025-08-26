@@ -28,7 +28,7 @@ class PromotionController extends Controller
 
 
             $testimonials = DB::table('resource_testimonials')
-                ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
+                ->select('sn','category' ,'sub_category','title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
                     ['category', '=', $category],
                     ['status', '=', 1],
@@ -38,7 +38,7 @@ class PromotionController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->select('sn', 'category' ,'sub_category','question', 'answer', 'created_at','category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
 
@@ -103,6 +103,7 @@ class PromotionController extends Controller
 
             return $this->successResponse([
                 'category' => $category,
+
 
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
