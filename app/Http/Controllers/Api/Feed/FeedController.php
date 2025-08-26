@@ -248,8 +248,8 @@ public function getSingleFeed(Request $request)
 
         $data = [
             'feedID'       => $feed->feedID,
-            'category'       => $item->category,
-            'sub_category'       => $item->sub_category,
+            'category'       => $feed->category,
+            'sub_category'       => $feed->sub_category,
             'title'        => $feed->postHeading,
             'description'  => $feed->postDescription,
             'images'       => $images,
