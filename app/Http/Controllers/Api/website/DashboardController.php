@@ -37,8 +37,8 @@ class DashboardController extends Controller
 
             $careerImages = DB::table('enhance_career_image')
                 ->where('status', 1)
-                ->where('category', 'dashboard')
-                ->where('sub_category', 'create-cvprofile')
+                ->where('category', 'homepage')
+                ->where('sub_category', 'dashboard')
                 ->get();
 
             $cvCount = DB::table('create-cvprofile')
