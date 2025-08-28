@@ -14,9 +14,11 @@ use App\Http\Controllers\Api\website\AppDownload;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\ContackFormController;
 use App\Http\Controllers\Api\website\ProfileController;
-
-
+use App\Http\Controllers\Api\Website\DashboardController;
 use Illuminate\Support\Facades\Route;
+
+
+
 
 Route::get('/menu', [MenuController::class, 'groupByIndex']);
 Route::get('/help-videos', [HelpController::class, 'getHelpVideos'])->middleware('auth:api');
@@ -47,8 +49,6 @@ Route::get('/all-services', [AllServicesController::class, 'allServicesBlock']);
 Route::get('/app-download', [AppDownload::class, 'appDownload']);
 Route::get('/patner-institute', [PartnerInstitute::class, 'partnerInstitute']);
 Route::get('/promotion', [PromotionController::class, 'promotion']);
-
-
 Route::post('/contact-form', [ContackFormController::class, 'submitContactForm']);
 
 
@@ -58,4 +58,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/user-delete', [ProfileController::class, 'deleteAccount']);
     Route::post('/update-notification-setting', [ProfileController::class, 'updateNotificationSettings']);
     Route::post('/update-work-profile', [ProfileController::class, 'updateWizardEducationProfile']);
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware('auth:api');
+
 });
