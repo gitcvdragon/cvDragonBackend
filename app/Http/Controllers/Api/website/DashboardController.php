@@ -41,7 +41,7 @@ class DashboardController extends Controller
                 ->where('sub_category', 'create-cvprofile')
                 ->get();
 
-            $cvCount = DB::table('user-cv-profile')
+            $cvCount = DB::table('create-cvprofile')
                 ->where('id', $userId)
                 ->count();
 
