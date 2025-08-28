@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Validator;
 class DashboardController extends Controller
 {
     use ApiResponseTrait;
-    use \App\Traits\CryptHelper; public function dashboard(Request $request)
+    use \App\Traits\CryptHelper;
+    public function dashboard(Request $request)
     {
         try {
             $userId = auth()->id();

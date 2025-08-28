@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\website\AppDownload;
 use App\Http\Controllers\Api\website\DigitalCvController;
 use App\Http\Controllers\Api\website\ContackFormController;
 use App\Http\Controllers\Api\website\ProfileController;
-use App\Http\Controllers\Api\Website\DashboardController;
+use App\Http\Controllers\Api\website\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 
