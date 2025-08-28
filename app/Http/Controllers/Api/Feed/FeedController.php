@@ -94,7 +94,7 @@ class FeedController extends Controller
     public function getFeedListforsingle(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'postType' => 'required|integer',
+            'postType' => 'required',
              'limit'    => 'nullable|integer|min:1',
         'offset'   => 'nullable|integer|min:0',
         'search'   => 'nullable|string|max:255',
@@ -199,7 +199,7 @@ public function getAllFeedTypes()
 public function getSingleFeed(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'postType' => 'required|integer',
+        'postType' => 'required',
         'feedID' => 'required|integer',
         'limit'  => 'nullable|integer|min:1',
         'offset' => 'nullable|integer|min:0',
