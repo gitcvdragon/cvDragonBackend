@@ -91,7 +91,6 @@ class HomeController extends Controller
                     'kf.feedID',
                     'kf.postID',
                     'kf.faq_category as category',
-
                     'kf.postHeading',
                     'kf.postDescription',
                     'kf.postImageLink',
@@ -101,7 +100,9 @@ class HomeController extends Controller
                     'kf.postUpdateDate',
                     'kf.postLikes',
                     'fm.kcName as postTypeDisplayName',
-                    'fm.kcType as tags'
+                    'fm.kcType as tags',
+                    'fm.kcName as postType'
+
 
                 )
                 ->where('kf.status', 1)
@@ -117,6 +118,10 @@ class HomeController extends Controller
                     // Handle images
 
                     return [
+                        'postID'       => $item->postID,
+                        'feedID'       => $item->feedID,
+                        'postType'       => $item->postType,
+
                         'category'       => $item->category,
                         'title'       => $item->postHeading,
                         'description' => $item->postDescription,
@@ -161,7 +166,7 @@ class HomeController extends Controller
                 'faqs'         => $faqs,
                 'designs'         => $designs,
                 'guideshala' => $grouped,
-'statistics' => $statistics
+                'statistics' => $statistics
             ], 'All Data Fetched!!');
 
         } catch (\Exception $e) {

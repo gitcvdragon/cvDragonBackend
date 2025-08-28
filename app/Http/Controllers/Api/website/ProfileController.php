@@ -23,14 +23,14 @@ class ProfileController extends Controller
 
         DB::table('user-basic')
             ->where('id', $userId)
-            ->update(['status' => 0]);
+            ->update(['status' => 2]);
         DB::table('users')
             ->where('id', $userId)
-            ->update(['status' => 0]);
+            ->update(['status' => 2]);
 
         DB::table('create-cvprofiles')
             ->where('id', $userId)
-            ->update(['status' => 0]);
+            ->update(['status' => 2]);
 
         return $this->successResponse(
             [
