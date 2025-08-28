@@ -46,6 +46,7 @@ class DashboardController extends Controller
                 ->count();
 
             $userBasic = DB::table('user-basic')
+            ->select('wizardEducationProfile','wizardWorkProfile','wizardEducationSpecialization','wizardWorkSpecialization')
                 ->where('id', $userId)
                 ->first();
 
