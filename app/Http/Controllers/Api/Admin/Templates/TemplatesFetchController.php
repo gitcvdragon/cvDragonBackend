@@ -7,25 +7,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class TemplatesFetchController extends Controller
 {
-    public function index()
-    {
-        $templates = DB::table('resource-profiledesign as d')
-            ->leftJoin('resource_profile_design_categories as c', 'd.categoryid', '=', 'c.id')
-            ->select(
-                'd.designid as id',
-                'd.designName as schemeName',
-                DB::raw("JSON_ARRAY(d.color1, d.color2, d.color3, d.color4) as colorSwatches"),
-                'd.downloadTimes as timesUsed',
-                DB::raw("CONCAT('$', d.basevalue) as price"),
-                'c.title as category',
-                DB::raw("CASE WHEN d.status = 1 THEN 'Active' ELSE 'Inactive' END as status")
-            )
-            ->get();
+   public function index()
+{
+    $templates = DB::table('resource-profiledesign as d')
+        ->leftJoin('resource_profile_design_categories as c', 'd.categoryid', '=', 'c.id')
+        ->select(
+            'd.designid as id',
+            'd.designName as schemeName',
+            'd.color1', 'd.color2', 'd.color3', 'd.color4',
+            'd.downloadTimes as timesUsed',
+            DB::raw("CONCAT('$', d.basevalue) as price"),
+            'c.title as category',
+            DB::raw("CASE WHEN d.status = 1 THEN 'Active' ELSE 'Inactive' END as status")
+        )
+        ->get()
+        ->map(function ($item) {
+            // Build JSON array in PHP
+            $item->colorSwatches = [
+                $item->color1,
+                $item->color2,
+                $item->color3,
+                $item->color4,
+            ];
 
-        return response()->json([
-            'templates' => $templates
-        ]);
-    }
+            // Remove raw DB columns
+            unset($item->color1, $item->color2, $item->color3, $item->color4);
+
+            return $item;
+        });
+
+    return response()->json([
+        'templates' => $templates
+    ]);
+}
 
     public function show($id)
     {

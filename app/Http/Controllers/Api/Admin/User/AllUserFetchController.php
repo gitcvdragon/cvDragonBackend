@@ -146,7 +146,7 @@ class AllUserFetchController extends Controller
             ->where('id', $id)
             ->update(['status' => 2]);
 
-        DB::table('create-cvprofiles')
+        DB::table('create-cvprofile')
             ->where('id', $id)
             ->update(['status' => 2]);
 

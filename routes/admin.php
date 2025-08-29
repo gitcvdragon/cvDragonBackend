@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\User\AllUserFetchController;
 use App\Http\Controllers\Api\Admin\Templates\TemplatesFetchController;
-
+use App\Http\Controllers\Api\Admin\ResumeColors\AllColorController;
+	use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 
 Route::prefix('admin')->group(function () {
     // Active users
@@ -19,10 +20,10 @@ Route::prefix('admin')->group(function () {
 
 
     Route::prefix('colours')->group(function () {
-        Route::get('/', [ColourController::class, 'index']);      // list all
-        Route::get('/{id}', [ColourController::class, 'show']);   // get single
-        Route::patch('/{id}', [ColourController::class, 'update']); // update
-        Route::delete('/{id}', [ColourController::class, 'destroy']); // delete
+        Route::get('/', [AllColorController::class, 'index']);      // list all
+        Route::get('/{id}', [AllColorController::class, 'show']);   // get single
+        Route::patch('/{id}', [AllColorController::class, 'update']); // update
+        Route::delete('/{id}', [AllColorController::class, 'destroy']); // delete
     });
 
 Route::prefix('templates')->group(function () {
@@ -34,11 +35,11 @@ Route::prefix('templates')->group(function () {
 });
 
 Route::prefix('fonts')->group(function () {
-    Route::get('/', [FontController::class, 'index']);     // list all
-    Route::get('/{id}', [FontController::class, 'show']);  // get single
-    Route::post('/', [FontController::class, 'store']);    // add
-    Route::patch('/{id}', [FontController::class, 'update']); // edit
-    Route::delete('/{id}', [FontController::class, 'destroy']); // delete
+    Route::get('/', [AllFontController::class, 'index']);     // list all
+    Route::get('/{id}', [AllFontController::class, 'show']);  // get single
+    Route::post('/', [AllFontController::class, 'store']);    // add
+    Route::patch('/{id}', [AllFontController::class, 'update']); // edit
+    Route::delete('/{id}', [AllFontController::class, 'destroy']); // delete
 });
 
 
