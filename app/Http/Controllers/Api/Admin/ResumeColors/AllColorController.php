@@ -74,29 +74,42 @@ class AllColorController extends Controller
     public function update(Request $request, $id)
     {
         // Validate request
-        $validated = $request->validate([
-            'schemeName'    => 'required|string|max:255',
-            'colorSwatches' => 'array|max:4',
-            'colorSwatches.*' => 'nullable|string|max:20', // hex or color code
-            'status'        => 'required|in:Active,Inactive',
+        $validator = Validator::make($request->all(), [
+            'schemeName'      => 'required|string|max:100',  // matches DB column size
+            'heading'         => 'nullable|string|max:10',   // matches DB column size
+            'content'         => 'nullable|string',          // text column
+            'colorSwatches'   => 'array|max:4',
+            'colorSwatches.*' => 'nullable|string|max:10',   // color1–color4 are varchar(10)
+            'status'          => 'required|in:Active,Inactive',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         // Update record
         DB::table('resource-profilesetting')
             ->where('settingid', $id)
             ->update([
-                'name'   => $validated['schemeName'],
-                'color1' => $validated['colorSwatches'][0] ?? null,
-                'color2' => $validated['colorSwatches'][1] ?? null,
-                'color3' => $validated['colorSwatches'][2] ?? null,
-                'color4' => $validated['colorSwatches'][3] ?? null,
-                'status' => $validated['status'] === 'Active' ? 1 : 0,
+                'name'    => $validated['schemeName'],
+                'heading' => $validated['heading'] ?? null,
+                'content' => $validated['content'] ?? null,
+                'color1'  => $validated['colorSwatches'][0] ?? null,
+                'color2'  => $validated['colorSwatches'][1] ?? null,
+                'color3'  => $validated['colorSwatches'][2] ?? null,
+                'color4'  => $validated['colorSwatches'][3] ?? null,
+                'status'  => $validated['status'] === 'Active' ? 1 : 0,
             ]);
 
         return response()->json([
-            'success' => true,
-            'colorId' => $id,
-            'message' => 'Colour scheme updated successfully',
+            'success'  => true,
+            'colorId'  => $id,
+            'message'  => 'Colour scheme updated successfully',
         ]);
     }
 
