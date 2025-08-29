@@ -73,20 +73,30 @@ class AllColorController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validate request
+        $validated = $request->validate([
+            'schemeName'    => 'required|string|max:255',
+            'colorSwatches' => 'array|max:4',
+            'colorSwatches.*' => 'nullable|string|max:20', // hex or color code
+            'status'        => 'required|in:Active,Inactive',
+        ]);
+
+        // Update record
         DB::table('resource-profilesetting')
             ->where('settingid', $id)
             ->update([
-                'name'   => $request->schemeName,
-                'color1' => $request->colorSwatches[0] ?? null,
-                'color2' => $request->colorSwatches[1] ?? null,
-                'color3' => $request->colorSwatches[2] ?? null,
-                'color4' => $request->colorSwatches[3] ?? null,
-                'status' => $request->status === 'Active' ? 1 : 0,
+                'name'   => $validated['schemeName'],
+                'color1' => $validated['colorSwatches'][0] ?? null,
+                'color2' => $validated['colorSwatches'][1] ?? null,
+                'color3' => $validated['colorSwatches'][2] ?? null,
+                'color4' => $validated['colorSwatches'][3] ?? null,
+                'status' => $validated['status'] === 'Active' ? 1 : 0,
             ]);
 
         return response()->json([
+            'success' => true,
             'colorId' => $id,
-            'message' => 'Colour scheme updated successfully'
+            'message' => 'Colour scheme updated successfully',
         ]);
     }
 
