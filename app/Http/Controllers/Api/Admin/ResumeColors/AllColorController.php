@@ -112,47 +112,44 @@ class AllColorController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'schemeName'      => 'required|string|max:100', // DB column `name` is varchar(100)
+            'heading'         => 'nullable|string|max:100',  // DB column heading varchar(10)
+            'content'         => 'nullable|string',         // DB column content (text)
+            'colorSwatches'   => 'array|max:4',
+            'colorSwatches.*' => 'nullable|string|max:100',
+            'status'          => 'required|in:Active,Inactive',
+        ]);
 
-public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'schemeName'      => 'required|string|max:255',
-        'colorSwatches'   => 'array|max:4',
-        'colorSwatches.*' => 'nullable|string|max:20',
-        'price'           => 'nullable|string|max:50',
-        'category'        => 'nullable|string|max:100',
-        'status'          => 'required|in:Active,Inactive',
-        'previewImageUrl' => 'nullable|string|max:255',
-    ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
 
-    // If validation fails
-    if ($validator->fails()) {
+        $validated = $validator->validated();
+
+        // Insert into DB
+        $id = DB::table('resource-profilesetting')->insertGetId([
+            'name'          => $validated['schemeName'],
+            'heading'       => $validated['heading'] ?? null,
+            'content'       => $validated['content'] ?? null,
+            'color1'        => $validated['colorSwatches'][0] ?? null,
+            'color2'        => $validated['colorSwatches'][1] ?? null,
+            'color3'        => $validated['colorSwatches'][2] ?? null,
+            'color4'        => $validated['colorSwatches'][3] ?? null,
+            'status'        => $validated['status'] === 'Active' ? 1 : 0,
+            'downloadTimes' => 0,
+        ]);
+
         return response()->json([
-            'success' => false,
-            'errors'  => $validator->errors(),
-        ], 422);
+            'templateId' => $id,
+            'message'    => 'Template created successfully',
+        ], 201);
     }
 
-    $validated = $validator->validated();
-
-    // Insert into DB
-    $id = DB::table('resource-profilesetting')->insertGetId([
-        'name'          => $validated['schemeName'],
-        'color1'        => $validated['colorSwatches'][0] ?? null,
-        'color2'        => $validated['colorSwatches'][1] ?? null,
-        'color3'        => $validated['colorSwatches'][2] ?? null,
-        'color4'        => $validated['colorSwatches'][3] ?? null,
-        'price'         => $validated['price'] ?? null,
-        'category'      => $validated['category'] ?? null,
-        'preview_image' => $validated['previewImageUrl'] ?? null,
-        'status'        => $validated['status'] === 'Active' ? 1 : 0,
-        'downloadTimes' => 0,
-    ]);
-
-    return response()->json([
-        'templateId' => $id,
-        'message'    => 'Template created successfully',
-    ], 201);
-}
 
 }
