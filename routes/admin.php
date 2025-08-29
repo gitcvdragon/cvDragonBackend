@@ -22,6 +22,7 @@ Route::prefix('admin')->group(function () {
     Route::prefix('colours')->group(function () {
         Route::get('/', [AllColorController::class, 'index']);      // list all
         Route::get('/{id}', [AllColorController::class, 'show']);   // get single
+        Route::post('store', [AllColorController::class, 'store']);   // get singles
         Route::patch('/{id}', [AllColorController::class, 'update']); // update
         Route::delete('/{id}', [AllColorController::class, 'destroy']); // delete
     });
