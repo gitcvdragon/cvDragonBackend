@@ -50,7 +50,7 @@ class AllServicesController extends Controller
                         'button'      => $service->button,
                         'link'        => $service->link,
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
-                        'microsite'          =>  $service->microsite
+                        'microsite'          =>  $service->category
                     ];
                 });
 
@@ -74,6 +74,34 @@ class AllServicesController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
+ $services = DB::table('microservice')
+                ->where('microsite', 'services')
+                ->where('status', 1)
+                ->orderBy('order-no', 'asc')
+                ->get()
+                ->map(function ($service) {
+                    return [
+                        'sn'                  => $service->sn,
+
+                        'image'       => $service->image,
+                        'icon'        => $service->icon,
+                        'purchases'   => $service->purchases,
+                        'name'        => $service->heading,
+                        'description' => $service->description,
+                        'rating'      => $service->rating,
+                        'cost'        => $service->cost,
+                        'textDown'        =>$service->textDown,
+                        'textRight'        =>$service->textRight,
+                        'color1'        => $service->color1,
+
+                        'color2'        => $service->color2,
+
+                        'button'      => $service->button,
+                        'link'        => $service->link,
+                        // 'microsite'          =>  $this->encryptSafe($service->microsite)
+                        'microsite'          =>  $service->category
+                    ];
+                });
 
             return $this->successResponse([
                 'category' => $category,
@@ -141,6 +169,9 @@ class AllServicesController extends Controller
                     ];
                 });
 
+
+
+
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
@@ -185,10 +216,23 @@ class AllServicesController extends Controller
                         "total" => 3
                     ]
                 ];
+
+                $service = DB::table('microservice')
+    ->where('microsite', $microsite)
+    ->where('category', 'main')
+    ->where('status', 1)
+    ->first();
+
+$result = $service ? [
+    'heading'     => $service->heading,
+    'description' => $service->description,
+] : null;
+
             return $this->successResponse([
                 'category' => $category,
                 'sub_category'=>$categoryId,
-
+'heading'       => $result['heading'] ?? null,
+    'description'   => $result['description'] ?? null,
                 'services'     => $services,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
