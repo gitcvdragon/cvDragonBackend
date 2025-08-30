@@ -20,11 +20,11 @@ Route::prefix('admin')->group(function () {
 
 
     Route::prefix('colours')->group(function () {
-        Route::get('/', [AllColorController::class, 'index']);      // list all
-        Route::get('/{id}', [AllColorController::class, 'show']);   // get single
-        Route::post('store', [AllColorController::class, 'store']);   // get singles
-        Route::patch('/{id}', [AllColorController::class, 'update']); // update
-        Route::delete('/{id}', [AllColorController::class, 'destroy']); // delete
+        Route::get('/', [AllColorController::class, 'index']);
+        Route::get('/{id}', [AllColorController::class, 'show']);
+        Route::post('store', [AllColorController::class, 'store']);
+        Route::patch('/{id}', [AllColorController::class, 'update']);
+        Route::delete('/{id}', [AllColorController::class, 'destroy']);
     });
 
 Route::prefix('templates')->group(function () {
@@ -36,20 +36,20 @@ Route::prefix('templates')->group(function () {
 });
 
 Route::prefix('fonts')->group(function () {
-    Route::get('/', [AllFontController::class, 'index']);     // list all
-    Route::get('/{id}', [AllFontController::class, 'show']);  // get single
-    Route::post('/', [AllFontController::class, 'store']);    // add
-    Route::patch('/{id}', [AllFontController::class, 'update']); // edit
-    Route::delete('/{id}', [AllFontController::class, 'destroy']); // delete
+    Route::get('/', [AllFontController::class, 'index']);
+    Route::get('/{id}', [AllFontController::class, 'show']);
+    Route::post('/', [AllFontController::class, 'store']);
+    Route::patch('/{id}', [AllFontController::class, 'update']);
+    Route::delete('/{id}', [AllFontController::class, 'destroy']);
 });
 
 
 Route::prefix('documents')->group(function () {
-    Route::get('/', [DocumentController::class, 'index']); // all users with summary
-    Route::get('/{userId}', [DocumentController::class, 'userDocuments']); // documents of specific user
-    Route::post('/{userId}', [DocumentController::class, 'store']); // upload
-    Route::patch('/{userId}/{docId}', [DocumentController::class, 'update']); // edit
-    Route::delete('/{userId}/{docId}', [DocumentController::class, 'destroy']); // delete
+    Route::get('/', [DocumentController::class, 'index']);
+    Route::get('/{userId}', [DocumentController::class, 'userDocuments']);
+    Route::post('/{userId}', [DocumentController::class, 'store']);
+    Route::patch('/{userId}/{docId}', [DocumentController::class, 'update']);
+    Route::delete('/{userId}/{docId}', [DocumentController::class, 'destroy']);
 });
 
 
