@@ -22,6 +22,7 @@ class FeedController extends Controller
                 ->select(
                     'kf.faq_category as category',
                     'kf.faq_category_sub_category as sub_category',
+                    'kf.category_color',
                     'kf.feedID',
                     'kf.postID',
                     'kf.tags',
@@ -57,6 +58,8 @@ class FeedController extends Controller
                     return [
 
                         'feedID'       => $item->feedID,
+
+                        'category_color'       => $item->category_color,
                         'category'       => $item->category,
                         'sub_category'       => $item->sub_category,
                         'postType'       => $item->postType,
@@ -116,6 +119,7 @@ class FeedController extends Controller
                     'kf.feedID',
                     'kf.postID',
 'kf.faq_category as category',
+'kf.category_color',
                     'kf.faq_category_sub_category as sub_category',
                     'kf.tags',
                     'kf.postHeading',
@@ -157,6 +161,8 @@ class FeedController extends Controller
 
                     return [
                         'feedID'       => $item->feedID,
+                        'category_color'       => $item->category_color,
+
                         'category'       => $item->category,
                         'sub_category'       => $item->sub_category,
                         'postType'       => $item->postType,
@@ -215,6 +221,7 @@ public function getSingleFeed(Request $request)
             ->select(
                 'kf.feedID',
                 'kf.postID',
+                'kf.category_color',
                 'kf.faq_category as category',
                     'kf.faq_category_sub_category as sub_category',
                 'kf.tags',
@@ -248,6 +255,8 @@ public function getSingleFeed(Request $request)
 
         $data = [
             'feedID'       => $feed->feedID,
+            'category_color'       => $item->category_color,
+
             'category'       => $feed->category,
             'sub_category'       => $feed->sub_category,
             'title'        => $feed->postHeading,
