@@ -101,8 +101,8 @@ class HomeController extends Controller
                     'kf.postLikes',
                     'fm.kcName as postTypeDisplayName',
                     'fm.kcType as tags',
-                    'fm.kcName as postType',
-                    'fm.kcType'
+                    'kf.postType',
+
 
 
                 )
@@ -122,7 +122,6 @@ class HomeController extends Controller
                         'postID'       => $item->postID,
                         'feedID'       => $item->feedID,
                         'postType'       => $item->postType,
-                        'kcType'       => $item->kcType,
 
                         'category'       => $item->category,
                         'title'       => $item->postHeading,
