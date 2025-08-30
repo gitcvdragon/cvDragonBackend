@@ -107,6 +107,7 @@ class AllServicesController extends Controller
             // $microsite = $this->decryptSafe($request->input('microsite'));
             $limit  = $request->input('limit', 2);
             $offset = $request->input('offset', 0);
+
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->where('microsite', '!=', 'main')
@@ -198,6 +199,7 @@ class AllServicesController extends Controller
             return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
         }
     }
+
     public function getServicesBlockonClickMain(Request $request)
     {
         try {

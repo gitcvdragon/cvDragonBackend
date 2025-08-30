@@ -118,8 +118,8 @@ class FeedController extends Controller
                 ->select(
                     'kf.feedID',
                     'kf.postID',
-'kf.faq_category as category',
-'kf.category_color',
+                    'kf.faq_category as category',
+                    'kf.category_color',
                     'kf.faq_category_sub_category as sub_category',
                     'kf.tags',
                     'kf.postHeading',
