@@ -200,10 +200,10 @@ public function getStudent($id)
         )
         ->get();
 
-    $servicesAvailed = DB::table('user-services')
-        ->where('id', $user->id)
-        ->select('serviceid as id', 'name', 'date', 'amount')
-        ->get();
+    // $servicesAvailed = DB::table('user-services')
+    //     ->where('id', $user->id)
+    //     ->select('serviceid as id', 'name', 'date', 'amount')
+    //     ->get();
 
     $response = [
         "id"          => $user->id,
@@ -229,7 +229,7 @@ public function getStudent($id)
             [ "label" => "Account Type", "value" => $user->accountType ]
         ],
 
-        "servicesAvailed" => $servicesAvailed,
+        // "servicesAvailed" => $servicesAvailed,
         "profilesCreated" => $profilesCreated,
         "feedback"        => $feedback
     ];
