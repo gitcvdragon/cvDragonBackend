@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\Admin\User\AllUserFetchController;
 use App\Http\Controllers\Api\Admin\Templates\TemplatesFetchController;
 use App\Http\Controllers\Api\Admin\ResumeColors\AllColorController;
 	use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
-
+use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
 Route::prefix('admin')->group(function () {
     // Active users
     Route::get('/users', [AllUserFetchController::class, 'getUsers']);
@@ -45,11 +45,11 @@ Route::prefix('fonts')->group(function () {
 
 
 Route::prefix('documents')->group(function () {
-    Route::get('/', [DocumentController::class, 'index']);
-    Route::get('/{userId}', [DocumentController::class, 'userDocuments']);
-    Route::post('/{userId}', [DocumentController::class, 'store']);
-    Route::patch('/{userId}/{docId}', [DocumentController::class, 'update']);
-    Route::delete('/{userId}/{docId}', [DocumentController::class, 'destroy']);
+    Route::get('/', [UserAllDocumentController::class, 'index']);
+    Route::get('/{userId}', [UserAllDocumentController::class, 'userDocuments']);
+    Route::post('/{userId}', [UserAllDocumentController::class, 'store']);
+    Route::patch('/{userId}/{docId}', [UserAllDocumentController::class, 'update']);
+    Route::delete('/{userId}/{docId}', [UserAllDocumentController::class, 'destroy']);
 });
 
 

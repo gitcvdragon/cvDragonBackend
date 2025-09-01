@@ -157,4 +157,85 @@ class AllUserFetchController extends Controller
 }
 
 
+public function getStudent($id)
+{
+    $user = DB::table('users as u')
+        ->leftJoin('user_categories as uc', 'u.categoryid', '=', 'uc.usercategoryid')
+        ->leftJoin('user-basic as ub', 'ub.id', '=', 'u.id')
+        ->select(
+            'u.id',
+            'ub.fullName as name',
+            'ub.emailAddress as email',
+            'ub.phoneNumber as phone',
+            'ub.profileImageUrl as profileImg',
+            'uc.category as accountType',
+            DB::raw("DATE(ub.dateCreated) as date")
+        )
+        ->where('u.status', 1)
+        ->where('u.id', $id)
+        ->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Student not found'], 404);
+    }
+
+
+    $profilesCreated = DB::table('create-cvprofilesection')
+        ->where('id', $user->id)
+        ->where('status', 1)
+        ->select(
+            'psid as id',
+            'showName as name',
+            DB::raw("'85%' as completed")
+        )
+        ->get();
+
+    $feedback = DB::table('user-feedback')
+        ->where('id', $user->id)
+        ->select(
+            'feedbackid as id',
+            'feedback as comment',
+            'rating as stars',
+            DB::raw("DATE(dateCreated) as date")
+        )
+        ->get();
+
+    $servicesAvailed = DB::table('user-services')
+        ->where('id', $user->id)
+        ->select('serviceid as id', 'name', 'date', 'amount')
+        ->get();
+
+    $response = [
+        "id"          => $user->id,
+        "name"        => $user->name,
+        "profileImg"  => $user->profileImg ?? "/assets/avatar.svg",
+        "accountType" => $user->accountType,
+        "date"        => $user->date,
+
+        "quickLinks" => [
+            [ "title" => "Dashboard", "url" => "/dashboard", "icon" => "/icons/dashboard.svg" ],
+            [ "title" => "Settings", "url" => "/settings", "icon" => "/icons/settings.svg" ]
+        ],
+
+        "basicInfo" => [
+            "email"    => $user->email,
+            "phone"    => $user->phone,
+            "location" => "Kolkata, India"
+        ],
+
+        "accountSettings" => [
+            [ "label" => "Date Of Registration", "value" => $user->date ],
+            [ "label" => "Device Used", "value" => "Mobile" ],
+            [ "label" => "Account Type", "value" => $user->accountType ]
+        ],
+
+        "servicesAvailed" => $servicesAvailed,
+        "profilesCreated" => $profilesCreated,
+        "feedback"        => $feedback
+    ];
+
+    return response()->json($response);
+}
+
+
 }
