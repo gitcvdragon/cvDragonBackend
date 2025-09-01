@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\Templates\TemplatesFetchController;
 use App\Http\Controllers\Api\Admin\ResumeColors\AllColorController;
 use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
+use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
 
 
 Route::prefix('admin')->group(function () {
@@ -55,5 +56,9 @@ Route::prefix('documents')->group(function () {
     Route::delete('/{userId}/{docId}', [UserAllDocumentController::class, 'destroy']);
 });
 
+
+Route::prefix('admin/digital-cv')->group(function () {
+    Route::get('/users', [DigitalCvController::class, 'listUsers']);
+});
 
 });
