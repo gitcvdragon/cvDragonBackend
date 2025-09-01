@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class AllColorController extends Controller
 {
- public function index()
-{
+    public function index(Request $request)
+    {
+
+        $limit  = $request->input('limit', 10);   // default 10
+        $offset = $request->input('offset', 0);   // default 0
     $colours = DB::table('resource-profilesetting')
         ->select(
             'settingid as colorId',
@@ -18,7 +21,10 @@ class AllColorController extends Controller
             'downloadTimes as timesUsed',
             DB::raw("CASE WHEN status = 1 THEN 'Active' ELSE 'Inactive' END as status")
         )
+        ->offset($offset)
+        ->limit($limit)
         ->get()
+
         ->map(function ($item) {
             // Build array in PHP, not SQL
             $item->colorSwatches = [

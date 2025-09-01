@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 class AllFontController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+
+        $limit  = $request->input('limit', 10);   // default 10
+        $offset = $request->input('offset', 0);   // default 0
         $fonts = DB::table('resource-profilefont')
             ->select(
                 'fontid as id',
@@ -18,6 +21,8 @@ class AllFontController extends Controller
                 'downloadTime as timesUsed',
                 DB::raw("CASE WHEN status = 1 THEN 'Active' ELSE 'Inactive' END as status")
             )
+            ->offset($offset)
+            ->limit($limit)
             ->get();
 
         return response()->json([

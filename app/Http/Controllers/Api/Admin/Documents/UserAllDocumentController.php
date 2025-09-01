@@ -8,8 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class UserAllDocumentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $limit  = $request->input('limit', 10);   // default 10
+        $offset = $request->input('offset', 0);   // default 0
+
         $users = DB::table('user-documents as d')
             ->join('user-basic as u', 'u.id', '=', 'd.id')
             ->select(
@@ -20,6 +23,8 @@ class UserAllDocumentController extends Controller
             )
             ->where('d.status', 1)
             ->groupBy('u.id', 'u.fullName')
+            ->offset($offset)
+            ->limit($limit)
             ->get();
 
         return response()->json(['users' => $users]);

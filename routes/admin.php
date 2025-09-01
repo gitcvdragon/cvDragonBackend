@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\User\AllUserFetchController;
 use App\Http\Controllers\Api\Admin\Templates\TemplatesFetchController;
 use App\Http\Controllers\Api\Admin\ResumeColors\AllColorController;
-	use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
+use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
+
+
 Route::prefix('admin')->group(function () {
     // Active users
     Route::get('/users', [AllUserFetchController::class, 'getUsers']);
@@ -15,6 +17,7 @@ Route::prefix('admin')->group(function () {
 
     // Delete user by ID
     Route::delete('/users/{id}', [AllUserFetchController::class, 'deleteUser']);
+    Route::get('/users/{id}', [AllUserFetchController::class, 'getStudent']);
 
 
 

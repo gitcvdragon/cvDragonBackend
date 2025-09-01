@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class TemplatesFetchController extends Controller
 {
-   public function index()
+   public function index(Request $request)
 {
+
+    $limit  = $request->input('limit', 10);   // default 10
+    $offset = $request->input('offset', 0);   // default 0
     $templates = DB::table('resource-profiledesign as d')
         ->leftJoin('resource_profile_design_categories as c', 'd.categoryid', '=', 'c.id')
         ->select(
@@ -20,6 +23,8 @@ class TemplatesFetchController extends Controller
             'c.title as category',
             DB::raw("CASE WHEN d.status = 1 THEN 'Active' ELSE 'Inactive' END as status")
         )
+        ->offset($offset)
+        ->limit($limit)
         ->get()
         ->map(function ($item) {
             // Build JSON array in PHP
