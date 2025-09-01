@@ -57,8 +57,9 @@ Route::prefix('documents')->group(function () {
 });
 
 
-Route::prefix('admin/digital-cv')->group(function () {
-    Route::get('/users', [DigitalCvController::class, 'listUsers']);
+Route::prefix('digital-cv')->group(function () {
+    Route::get('/', [DigitalCvController::class, 'listUsers']);
+    Route::get('/{userId}', [DigitalCvController::class, 'DigitalCv']);
 });
 
 });
