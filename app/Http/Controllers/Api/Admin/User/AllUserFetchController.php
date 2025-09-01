@@ -186,7 +186,8 @@ public function getStudent($id)
         ->select(
             'psid as id',
             'showName as name',
-            DB::raw("'85%' as completed")
+            'progressReport as completed',
+            // DB::raw("'85%' as completed")
         )
         ->get();
 
