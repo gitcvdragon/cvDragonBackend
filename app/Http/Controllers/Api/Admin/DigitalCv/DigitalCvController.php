@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin\DigitalCv;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\{CreateCvuserprofile, CvImages, CvInterest, CvLanguages, CVSkill, CvTechnical, User};
 
 class DigitalCvController extends Controller
 {
