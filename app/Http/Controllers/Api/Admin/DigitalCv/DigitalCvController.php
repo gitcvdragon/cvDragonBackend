@@ -68,6 +68,8 @@ public function DigitalCv(Request $request, $userId)
         "id"            => $profile->cvid,
         "userId"        => $profile->userId,
         "userName"      => $user->fullName,
+        "showMobile"      => $user->showMobile,
+        "showEmail"      => $user->showEmail,
         "creationDate"  => $profile->created_at ? $profile->created_at->format('Y-m-d') : null,
         "status"        => $profile->status == 1 ? "Active" : "Inactive",
         "sections"      => $profile->cvProfileSection->map(function ($section) {
