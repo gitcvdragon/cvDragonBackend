@@ -189,12 +189,12 @@ class DigitalCvController extends Controller
         }
 
         // Transform profiles
-        $profilesWithSections = $profiles->map(function ($profile) {
+        $profilesWithSections = $profiles->map(function ($profile, $user) {
             $profileData = $profile->toArray();
 
             $profileData['profile_id'] = $profile->cvid ?? null;
-           $profileData['showMobile']    =$profile->showMobile;
-         $profileData['showEmail']  =$profile->showEmail;
+           $profileData['showMobile']    =$user->showMobile;
+         $profileData['showEmail']  =$user->showEmail;
 
             $profileData['sections'] = is_array($profile->sections)
                 ? $profile->sections
