@@ -189,7 +189,8 @@ class DigitalCvController extends Controller
         }
 
         // Transform profiles
-        $profilesWithSections = $profiles->map(function ($profile, $user) {
+        $profilesWithSections = $profiles->map(function ($profile, $userId) {
+            $user = \DB::table('user-basic')->where('id', $userId)->first();
             $profileData = $profile->toArray();
 
             $profileData['profile_id'] = $profile->cvid ?? null;
