@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin\Feedback;
+namespace App\Http\Controllers\Api\Admin\FeedBack;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
