@@ -100,82 +100,68 @@ class CvSectionController extends Controller
         );
     }
 
-    public function getUserSectionDetails(Request $request)
-    {
-        // $user_id = $request->input('user_id');
-        $user_id = auth()->user()->id;
+  public function getUserSectionDetails(Request $request)
+{
+    $user_id = auth()->user()->id;
 
-        if (! $user_id) {
-            return $this->errorResponse('Missing user_id parameter', 400);
-        }
-
-        // Get all section entries for this user where status = 1
-        $sections = DB::table('create-cvprofilesection')
-            ->where('id', $user_id)
-            ->where('status', 1)
-            ->get();
-
-        if ($sections->isEmpty()) {
-            return response()->json([
-                'status'   => 'No active sections found for this user.',
-            ]);
-            // return $this->errorResponse('No active sections found for this user.', 404);
-        }
-
-        $sectionResults    = [];
-        $processedSections = []; // to track section_id processed
-
-        foreach ($sections as $sectionEntry) {
-            $section_id = $sectionEntry->section;
-
-            // Skip if already processed
-            if (in_array($section_id, $processedSections)) {
-                continue;
-            }
-
-            $subsectionIds = json_decode($sectionEntry->subsection, true) ?? [];
-
-            // Get section config
-            $sectionConfig = DB::table('resource-section')
-                ->where('status', 1)
-                ->where('id', $section_id)
-                ->first();
-
-            if (! $sectionConfig) {
-                continue;
-            }
-
-            $sectionTable = $sectionConfig->sectionTable;
-            $idColumnName = $sectionConfig->idColumnName;
-            $sectionName  = $sectionConfig->sectionName;
-
-            if (! $sectionTable || ! $idColumnName || empty($subsectionIds)) {
-                continue;
-            }
-
-            // Retrieve section data from the respective table
-            $sectionData = DB::table($sectionTable)
-            // ->whereIn($idColumnName, $subsectionIds)
-                ->where('id', $user_id)
-                ->where('status', 1)
-                ->get();
-
-            $sectionResults[] = [
-                'section_id'   => $section_id,
-                'section_name' => $sectionName,
-                'data'         => $sectionData,
-            ];
-
-            // Mark this section_id as processed
-            $processedSections[] = $section_id;
-        }
-
-        return response()->json([
-            'status'   => 'success',
-            'user_id'  => $user_id,
-            'sections' => $sectionResults,
-        ]);
+    if (! $user_id) {
+        return $this->errorResponse('Missing user_id parameter', 400);
     }
+
+    // Get all active sections for this user
+    $userSections = DB::table('create-cvprofilesection')
+        ->where('id', $user_id)
+        ->where('status', 1)
+        ->get()
+        ->keyBy('section'); // easier to lookup by section_id
+
+    // Get all available sections from resource-section
+    $allSections = DB::table('resource-section')
+        ->where('status', 1)
+        ->get();
+
+    $sectionResults = [];
+
+    foreach ($allSections as $sectionConfig) {
+        $section_id   = $sectionConfig->id;
+        $sectionName  = $sectionConfig->sectionName;
+        $sectionTable = $sectionConfig->sectionTable;
+        $idColumnName = $sectionConfig->idColumnName;
+
+        $sectionData = collect(); // default empty
+
+        if ($sectionTable && $idColumnName) {
+            // Check if user has this section in create-cvprofilesection
+            $userSection = $userSections->get($section_id);
+            $subsectionIds = $userSection
+                ? json_decode($userSection->subsection, true) ?? []
+                : [];
+
+            $query = DB::table($sectionTable)
+                ->where('id', $user_id)
+                ->where('status', 1);
+
+            if (! empty($subsectionIds)) {
+                $query->whereIn($idColumnName, $subsectionIds);
+            }
+
+            $sectionData = $query->get();
+        }
+
+        $sectionResults[] = [
+            'section_id'   => $section_id,
+            'section_name' => $sectionName,
+            'data'         => $sectionData,
+        ];
+    }
+
+    return response()->json([
+        'status'   => 'success',
+        'user_id'  => $user_id,
+        'sections' => $sectionResults,
+    ]);
+}
+
 
     public function addData(Request $request)
     {
@@ -246,9 +232,7 @@ class CvSectionController extends Controller
         $newRecordIds   = is_array($recordId) ? $recordId : [$recordId];
         $newRecordIds   = array_map('strval', $newRecordIds);
         $subsectionData = json_encode(array_map('strval', is_array($recordId) ? $recordId : [$recordId]));
-        if ($existingCvProfileSection && $section->defaultsection == 1) {
-            return $this->errorResponse('Data already Available.', 400);
-        }
+
 
         if ($existingCvProfileSection && $section->defaultsection == 0) {
             $existingSubsection = json_decode($existingCvProfileSection->subsection, true) ?? [];

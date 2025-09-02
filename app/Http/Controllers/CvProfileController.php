@@ -11,11 +11,9 @@ class CvProfileController extends Controller
 {
     use ApiResponseTrait;
 
-    public function getUserProfile(Request $request)
+public function getUserProfile(Request $request)
 {
-    // $userId = $request->id;
     $userId = auth()->user()->id;
-
 
     // Fetch user profile(s) with associated cvProfileSection
     $profiles = CreateCvuserprofile::with('cvProfileSection')
@@ -23,7 +21,7 @@ class CvProfileController extends Controller
         ->where('status', 1)
         ->get();
 
-    // If no profiles found, return a success response with null
+    // If no profiles found
     if ($profiles->isEmpty()) {
         return $this->successResponse(
             ['profiles' => null],
@@ -31,13 +29,17 @@ class CvProfileController extends Controller
         );
     }
 
-    // Transform each profile
-    $profilesWithSections = $profiles->map(function ($profile) {
+    // Fetch all possible sections
+    $allSections = DB::table('resource-section')
+        ->where('status', 1)
+        ->orderBy('orderSection')
+        ->get();
+
+    $profilesWithSections = $profiles->map(function ($profile) use ($allSections) {
         $profileData = $profile->toArray();
 
         $profileData['profile_id'] = $profile->cvid ?? null;
 
-        // Decode JSON fields if they’re not already arrays
         $profileData['sections'] = is_array($profile->sections)
             ? $profile->sections
             : json_decode($profile->sections, true);
@@ -46,28 +48,29 @@ class CvProfileController extends Controller
             ? $profile->sectionOrder
             : json_decode($profile->sectionOrder, true);
 
+        // Map existing user sections into an array for quick lookup
+        $existingSections = collect($profile->cvProfileSection ?? [])
+            ->mapWithKeys(function ($s) {
+                return [(int) $s['section'] => $s];
+            });
 
-            if (empty($profile->cv_profile_section) || $profile->cv_profile_section == []) {
-                $sections = DB::table('resource-section')
-    ->where('status', 1)
-    ->orderBy('orderSection')
-    ->get();
-                $cvProfileSection = $sections->map(function ($section) use ($profile) {
-                    return [
-                        'cvid'       => $profile->cvid,
-                        'section'    => (int) $section->id,
-                        'subsection' => [],
-                        'showName'   => $section->sectionName,
-                    ];
-                })->toArray();
-
-                $profileData['cv_profile_section'] = $cvProfileSection;
-            } else {
-                // Decode existing if stored as JSON
-                $profileData['cv_profile_section'] = is_array($profile->cv_profile_section)
-                    ? $profile->cv_profile_section
-                    : json_decode($profile->cv_profile_section, true);
+        // Merge all sections with user data (or fallback empty)
+        $cvProfileSection = $allSections->map(function ($section) use ($profile, $existingSections) {
+            if ($existingSections->has((int) $section->id)) {
+                // User already has data for this section
+                return $existingSections->get((int) $section->id);
             }
+
+            // No data: return empty structure
+            return [
+                'cvid'       => $profile->cvid,
+                'section'    => (int) $section->id,
+                'subsection' => [],
+                'showName'   => $section->sectionName,
+            ];
+        })->toArray();
+
+        $profileData['cv_profile_section'] = $cvProfileSection;
 
         return $profileData;
     });
@@ -77,6 +80,7 @@ class CvProfileController extends Controller
         'All Profiles Fetched!!'
     );
 }
+
 
     public function getUserProfilee(Request $request)
     {

@@ -54,8 +54,7 @@ Route::post('/user-sections-details-update', [CvSectionController::class, 'profi
 Route::post('/user-sections-details-softDelete', [CvSectionController::class, 'getUserSectionDetailsSoftDelete'])->middleware('auth:api');
 Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'getUserSectionDetailsHardDelete'])->middleware('auth:api');
 // Route::post('/get-config', [AppConfigController::class, 'getConfig']);
-Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs']);
-
+Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs'])->middleware('auth:api');
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);

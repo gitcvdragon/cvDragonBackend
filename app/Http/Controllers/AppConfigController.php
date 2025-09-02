@@ -57,7 +57,20 @@ class AppConfigController extends Controller
     public function getActiveConfigs(Request $request)
     {
         try {
-            $category = $request->category;
+            $userId = auth()->id();
+
+    if (! $userId) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'User not authenticated',
+        ], 401);
+    }
+
+    // Fetch categoryid for this user
+    $category = DB::table('users')
+        ->where('id', $userId)
+        ->value('categoryid');
+
 
             if (!$category) {
                 return $this->errorResponse('Missing category ', 400);

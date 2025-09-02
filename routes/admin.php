@@ -7,9 +7,33 @@ use App\Http\Controllers\Api\Admin\ResumeColors\AllColorController;
 use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
 use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
+use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
 
 
 Route::prefix('admin')->group(function () {
+
+
+
+
+Route::prefix('testimonials')->group(function () {
+    // GET /api/testimonials → Get all testimonials
+    Route::get('/', [TestMonialController::class, 'index']);
+
+    // GET /api/testimonials/{id} → Get single testimonial
+    Route::get('{id}', [TestMonialController::class, 'show']);
+
+    // POST /api/testimonials → Create new testimonial
+    Route::post('/', [TestMonialController::class, 'store']);
+
+    // PATCH /api/testimonials/{id} → Update testimonial
+    Route::patch('{id}', [TestMonialController::class, 'update']);
+
+    // DELETE /api/testimonials/{id} → Deactivate (status = 0)
+    Route::delete('{id}', [TestMonialController::class, 'destroy']);
+
+    // POST /api/testimonials/{id}/email → Send email to testimonial user
+    Route::post('{id}/email', [TestMonialController::class, 'sendEmail']);
+});
     // Active users
     Route::get('/users', [AllUserFetchController::class, 'getUsers']);
 
