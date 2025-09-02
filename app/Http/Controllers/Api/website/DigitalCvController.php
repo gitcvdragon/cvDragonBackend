@@ -193,6 +193,8 @@ class DigitalCvController extends Controller
             $profileData = $profile->toArray();
 
             $profileData['profile_id'] = $profile->cvid ?? null;
+           $profileData['showMobile']    =$user->showMobile;
+         $profileData['showEmail']  =$user->showEmail;
 
             $profileData['sections'] = is_array($profile->sections)
                 ? $profile->sections
