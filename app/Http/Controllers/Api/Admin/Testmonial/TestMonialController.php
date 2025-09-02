@@ -18,7 +18,7 @@ class TestMonialController extends Controller
             return [
                 'id' => $t->sn,
                 'userName' => $t->title,
-                'userId' => $t->role,
+                'role' => $t->role,
                 'content' => $t->description,
                 'rating' => $t->rating,
                 'avatar' => $t->source,

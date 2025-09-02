@@ -8,11 +8,21 @@ use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
 use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
 use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
+use App\Http\Controllers\Api\Admin\Feedback\FeedbackController;
 
 
 Route::prefix('admin')->group(function () {
 
 
+
+    Route::prefix('feedback')->group(function () {
+        Route::get('/', [FeedbackController::class, 'index']);         // list
+        Route::get('{id}', [FeedbackController::class, 'show']);       // single
+        Route::post('/', [FeedbackController::class, 'store']);        // create
+        Route::patch('{id}', [FeedbackController::class, 'update']);   // update
+        Route::delete('{id}', [FeedbackController::class, 'destroy']); // delete (status=0)
+        Route::post('{id}/email', [FeedbackController::class, 'sendEmail']); // send email
+    });
 
 
 Route::prefix('testimonials')->group(function () {
