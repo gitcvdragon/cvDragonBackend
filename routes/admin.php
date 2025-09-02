@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\Admin\Fontss\AllFontController;
 use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
 use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
 use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
-use App\Http\Controllers\Api\Admin\Feedback\FeedbackController;
+use App\Http\Controllers\Api\Admin\Feedback\FeedBackController;
 
 
 Route::prefix('admin')->group(function () {
