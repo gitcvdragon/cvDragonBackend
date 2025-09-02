@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class FeedbackController extends Controller
+class FeedBackController extends Controller
 {
     public function index()
     {

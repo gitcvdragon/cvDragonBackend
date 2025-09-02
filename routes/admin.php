@@ -16,12 +16,12 @@ Route::prefix('admin')->group(function () {
 
 
     Route::prefix('feedback')->group(function () {
-        Route::get('/', [FeedbackController::class, 'index']);         // list
-        Route::get('{id}', [FeedbackController::class, 'show']);       // single
-        Route::post('/', [FeedbackController::class, 'store']);        // create
-        Route::patch('{id}', [FeedbackController::class, 'update']);   // update
-        Route::delete('{id}', [FeedbackController::class, 'destroy']); // delete (status=0)
-        Route::post('{id}/email', [FeedbackController::class, 'sendEmail']); // send email
+        Route::get('/', [FeedBackController::class, 'index']);         // list
+        Route::get('{id}', [FeedBackController::class, 'show']);       // single
+        Route::post('/', [FeedBackController::class, 'store']);        // create
+        Route::patch('{id}', [FeedBackController::class, 'update']);   // update
+        Route::delete('{id}', [FeedBackController::class, 'destroy']); // delete (status=0)
+        Route::post('{id}/email', [FeedBackController::class, 'sendEmail']); // send email
     });
 
 
