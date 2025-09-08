@@ -565,11 +565,15 @@ class CvSectionController extends Controller
             ]);
 
         if ($updated) {
-            return responseSuccess('Show name updated successfully.', [
-                'section_id' => $section_id,
-                'profile_id' => $profile_id,
-                'showName'   => $showName,
-            ]);
+
+            return $this->successResponse(
+                [
+                    'section_id' => $section_id,
+                    'profile_id' => $profile_id,
+                    'showName'   => $showName,
+                ],
+               'Section name updated successfully.'
+            );
         }
         return $this->successResponse(
             [
