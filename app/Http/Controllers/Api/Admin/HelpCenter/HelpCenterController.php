@@ -10,7 +10,7 @@ use App\Traits\ApiResponseTrait;
 use App\Traits\CryptHelper;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Crypt;
-
+use Carbon\Carbon;
 class HelpCenterController extends Controller
 {
     use ApiResponseTrait;
@@ -382,7 +382,7 @@ public function addChat(Request $request)
     $receiverID = $request->input('receiverID');
     $chat       = $request->input('chat');
     $type       = $request->input('type');
-    $now        = now();
+    $now = Carbon::now();
 
     try {
         DB::beginTransaction();
@@ -392,8 +392,8 @@ public function addChat(Request $request)
             'receiverID'  => $receiverID,
             'chat'        => $chat,
             'type'        => $type,
-            'dateCreated' => now(),
-            'dateUpdated' => now(),
+            'dateCreated' => $now,
+            'dateUpdated' => $now,
             'status'      => 1
         ]);
 
