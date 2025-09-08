@@ -23,6 +23,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/all-videos', [HelpCenterController::class, 'getAllVideos']);
         Route::delete('/video/delete', [HelpCenterController::class, 'deleteVideo']);
         Route::delete('/faq/delete', [HelpCenterController::class, 'deleteFaq']);
+        Route::post('/chat/users', [HelpCenterController::class, 'getUserChats']);
         Route::post('/chat', [HelpCenterController::class, 'addChat']);
         Route::get('/chat', [HelpCenterController::class, 'userChatIndividual']);
 
