@@ -378,7 +378,7 @@ public function addChat(Request $request)
         ], 422);
     }
 
-    $senderID   = auth()->id(); // logged-in user
+    $senderID = auth()->user()->id;
     $receiverID = $request->input('receiverID');
     $chat       = $request->input('chat');
     $type       = $request->input('type');
