@@ -388,7 +388,7 @@ public function addChat(Request $request)
         DB::beginTransaction();
 
         $inserted = DB::table('help-chat')->insertGetId([
-            'senderID'    => $senderID,
+            'senderID'    => 1,
             'receiverID'  => $receiverID,
             'chat'        => $chat,
             'type'        => $type,
