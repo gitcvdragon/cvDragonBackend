@@ -392,8 +392,8 @@ public function addChat(Request $request)
             'receiverID'  => $receiverID,
             'chat'        => $chat,
             'type'        => $type,
-            'dateCreated' => $now,
-            'dateUpdated' => $now,
+            'dateCreated' => now(),
+            'dateUpdated' => now(),
             'status'      => 1
         ]);
 
