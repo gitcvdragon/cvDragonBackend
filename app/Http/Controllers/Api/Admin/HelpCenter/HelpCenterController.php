@@ -174,8 +174,7 @@ class HelpCenterController extends Controller
                 'u.usermobile',
                 'hc.chat as last_message',
                 'hc.dateCreated as last_message_date'
-            )
-            ->where('u.status', 1);
+            );
 
         // Search (by username, email, mobile)
         if (!empty($search)) {
@@ -287,15 +286,13 @@ public function getAllFaqs(Request $request)
         $search = $request->input('search');
 
         $query = DB::table('help-faq')
-            ->select('faqID', 'faq', 'answer', 'app', 'web', 'status', 'created_at')
-            ->when($request->status !== null, fn($q) => $q->where('status', $request->status))
-            ->when($request->app !== null, fn($q) => $q->where('app', $request->app))
-            ->when($request->web !== null, fn($q) => $q->where('web', $request->web))
-            ->when($search, function ($q) use ($search) {
-                $q->where('faq', 'LIKE', "%{$search}%")
-                  ->orWhere('answer', 'LIKE', "%{$search}%");
-            })
-            ->orderByDesc('created_at');
+        ->select('faqID', 'faq', 'answer', 'created_at')
+        ->where('status', 1)
+        ->when($search, function ($query, $search) {
+            return $query->where('faq', 'LIKE', "%{$search}%")
+                         ->orWhere('answer', 'LIKE', "%{$search}%");
+        })
+        ->orderByDesc('created_at');
 
         $total = $query->count();
         $faqs  = $query->offset($offset)->limit($limit)->get();
@@ -337,12 +334,13 @@ public function getAllVideos(Request $request)
         $search = $request->input('search');
 
         $query = DB::table('help-videos')
-            ->select('videoID', 'heading', 'link', 'web', 'app', 'status', 'dateCreated')
-            ->when($request->status !== null, fn($q) => $q->where('status', $request->status))
-            ->when($request->app !== null, fn($q) => $q->where('app', $request->app))
-            ->when($request->web !== null, fn($q) => $q->where('web', $request->web))
-            ->when($search, fn($q) => $q->where('heading', 'LIKE', "%{$search}%"))
-            ->orderByDesc('dateCreated');
+        ->select('videoID', 'heading', 'link', 'dateCreated')
+        ->where('status', 1)
+        ->when($search, function ($query, $search) {
+            return $query->where('heading', 'LIKE', "%{$search}%")
+                         ->orWhere('link', 'LIKE', "%{$search}%");
+        })
+        ->orderByDesc('dateCreated');
 
         $total  = $query->count();
         $videos = $query->offset($offset)->limit($limit)->get();
