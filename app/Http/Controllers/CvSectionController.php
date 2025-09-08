@@ -530,4 +530,59 @@ class CvSectionController extends Controller
         return response()->json($groupedTree);
     }
 
+
+    public function updateShowName(Request $request)
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'section_id' => 'required|integer',
+            'profile_id' => 'required|integer',
+            'showName'   => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return responseValidationError($validator->errors()->toArray());
+        }
+
+        $user_id    = auth()->id();
+        $section_id = $request->input('section_id');
+        $profile_id = $request->input('profile_id');
+        $showName   = $request->input('showName');
+
+        if (! $user_id || ! $section_id || ! $profile_id) {
+            return response()->json(['message' => 'Missing parameters'], 400);
+        }
+
+        // Update only if the record belongs to this user
+        $updated = DB::table('create-cvprofilesection')
+            ->where('section', $section_id)
+            ->where('cvid', $profile_id)
+            ->where('id', $user_id)
+            ->update([
+                'showName'    => $showName,
+                'dateUpdated' => now(),
+            ]);
+
+        if ($updated) {
+            return responseSuccess('Show name updated successfully.', [
+                'section_id' => $section_id,
+                'profile_id' => $profile_id,
+                'showName'   => $showName,
+            ]);
+        }
+        return $this->successResponse(
+            [
+
+            ],
+           'No record found for this user or nothing to update.'
+        );
+
+
+    } catch (\Exception $e) {
+        return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
+
+    }
+}
+
+
 }

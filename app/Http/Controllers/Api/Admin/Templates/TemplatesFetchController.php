@@ -17,6 +17,7 @@ class TemplatesFetchController extends Controller
         ->select(
             'd.designid as id',
             'd.designName as schemeName',
+            'd.design_image as img',
             'd.color1', 'd.color2', 'd.color3', 'd.color4',
             'd.downloadTimes as timesUsed',
             DB::raw("CONCAT('$', d.basevalue) as price"),
@@ -53,6 +54,8 @@ class TemplatesFetchController extends Controller
             ->select(
                 'd.designid as id',
                 'd.designName as schemeName',
+            'd.designName as schemeName',
+
                 'c.title as category',
                 'd.downloadTimes as timesUsed',
                 DB::raw("CONCAT('$', d.basevalue) as price"),
