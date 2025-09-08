@@ -9,11 +9,24 @@ use App\Http\Controllers\Api\Admin\Documents\UserAllDocumentController;
 use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
 use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
 use App\Http\Controllers\Api\Admin\FeedBack\FeedBackController;
+use App\Http\Controllers\Api\Admin\HelpCenter\HelpCenterController;
 
 
 Route::prefix('admin')->group(function () {
 
 
+    Route::prefix('help-center')->group(function () {
+        Route::get('/feed-types', [HelpCenterController::class, 'getAllFeedTypes']);
+
+        Route::post('/feed-list', [HelpCenterController::class, 'getFeedListforsingle']);
+        Route::post('/all-faqs', [HelpCenterController::class, 'getAllFaqs']);
+        Route::post('/all-videos', [HelpCenterController::class, 'getAllVideos']);
+        Route::delete('/video/delete', [HelpCenterController::class, 'deleteVideo']);
+        Route::delete('/faq/delete', [HelpCenterController::class, 'deleteFaq']);
+        Route::post('/chat', [HelpCenterController::class, 'addChat']);
+        Route::get('/chat', [HelpCenterController::class, 'userChatIndividual']);
+
+    });
 
     Route::prefix('feedback')->group(function () {
         Route::get('/', [FeedBackController::class, 'index']);         // list
