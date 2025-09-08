@@ -382,7 +382,7 @@ public function addChat(Request $request)
     $receiverID = $request->input('receiverID');
     $chat       = $request->input('chat');
     $type       = $request->input('type');
-    $now        = \Carbon\Carbon::now();
+    $now        = now();
 
     try {
         DB::beginTransaction();
