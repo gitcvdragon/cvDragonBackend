@@ -21,11 +21,11 @@ Route::prefix('admin')->group(function () {
         Route::post('/feed-list', [HelpCenterController::class, 'getFeedListforsingle']);
         Route::post('/all-faqs', [HelpCenterController::class, 'getAllFaqs']);
         Route::post('/all-videos', [HelpCenterController::class, 'getAllVideos']);
-        Route::delete('/video/delete', [HelpCenterController::class, 'deleteVideo']);
-        Route::delete('/faq/delete', [HelpCenterController::class, 'deleteFaq']);
-        Route::post('/chat/users', [HelpCenterController::class, 'getUserChats']);
-        Route::post('/chat', [HelpCenterController::class, 'addChat']);
-        Route::get('/chat', [HelpCenterController::class, 'userChatIndividual']);
+        Route::delete('/video/delete', [HelpCenterController::class, 'deleteVideo'])->middleware('auth:api');
+        Route::delete('/faq/delete', [HelpCenterController::class, 'deleteFaq'])->middleware('auth:api');
+        Route::post('/chat/users', [HelpCenterController::class, 'getUserChats'])->middleware('auth:api');
+        Route::post('/chat', [HelpCenterController::class, 'addChat'])->middleware('auth:api');
+        Route::get('/chat', [HelpCenterController::class, 'userChatIndividual'])->middleware('auth:api');
 
     });
 
