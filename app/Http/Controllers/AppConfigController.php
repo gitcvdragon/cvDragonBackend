@@ -81,11 +81,26 @@ class AppConfigController extends Controller
                 ->where('user_category', $category)
                 ->get();
 
-            $configs = $rawConfigs->map(function ($config) {
-                $decodedParam = json_decode($config->parameter, true);
-                $config->parameter = $decodedParam ?: $config->parameter;
-                return $config;
-            });
+          $configs = $rawConfigs->map(function ($config) {
+            // Remove the surrounding quotes if present
+            $parameter = trim($config->parameter, '"');
+
+            // Replace PHP-style booleans with JSON-compatible ones
+            $parameter = str_replace(['false', 'true'], ['false', 'true'], $parameter);
+
+            // Wrap in brackets if it looks like a CSV
+            if (!str_starts_with($parameter, '[')) {
+                $parameter = '[' . $parameter . ']';
+            }
+
+            // Decode JSON
+            $decodedParam = json_decode($parameter, true);
+
+            // Fallback to original if decoding fails
+            $config->parameter = $decodedParam ?: $config->parameter;
+
+            return $config;
+        });
 
             return $this->successResponse(
                 ['data' => $configs],
