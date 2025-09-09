@@ -17,6 +17,9 @@ Route::prefix('admin')->group(function () {
 
 
     Route::get('/sections', [SectionController::class, 'listSections']);
+Route::get('/sections/{id}', [SectionController::class, 'viewSection']);
+Route::delete('/sections/{id}', [SectionController::class, 'deleteSection']);
+
 
     Route::prefix('help-center')->group(function () {
         Route::get('/feed-types', [HelpCenterController::class, 'getAllFeedTypes']);

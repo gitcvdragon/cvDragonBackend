@@ -27,11 +27,11 @@ class SectionController extends Controller
                     ->map(function ($row) use ($section) {
                         return [
                             'id'        => $row->id,
-                            'sectionId' => (string) $section->id,
+                            'sectionId' => $section->id,
                             'order'     => $row->orderSection,
                             'title'     => $row->sectionName,
                             'icon'      => $row->sectionImage,
-                            'color'     => $section->color, // ✅ correct color source
+                            'color'     => $section->color,
                         ];
                     });
 
@@ -56,4 +56,93 @@ class SectionController extends Controller
             ], 500);
         }
     }
+
+
+
+    public function viewSection($id)
+    {
+        try {
+            $row = DB::table('resource-section as rs')
+                ->join('master_cv_sections as mcs', 'rs.master_cv_sections_id', '=', 'mcs.id')
+                ->where('rs.id', $id)
+                ->select(
+                    'rs.id',
+                    'mcs.heading as parentTitle',
+                    'rs.sectionName as title',
+                    'rs.sectionContent as description',
+                    'rs.sectionLink',
+                    'rs.idColumnName as sectionId',
+                    'rs.sectionTable as tableName',
+                    'rs.orderSection as order',
+                    'rs.displayParameter as type',
+                    'rs.status',
+                    'rs.sectionImage as icon'
+                )
+                ->first();
+
+            if (!$row) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Section not found'
+                ], 404);
+            }
+
+            // format response
+            $response = [
+                "id"          => $row->id,
+                "parentTitle" => $row->parentTitle,
+                "title"       => $row->title,
+                "description" => $row->description,
+                "sectionLink" => $row->sectionLink,
+                "sectionId"   => $row->sectionId,
+                "tableName"   => $row->tableName,
+                "order"       => $row->order,
+                "type"        => $row->type,
+                "status"      => $row->status == 1 ? "Active" : "Inactive",
+                "icon"        => $row->icon,
+            ];
+
+            return response()->json($response, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function deleteSection($id)
+    {
+        try {
+            $section = DB::table('resource-section')
+                ->where('id', $id)
+                ->where('status', 1)
+                ->first();
+
+            if (!$section) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Section not found',
+                ], 404);
+            }
+
+            DB::table('resource-section')
+                ->where('id', $id)
+                ->update(['status' => 0]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Section deleted',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }
