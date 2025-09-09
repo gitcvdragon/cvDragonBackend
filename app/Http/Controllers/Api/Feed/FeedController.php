@@ -134,6 +134,8 @@ if($postType!=''){
             ->where('kf.status', 1)
             ->where('fm.status', 1)
             ->where('fm.isFeed', 1)
+        ->where('kf.postType', $postType)
+
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('kf.postHeading', 'LIKE', "%{$search}%")
@@ -201,7 +203,6 @@ if($postType!=''){
         ->where('kf.status', 1)
         ->where('fm.status', 1)
         ->where('fm.isFeed', 1)
-        ->where('kf.postType', $postType)
         ->when($search, function ($query, $search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('kf.postHeading', 'LIKE', "%{$search}%")
