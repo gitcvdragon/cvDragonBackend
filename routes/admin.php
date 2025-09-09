@@ -11,10 +11,16 @@ use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
 use App\Http\Controllers\Api\Admin\FeedBack\FeedBackController;
 use App\Http\Controllers\Api\Admin\HelpCenter\HelpCenterController;
 use App\Http\Controllers\Api\Admin\Section\SectionController;
+use App\Http\Controllers\Api\Admin\Service\ServiceController;
 
 
 Route::prefix('admin')->group(function () {
 
+
+    Route::prefix('services')->group(function () {
+        Route::get('/', [ServiceController::class, 'listServices']); // List grouped
+        Route::get('/{id}', [ServiceController::class, 'serviceDetail']); // Single detail
+    });
 
     Route::get('/sections', [SectionController::class, 'listSections']);
 Route::get('/sections/{id}', [SectionController::class, 'viewSection']);
