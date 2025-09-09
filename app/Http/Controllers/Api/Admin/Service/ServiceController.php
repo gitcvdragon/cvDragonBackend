@@ -11,7 +11,7 @@ class ServiceController extends Controller
     /**
      * List all services grouped by category
      */
-    use Illuminate\Support\Facades\DB;
+
 
     public function getServicesByCategory($category)
     {
