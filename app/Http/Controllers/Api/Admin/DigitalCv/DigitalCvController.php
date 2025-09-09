@@ -73,7 +73,7 @@ class DigitalCvController extends Controller
 
         $response = [
             "id"           => $profile->cvid,
-            "userId"       => $profile->userId,
+            "userId"       => $userId,
             "userName"     => $user->fullName,
             "showMobile"   => $user->showMobile,
             "showEmail"    => $user->showEmail,

@@ -10,10 +10,13 @@ use App\Http\Controllers\Api\Admin\DigitalCv\DigitalCvController;
 use App\Http\Controllers\Api\Admin\Testmonial\TestMonialController;
 use App\Http\Controllers\Api\Admin\FeedBack\FeedBackController;
 use App\Http\Controllers\Api\Admin\HelpCenter\HelpCenterController;
+use App\Http\Controllers\Api\Admin\Section\SectionController;
 
 
 Route::prefix('admin')->group(function () {
 
+
+    Route::get('/sections', [SectionController::class, 'listSections']);
 
     Route::prefix('help-center')->group(function () {
         Route::get('/feed-types', [HelpCenterController::class, 'getAllFeedTypes']);
