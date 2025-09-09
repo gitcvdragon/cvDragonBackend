@@ -53,7 +53,6 @@ class ServiceController extends Controller
 
             return response()->json([
                 'success'  => true,
-                'category' => $category,
                 'rows'     => $filteredServices,
             ], 200);
 
