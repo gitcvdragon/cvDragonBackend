@@ -97,7 +97,7 @@ class FeedController extends Controller
    public function getFeedListforsingle(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'postType' => 'required|integer|exists:kc-main,kcid',
+        'postType' => 'nullable|integer|exists:kc-main,kcid',
         'limit'    => 'nullable|integer|min:1',
         'offset'   => 'nullable|integer|min:0',
         'search'   => 'nullable|string|max:255',
@@ -112,7 +112,7 @@ class FeedController extends Controller
         $limit    = $request->get('limit', 10);
         $offset   = $request->get('offset', 0);
         $search   = $request->get('search');
-
+if($postType!=''){
         $allFeeds = DB::table('kc-main as fm')
             ->join('kc-feed as kf', 'kf.postType', '=', 'fm.kcid')
             ->select(
@@ -134,7 +134,6 @@ class FeedController extends Controller
             ->where('kf.status', 1)
             ->where('fm.status', 1)
             ->where('fm.isFeed', 1)
-            ->where('kf.postType', $postType)
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('kf.postHeading', 'LIKE', "%{$search}%")
@@ -180,7 +179,75 @@ class FeedController extends Controller
                 ];
             });
         });
+    }else{
+        $allFeeds = DB::table('kc-main as fm')
+        ->join('kc-feed as kf', 'kf.postType', '=', 'fm.kcid')
+        ->select(
+            'kf.feedID',
+            'kf.postID',
+            'kf.faq_category as category',
+            'kf.category_color',
+            'kf.faq_category_sub_category as sub_category',
+            'kf.tags',
+            'kf.postHeading',
+            'kf.postDescription',
+            'kf.postImageLink',
+            'kf.postVideoLink',
+            'kf.postMultipleImage',
+            'kf.postLink',
+            'kf.postUpdateDate',
+            'fm.kcName as postTypeDisplayName'
+        )
+        ->where('kf.status', 1)
+        ->where('fm.status', 1)
+        ->where('fm.isFeed', 1)
+        ->where('kf.postType', $postType)
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('kf.postHeading', 'LIKE', "%{$search}%")
+                  ->orWhere('kf.postDescription', 'LIKE', "%{$search}%");
+            });
+        })
+        ->orderByDesc('kf.postUpdateDate')
+        ->offset($offset)
+        ->limit($limit)
+        ->get();
+//dd(  $allFeeds);
+    // Fetch all gallery images in one query to avoid N+1
+    $feedIds   = $allFeeds->pluck('feedID');
+    $postIds   = $allFeeds->pluck('postID');
 
+    $galleryImages = DB::table('kc-feed-gallery')
+        ->whereIn('feedID', $feedIds)
+        ->whereIn('postID', $postIds)
+        ->where('status', 1)
+        ->get()
+        ->groupBy(fn($img) => $img->feedID . '_' . $img->postID);
+
+    $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) use ($galleryImages) {
+        return $items->take(7)->map(function ($item) use ($galleryImages) {
+            $images = ($item->postMultipleImage == 1)
+                ? ($galleryImages[$item->feedID . '_' . $item->postID] ?? collect())->pluck('imageLink')->toArray()
+                : [];
+
+            return [
+                'feedID'        => $item->feedID,
+                'category_color'=> $item->category_color,
+                'category'      => $item->category,
+                'sub_category'  => $item->sub_category,
+                'postType'      => $item->postTypeDisplayName,
+                'title'         => $item->postHeading,
+                'description'   => $item->postDescription,
+                'tags'          => $item->tags,
+                'images'        => $images,
+                'video_link'    => $item->postVideoLink,
+                'postImageLink' => $item->postImageLink,
+                'link'          => $item->postLink,
+                'updated_at'    => $item->postUpdateDate,
+            ];
+        });
+    });
+    }
         return $this->successResponse([
             'guideshala' => $grouped,
         ], 'Public feed fetched successfully!');
@@ -194,7 +261,7 @@ public function getAllFeedTypes()
 {
     try {
         $feeds = DB::table('kc-main')
-            ->select('kcid', 'kcName','icon')
+            ->select('kcid', 'kcName','icon','link')
             ->where('isFeed', 1)
             ->where('status', 1)
             ->orderBy('kcName', 'asc')
