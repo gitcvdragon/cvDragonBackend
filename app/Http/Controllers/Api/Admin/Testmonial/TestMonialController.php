@@ -17,6 +17,7 @@ class TestMonialController extends Controller
         $testimonials = DB::table('resource_testimonials')->get()->map(function ($t) {
             return [
                 'id' => $t->sn,
+                'image' => $t->image,
                 'userName' => $t->title,
                 'role' => $t->role,
                 'content' => $t->description,
