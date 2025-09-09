@@ -13,57 +13,79 @@ class ServiceController extends Controller
      */
 
 
-    public function listServices()
-    {
-        try {
-            // Step 1: Get all active services for microsite 'services'
-            $rawServices = DB::table('microservice')
-                ->where('microsite', 'services')
-                ->where('status', 1)
-                ->orderBy('order-no', 'asc')
-                ->get();
+     public function listServices()
+     {
+         try {
+             // Step 1: Get all active services for microsite 'services'
+             $rawServices = DB::table('microservice')
+                 ->where('microsite', 'services')
+                 ->where('status', 1)
+                 ->orderBy('order-no', 'asc')
+                 ->get();
 
-            $filteredServices = [];
+             $sections = collect();
 
-            // Step 2: Loop through each service and filter by category
-            foreach ($rawServices as $service) {
-                    $filteredServices = DB::table('microservice')
-                    ->where('status', 1)
-                    ->where('microsite', $service->category )   // filter by category directly
-                    ->orderBy('order-no', 'asc')
-                    ->get()
-                    ->map(function ($service) {
-                        return [
-                            'id'            => $service->sn,
-                            'title'         => $service->heading,
-                            'description'   => $service->description,
-                            'link'          => $service->link,
-                            'price'         => (float) $service->cost,
-                            'purchaseCount' => $service->purchases,
-                            'rating'        => $service->rating,
-                            'status'        => $service->status == 1 ? "Active" : "Inactive",
-                            'banner'        => $service->banner,
-                            'icon'          => $service->icon,
-                            'duration'      => $service->duration,
-                            'offer'         => $service->offer,
-                            'discount'      => $service->discount,
-                        ];
-                    });
-            }
+             // Step 2: Loop through each category
+             $categories = $rawServices->pluck('category')->unique();
 
-            return response()->json([
-                'success'  => true,
-                'rows'     => $filteredServices,
-            ], 200);
+             foreach ($categories as $category) {
+                 // Get the main service for this category
+                 $mainService = DB::table('microservice')
+                     ->where('status', 1)
+                     ->where('microsite', $category)
+                     ->where('category', 'main')
+                     ->orderBy('order-no', 'asc')
+                     ->first();
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
-    }
+                 if (!$mainService) {
+                     continue; // skip if no main service
+                 }
+
+                 // Get all other services for this category (excluding main)
+                 $otherServices = DB::table('microservice')
+                     ->where('status', 1)
+                     ->where('microsite', $category)
+                     ->where('category', '!=', 'main')
+                     ->orderBy('order-no', 'asc')
+                     ->get()
+                     ->map(function ($service) {
+                         return [
+                             'id'            => $service->sn,
+                             'title'         => $service->heading,
+                             'description'   => $service->description,
+                             'link'          => $service->link,
+                             'price'         => (float) $service->cost,
+                             'purchaseCount' => $service->purchases,
+                             'rating'        => $service->rating,
+                             'status'        => $service->status == 1 ? "Active" : "Inactive",
+                             'banner'        => $service->banner,
+                             'icon'          => $service->icon,
+                             'duration'      => $service->duration,
+                             'offer'         => $service->offer,
+                             'discount'      => $service->discount,
+                         ];
+                     });
+
+                 // Build section with main service as header and other services as rows
+                 $sections->push([
+                     'title'      => $mainService->heading,
+                     'titleColor' => 'green', // you can customize
+                     'rows'       => $otherServices,
+                 ]);
+             }
+
+             return response()->json([
+                 'sections' => $sections,
+             ], 200);
+
+         } catch (\Exception $e) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Something went wrong',
+                 'error'   => $e->getMessage(),
+             ], 500);
+         }
+     }
 
 
     /**
