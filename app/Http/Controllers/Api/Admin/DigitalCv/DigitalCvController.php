@@ -19,9 +19,12 @@ class DigitalCvController extends Controller
 
         $users = DB::table('users as u')
             ->leftJoin('user-basic as ub', 'ub.id', '=', 'u.id')
+            ->leftJoin('create-cvprofile as ucv', 'ub.publicProfile', '=', 'ucv.cvid')
+            ->leftJoin('resource_profile_design_categories as rpd', 'rpd.id', '=', 'ucv.design')
             ->select(
                 'u.id as userId',
                 'ub.fullName as userName',
+                'rpd.image',
                 DB::raw('DATE(ub.dateCreated) as creationDate'),
                 DB::raw("CASE
                             WHEN ub.publicProfileStatus = 1 THEN 'Active'
@@ -29,6 +32,9 @@ class DigitalCvController extends Controller
                          END as status")
             )
             ->where('u.status', 1)
+            ->where('ucv.status', 1)
+            ->where('rpd.status', 1)
+            ->where('ub.status', 1)
             ->orderBy('ub.dateCreated', 'desc')
             ->limit($limit)
             ->offset($offset)
@@ -56,7 +62,7 @@ public function DigitalCv(Request $request, $userId)
         ->when(!empty($user->publicProfile), function ($query) use ($user) {
             $query->where('cvid', $user->publicProfile);
         }, function ($query) use ($userId) {
-            $query->where('userId', $userId);
+            $query->where('id', $userId);
         })
         ->first();
 
