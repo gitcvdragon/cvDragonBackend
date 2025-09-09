@@ -123,12 +123,17 @@ public function editDocument(Request $request, $documentId)
         $userId = auth()->id();
 
         // Validation
-        $request->validate([
+        $validator = Validator::make($request->all(), [
+            'documentId'         => 'required|integer|exists:user-documents,documentID',
             'documentTitle'      => 'required|string|max:255',
             'documentSection'    => 'nullable|integer',
             'documentSubSection' => 'nullable|integer',
             'documentFile'       => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors(), 422);
+        }
 
         // Check if document belongs to this user
         $document = \DB::table('user-documents')
