@@ -27,23 +27,28 @@ class ServiceController extends Controller
 
             // Step 2: Loop through each service and filter by category
             foreach ($rawServices as $service) {
-                if ($service->microsite === $category) {
-                    $filteredServices[] = [
-                        'id'            => $service->sn,
-                        'title'         => $service->heading,
-                        'description'   => $service->description,
-                        'link'          => $service->link,
-                        'price'         => (float) $service->cost,
-                        'purchaseCount' => $service->purchases,
-                        'rating'        => $service->rating,
-                        'status'        => $service->status == 1 ? "Active" : "Inactive",
-                        'banner'        => $service->banner,
-                        'icon'          => $service->icon,
-                        'duration'      => $service->duration,
-                        'offer'         => $service->offer,
-                        'discount'      => $service->discount,
-                    ];
-                }
+                    $filteredServices = DB::table('microservice')
+                    ->where('status', 1)
+                    ->where('microsite', $service->category )   // filter by category directly
+                    ->orderBy('order-no', 'asc')
+                    ->get()
+                    ->map(function ($service) {
+                        return [
+                            'id'            => $service->sn,
+                            'title'         => $service->heading,
+                            'description'   => $service->description,
+                            'link'          => $service->link,
+                            'price'         => (float) $service->cost,
+                            'purchaseCount' => $service->purchases,
+                            'rating'        => $service->rating,
+                            'status'        => $service->status == 1 ? "Active" : "Inactive",
+                            'banner'        => $service->banner,
+                            'icon'          => $service->icon,
+                            'duration'      => $service->duration,
+                            'offer'         => $service->offer,
+                            'discount'      => $service->discount,
+                        ];
+                    });
             }
 
             return response()->json([
