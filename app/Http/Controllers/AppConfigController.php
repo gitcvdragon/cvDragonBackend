@@ -76,6 +76,7 @@ class AppConfigController extends Controller
                 return $this->errorResponse('Missing category ', 400);
             }
             $rawConfigs = DB::table('resource-appconfig-user')
+            ->select('parameter','configid')
                 ->where('status', 1)
                 ->where('user_category', $category)
                 ->get();
