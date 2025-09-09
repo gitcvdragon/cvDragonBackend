@@ -19,7 +19,8 @@ class UserAllDocumentController extends Controller
                 'u.id as userId',
                 'u.fullName as userName',
                 DB::raw('COUNT(d.documentID) as documentCount'),
-                DB::raw('MAX(d.date) as lastUpdated')
+                DB::raw('MAX(d.date) as lastUpdated'),
+                'u.profileImageUrl as profileImage'
             )
             ->where('d.status', 1)
             ->groupBy('u.id', 'u.fullName')

@@ -35,6 +35,7 @@ class DigitalCvController extends Controller
             // ->where('ucv.status', 1)
             // ->where('rpd.status', 1)
             // ->where('ub.status', 1)
+            // ->where('ub.status', 1)
             ->orderBy('ub.dateCreated', 'desc')
             ->limit($limit)
             ->offset($offset)
