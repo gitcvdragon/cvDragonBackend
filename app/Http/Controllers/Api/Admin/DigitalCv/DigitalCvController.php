@@ -31,10 +31,10 @@ class DigitalCvController extends Controller
                             ELSE 'Inactive'
                          END as status")
             )
-            ->where('u.status', 1)
-            ->where('ucv.status', 1)
-            ->where('rpd.status', 1)
-            ->where('ub.status', 1)
+            // ->where('u.status', 1)
+            // ->where('ucv.status', 1)
+            // ->where('rpd.status', 1)
+            // ->where('ub.status', 1)
             ->orderBy('ub.dateCreated', 'desc')
             ->limit($limit)
             ->offset($offset)
@@ -54,7 +54,7 @@ public function DigitalCv(Request $request, $userId)
     }
 
     if ($user->publicProfileStatus != 1) {
-        return $this->errorResponse('User profile is not public', 403);
+       return response()->json('User profile is not public', 403);
     }
 
     $profile = CreateCvuserprofile::with('cvProfileSection')
@@ -67,7 +67,7 @@ public function DigitalCv(Request $request, $userId)
         ->first();
 
     if (!$profile) {
-        return $this->successResponse(null, 'No Profile Found!!');
+        return response()->json(null, 'No Profile Found!!');
     }
 
     $response = [
