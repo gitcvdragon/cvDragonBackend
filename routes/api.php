@@ -90,6 +90,7 @@ Route::get('/digital-cv-show', [DigitalCvController::class, 'showDigitalCv'])->m
 Route::post('/digital-cv-show-from-profile', [DigitalCvController::class, 'showallDigitalCv'])->middleware('auth:api');
 
 Route::post('/my-documents/upload', [MyDocumentsController::class, 'uploadDocument'])->middleware('auth:api');
+Route::post('/my-documents/edit', [MyDocumentsController::class, 'editDocument'])->middleware('auth:api');
 
 Route::get('/my-documents', [MyDocumentsController::class, 'getMyDocuments'])->middleware('auth:api');
 Route::get('/all-templates', [AllTemplateswithCategory::class, 'getAllTemplatesWithCategory'])->middleware('auth:api');

@@ -117,6 +117,61 @@ public function deleteDocument($documentId)
         );
     }
 }
+public function editDocument(Request $request, $documentId)
+{
+    try {
+        $userId = auth()->id();
+
+        // Validation
+        $request->validate([
+            'documentTitle'      => 'required|string|max:255',
+            'documentSection'    => 'nullable|integer',
+            'documentSubSection' => 'nullable|integer',
+            'documentFile'       => 'nullable|string',
+        ]);
+
+        // Check if document belongs to this user
+        $document = \DB::table('user-documents')
+            ->where('documentID', $documentId)
+            ->where('id', $userId)
+            ->first();
+
+        if (!$document) {
+            return $this->errorResponse('Document not found or not authorized!', 404);
+        }
+
+        // Prepare update data
+        $updateData = [
+            'documentTitle'      => $request->documentTitle,
+            'documentSection'    => $request->documentSection,
+            'documentSubSection' => $request->documentSubSection,
+            'date'               => now(),
+        ];
+
+        // Update file only if passed
+        if ($request->has('documentFile') && !empty($request->documentFile)) {
+            $updateData['documentLocation'] = $request->documentFile;
+        }
+
+        // Perform update
+        \DB::table('user-documents')
+            ->where('documentID', $documentId)
+            ->update($updateData);
+
+        return $this->successResponse(
+            [
+                'documentID' => $documentId,
+            ],
+            'Document updated successfully!'
+        );
+
+    } catch (\Exception $e) {
+        return $this->errorResponse(
+            'Something went wrong! ' . $e->getMessage(),
+            500
+        );
+    }
+}
 
 
 }

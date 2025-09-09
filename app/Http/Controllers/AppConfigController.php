@@ -30,7 +30,6 @@ class AppConfigController extends Controller
 
                 $configArray = $configs->toArray();
 
-                // Append server time
                 $serverTime = [
                     'configkey' => 'SERVERTIME',
                     'configvalue' => '1',
@@ -76,31 +75,32 @@ class AppConfigController extends Controller
                 return $this->errorResponse('Missing category ', 400);
             }
             $rawConfigs = DB::table('resource-appconfig-user')
-            ->select('parameter','configid')
+           // ->select('parameter','configid')
                 ->where('status', 1)
                 ->where('user_category', $category)
                 ->get();
 
-          $configs = $rawConfigs->map(function ($config) {
-            // Remove the surrounding quotes if present
-            $parameter = trim($config->parameter, '"');
+   $configs = $rawConfigs->map(function ($config) {
+    $parameter = $config->parameter;
 
-            // Replace PHP-style booleans with JSON-compatible ones
-            $parameter = str_replace(['false', 'true'], ['false', 'true'], $parameter);
+    $decoded = json_decode($parameter, true);
 
-            // Wrap in brackets if it looks like a CSV
-            if (!str_starts_with($parameter, '[')) {
-                $parameter = '[' . $parameter . ']';
-            }
+    if ($decoded === null) {
+        $parameter = str_replace(['{', '}'], ['[', ']'], $parameter);
 
-            // Decode JSON
-            $decodedParam = json_decode($parameter, true);
+        $parameter = str_replace(['True', 'TRUE', 'False', 'FALSE'], ['true', 'false'], $parameter);
 
-            // Fallback to original if decoding fails
-            $config->parameter = $decodedParam ?: $config->parameter;
+        $decoded = json_decode($parameter, true);
 
-            return $config;
-        });
+        $config->parameter = $decoded ?: $config->parameter;
+    } else {
+        $config->parameter = $decoded;
+    }
+
+    return $config;
+});
+
+
 
             return $this->successResponse(
                 ['data' => $configs],
