@@ -117,7 +117,7 @@ public function deleteDocument($documentId)
         );
     }
 }
-public function editDocument(Request $request, $documentId)
+public function editDocument(Request $request)
 {
     try {
         $userId = auth()->id();
@@ -134,7 +134,7 @@ public function editDocument(Request $request, $documentId)
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 422);
         }
-
+        $documentId=$request->documentId;
         // Check if document belongs to this user
         $document = \DB::table('user-documents')
             ->where('documentID', $documentId)
