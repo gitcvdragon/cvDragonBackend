@@ -46,48 +46,49 @@ class DigitalCvController extends Controller
         ]);
     }
 
-public function DigitalCv(Request $request, $userId)
-{
-    $user = \DB::table('user-basic')->where('id', $userId)->first();
+    public function DigitalCv(Request $request, $userId)
+    {
+        $user = \DB::table('user-basic')->where('id', $userId)->first();
 
-    if (!$user) {
-        return $this->errorResponse('User not found', 404);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // if ($user->publicProfileStatus != 1) {
+        //     return response()->json(['message' => 'User profile is not public'], 403);
+        // }
+
+        $profile = CreateCvuserprofile::with('cvProfileSection')
+            ->where('status', 1)
+            ->when(!empty($user->publicProfile), function ($query) use ($user) {
+                $query->where('cvid', $user->publicProfile);
+            }, function ($query) use ($userId) {
+                $query->where('id', $userId);
+            })
+            ->first();
+
+        if (!$profile) {
+            return response()->json(['message' => 'No Profile Found!!'], 404);
+        }
+
+        $response = [
+            "id"           => $profile->cvid,
+            "userId"       => $profile->userId,
+            "userName"     => $user->fullName,
+            "showMobile"   => $user->showMobile,
+            "showEmail"    => $user->showEmail,
+            "creationDate" => $profile->created_at ? $profile->created_at->format('Y-m-d') : null,
+            "status"       => $profile->status == 1 ? "Active" : "Inactive",
+            "sections"     => $profile->cvProfileSection->map(function ($section) {
+                return [
+                    "title"   => $section->showName,
+                    "content" => $section->subsection,
+                ];
+            }),
+        ];
+
+        return response()->json($response, 200);
     }
 
-    if ($user->publicProfileStatus != 1) {
-       return response()->json('User profile is not public', 403);
-    }
-
-    $profile = CreateCvuserprofile::with('cvProfileSection')
-        ->where('status', 1)
-        ->when(!empty($user->publicProfile), function ($query) use ($user) {
-            $query->where('cvid', $user->publicProfile);
-        }, function ($query) use ($userId) {
-            $query->where('id', $userId);
-        })
-        ->first();
-
-    if (!$profile) {
-        return response()->json(null, 'No Profile Found!!');
-    }
-
-    $response = [
-        "id"            => $profile->cvid,
-        "userId"        => $profile->userId,
-        "userName"      => $user->fullName,
-        "showMobile"      => $user->showMobile,
-        "showEmail"      => $user->showEmail,
-        "creationDate"  => $profile->created_at ? $profile->created_at->format('Y-m-d') : null,
-        "status"        => $profile->status == 1 ? "Active" : "Inactive",
-        "sections"      => $profile->cvProfileSection->map(function ($section) {
-            return [
-                "title"   => $section->showName,
-                "content" => $section->subsection,
-            ];
-        }),
-    ];
-
-    return response()->json($response, 200);
-}
 
 }

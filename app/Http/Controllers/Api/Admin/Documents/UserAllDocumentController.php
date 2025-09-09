@@ -23,7 +23,7 @@ class UserAllDocumentController extends Controller
                 'u.profileImageUrl as profileImage'
             )
             ->where('d.status', 1)
-            ->groupBy('u.id', 'u.fullName')
+            ->groupBy('u.id', 'u.fullName','u.profileImageUrl')
             ->offset($offset)
             ->limit($limit)
             ->get();
