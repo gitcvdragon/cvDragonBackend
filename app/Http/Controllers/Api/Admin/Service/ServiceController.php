@@ -13,7 +13,7 @@ class ServiceController extends Controller
      */
 
 
-    public function getServicesByCategory($category)
+    public function listServices()
     {
         try {
             // Step 1: Get all active services for microsite 'services'
