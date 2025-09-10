@@ -18,10 +18,10 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('guideshala')->group(function () {
     Route::get('/', [GuideshalaController::class, 'listFeeds']);
+     Route::get('/categories', [GuideshalaController::class, 'listCategories']);
 
     Route::get('/{id}', [GuideshalaController::class, 'feedDetail']);
 
-     Route::get('/categories', [GuideshalaController::class, 'listCategories']);
 });
     Route::prefix('services')->group(function () {
         Route::get('/', [ServiceController::class, 'listServices']);
