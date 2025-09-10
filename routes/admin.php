@@ -12,19 +12,26 @@ use App\Http\Controllers\Api\Admin\FeedBack\FeedBackController;
 use App\Http\Controllers\Api\Admin\HelpCenter\HelpCenterController;
 use App\Http\Controllers\Api\Admin\Section\SectionController;
 use App\Http\Controllers\Api\Admin\Service\ServiceController;
-
+use App\Http\Controllers\Api\Admin\Guideshala\GuideshalaController;
 
 Route::prefix('admin')->group(function () {
 
+Route::prefix('guideshala')->group(function () {
+    Route::get('/', [GuideshalaController::class, 'listFeeds']);
 
+    Route::get('/{id}', [GuideshalaController::class, 'feedDetail']);
+
+    Route::get('/categories', [GuideshalaController::class, 'listCategories']);
+});
     Route::prefix('services')->group(function () {
-        Route::get('/', [ServiceController::class, 'listServices']); // List grouped
-        Route::get('/{id}', [ServiceController::class, 'serviceDetail']); // Single detail
+        Route::get('/', [ServiceController::class, 'listServices']);
+        Route::get('/{id}', [ServiceController::class, 'serviceDetail']);
+        Route::delete('/{id}', [ServiceController::class, 'softDeleteService']);
     });
 
     Route::get('/sections', [SectionController::class, 'listSections']);
-Route::get('/sections/{id}', [SectionController::class, 'viewSection']);
-Route::delete('/sections/{id}', [SectionController::class, 'deleteSection']);
+    Route::get('/sections/{id}', [SectionController::class, 'viewSection']);
+    Route::delete('/sections/{id}', [SectionController::class, 'deleteSection']);
 
 
     Route::prefix('help-center')->group(function () {

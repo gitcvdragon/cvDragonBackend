@@ -69,7 +69,7 @@ class ServiceController extends Controller
                  // Build section with main service as header and other services as rows
                  $sections->push([
                      'title'      => $mainService->heading,
-                     'titleColor' => 'green', // you can customize
+                     'titleColor' => 'green',
                      'rows'       => $otherServices,
                  ]);
              }
@@ -119,6 +119,39 @@ class ServiceController extends Controller
                     'description'   => $service->description,
                     'banner'        => $service->banner,
                 ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function softDeleteService($id)
+    {
+        try {
+            $service = DB::table('microservice')
+                ->where('sn', $id)
+                ->where('status', 1) // only allow deleting active ones
+                ->first();
+
+            if (!$service) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Service not found or already deleted',
+                ], 404);
+            }
+
+            // Update status to 0 (soft delete)
+            DB::table('microservice')
+                ->where('sn', $id)
+                ->update(['status' => 0]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Service soft deleted successfully',
             ], 200);
 
         } catch (\Exception $e) {
