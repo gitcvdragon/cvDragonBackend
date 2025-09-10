@@ -122,7 +122,10 @@ class GuideshalaController extends Controller
 
             return response()->json([
                 'id'      => $feed->id,
+                'category'   => $feed->category,
+                'author'   => $feed->author,
                 'title'   => $feed->title,
+                'publishedAt'   => $feed->publishedAt,
                 'content' => "<p>{$feed->content}</p>", // wrap as HTML
                 'images'  => $images,
                 'tags'    => !empty($feed->tags) ? explode(',', $feed->tags) : [],
