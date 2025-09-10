@@ -83,11 +83,10 @@ class GuideshalaController extends Controller
             $feed = DB::table('kc-feed as f')
                 ->join('kc-main as m', 'f.postType', '=', 'm.kcid')
                 ->select(
-
                     'f.feedID as id',
                     'f.postHeading as title',
-                    'f.postDescription as shortDesc',
-                    'f.postImageLink as thumbnail',
+                    'f.postDescription as content',
+                    'f.postImageLink',
                     'm.kcName as category',
                     'f.postUpdateDate as publishedAt',
                     DB::raw("'Admin' as author"),
