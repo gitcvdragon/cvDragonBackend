@@ -72,12 +72,14 @@ class SubscriptionController extends Controller
         try {
             $subscription = DB::table('user-subscription as us')
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
+                ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
+
                 ->select(
                     'us.id',
                     'ub.fullName as userName',
                     'us.design as subscriptionLabel',
-                    'us.content as subscriptionLine2',
-
+                    'rd.designName as subscriptionLine1',
+                    'rd.content as subscriptionLine2',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.securityKey',
