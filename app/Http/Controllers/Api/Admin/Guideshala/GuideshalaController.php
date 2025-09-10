@@ -35,8 +35,8 @@ class GuideshalaController extends Controller
             $limit    = $request->get('limit', 10);
             $offset   = $request->get('offset', 0);
 
-            $query = DB::table('kc-feed as f')
-                ->join('kc-main as m', 'f.postType', '=', 'm.kcid')
+            $query = DB::table('kc-main as m')
+                ->leftjoin('kc-feed as f', 'f.postType', '=', 'm.kcid')
                 ->select(
                     'f.feedID as id',
                     'f.postHeading as title',
@@ -50,7 +50,7 @@ class GuideshalaController extends Controller
 
             // filter by postType if provided
             if (!empty($postType)) {
-                $query->where('f.postType', $postType);
+                $query->where('m.kcid', $postType);
             }
 
             $feeds = $query
