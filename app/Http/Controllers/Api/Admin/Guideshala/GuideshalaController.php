@@ -146,10 +146,14 @@ class GuideshalaController extends Controller
                 ->orderBy('kcName', 'asc')
                 ->get();
 
-            return response()->json($categories, 200);
+            return response()->json([
+                'success' => true,
+                'data'    => $categories
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Something went wrong: ' . $e->getMessage()
+                'success' => false,
+                'error'   => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -21,7 +21,7 @@ Route::prefix('guideshala')->group(function () {
 
     Route::get('/{id}', [GuideshalaController::class, 'feedDetail']);
 
-    Route::get('/categories', [GuideshalaController::class, 'listCategories']);
+     Route::get('/categories', [GuideshalaController::class, 'listCategories']);
 });
     Route::prefix('services')->group(function () {
         Route::get('/', [ServiceController::class, 'listServices']);
