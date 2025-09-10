@@ -21,10 +21,12 @@ class SubscriptionController extends Controller
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
                 ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
+                    'us.id',
+
                     'ub.fullName as userName',
                     'ub.profileImageUrl as userimg',
                     'rd.designName as subscriptionLine1',
-                    'rd.template as subscriptionLine2',
+                    'rd.content as subscriptionLine2',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.status'
@@ -74,6 +76,8 @@ class SubscriptionController extends Controller
                     'us.id',
                     'ub.fullName as userName',
                     'us.design as subscriptionLabel',
+                    'rd.content as subscriptionLine2',
+
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.securityKey',
