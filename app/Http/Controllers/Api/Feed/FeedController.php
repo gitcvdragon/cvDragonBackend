@@ -109,7 +109,7 @@ class FeedController extends Controller
 
     try {
         $postType = $request->postType;
-        $limit    = $request->get('limit', 10);
+        $limit    = $request->get('limit', 7);
         $offset   = $request->get('offset', 0);
         $search   = $request->get('search');
 if($postType!=''){
@@ -159,7 +159,7 @@ if($postType!=''){
             ->groupBy(fn($img) => $img->feedID . '_' . $img->postID);
 
         $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) use ($galleryImages) {
-            return $items->take(7)->map(function ($item) use ($galleryImages) {
+            return $items->map(function ($item) use ($galleryImages) {
                 $images = ($item->postMultipleImage == 1)
                     ? ($galleryImages[$item->feedID . '_' . $item->postID] ?? collect())->pluck('imageLink')->toArray()
                     : [];
@@ -226,7 +226,7 @@ if($postType!=''){
         ->groupBy(fn($img) => $img->feedID . '_' . $img->postID);
 
     $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) use ($galleryImages) {
-        return $items->take(7)->map(function ($item) use ($galleryImages) {
+        return $items->map(function ($item) use ($galleryImages) {
             $images = ($item->postMultipleImage == 1)
                 ? ($galleryImages[$item->feedID . '_' . $item->postID] ?? collect())->pluck('imageLink')->toArray()
                 : [];
