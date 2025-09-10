@@ -143,6 +143,7 @@ class GuideshalaController extends Controller
             $categories = DB::table('kc-main')
                 ->select('kcid as id', 'kcName as name')
                 ->where('status', 1)
+                ->where('id','!=' ,0)
                 ->orderBy('kcName', 'asc')
                 ->get();
 
