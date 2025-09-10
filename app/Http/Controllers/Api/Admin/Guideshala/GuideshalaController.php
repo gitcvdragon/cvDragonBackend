@@ -19,7 +19,7 @@ class GuideshalaController extends Controller
         try {
             // validate request params
             $validator = Validator::make($request->all(), [
-                'id' => 'nullable|integer|exists:kc-main,kcid',
+                'id' => 'required|integer|exists:kc-main,kcid',
                 'limit'    => 'nullable|integer|min:1|max:100',
                 'offset'   => 'nullable|integer|min:0',
             ]);
@@ -83,10 +83,14 @@ class GuideshalaController extends Controller
             $feed = DB::table('kc-feed as f')
                 ->join('kc-main as m', 'f.postType', '=', 'm.kcid')
                 ->select(
+
                     'f.feedID as id',
                     'f.postHeading as title',
-                    'f.postDescription as content',
-                    'f.postImageLink',
+                    'f.postDescription as shortDesc',
+                    'f.postImageLink as thumbnail',
+                    'm.kcName as category',
+                    'f.postUpdateDate as publishedAt',
+                    DB::raw("'Admin' as author"),
                     'f.tags'
                 )
                 ->where('f.feedID', $id)
