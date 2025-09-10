@@ -182,72 +182,78 @@ if($postType!=''){
             });
         });
     }else{
-        $allFeeds = DB::table('kc-main as fm')
-        ->join('kc-feed as kf', 'kf.postType', '=', 'fm.kcid')
-        ->select(
-            'kf.feedID',
-            'kf.postID',
-            'kf.faq_category as category',
-            'kf.category_color',
-            'kf.faq_category_sub_category as sub_category',
-            'kf.tags',
-            'kf.postHeading',
-            'kf.postDescription',
-            'kf.postImageLink',
-            'kf.postVideoLink',
-            'kf.postMultipleImage',
-            'kf.postLink',
-            'kf.postUpdateDate',
-            'fm.kcName as postTypeDisplayName'
-        )
-        ->where('kf.status', 1)
-        ->where('fm.status', 1)
-        ->where('fm.isFeed', 1)
-        ->when($search, function ($query, $search) {
-            return $query->where(function ($q) use ($search) {
-                $q->where('kf.postHeading', 'LIKE', "%{$search}%")
-                  ->orWhere('kf.postDescription', 'LIKE', "%{$search}%");
-            });
-        })
-        ->orderByDesc('kf.postUpdateDate')
-        ->offset($offset)
-        ->limit($limit)
-        ->get();
-//dd(  $allFeeds);
-    // Fetch all gallery images in one query to avoid N+1
-    $feedIds   = $allFeeds->pluck('feedID');
-    $postIds   = $allFeeds->pluck('postID');
-
-    $galleryImages = DB::table('kc-feed-gallery')
-        ->whereIn('feedID', $feedIds)
-        ->whereIn('postID', $postIds)
-        ->where('status', 1)
-        ->get()
-        ->groupBy(fn($img) => $img->feedID . '_' . $img->postID);
-
-    $grouped = $allFeeds->groupBy('postTypeDisplayName')->map(function ($items) use ($galleryImages) {
-        return $items->map(function ($item) use ($galleryImages) {
-            $images = ($item->postMultipleImage == 1)
-                ? ($galleryImages[$item->feedID . '_' . $item->postID] ?? collect())->pluck('imageLink')->toArray()
-                : [];
-
-            return [
-                'feedID'        => $item->feedID,
-                'category_color'=> $item->category_color,
-                'category'      => $item->category,
-                'sub_category'  => $item->sub_category,
-                'postType'      => $item->postTypeDisplayName,
-                'title'         => $item->postHeading,
-                'description'   => $item->postDescription,
-                'tags'          => $item->tags,
-                'images'        => $images,
-                'video_link'    => $item->postVideoLink,
-                'postImageLink' => $item->postImageLink,
-                'link'          => $item->postLink,
-                'updated_at'    => $item->postUpdateDate,
-            ];
+       $allFeeds = DB::table('kc-main as fm')
+    ->join('kc-feed as kf', 'kf.postType', '=', 'fm.kcid')
+    ->select(
+        'kf.feedID',
+        'kf.postID',
+        'kf.faq_category as category',
+        'kf.category_color',
+        'kf.faq_category_sub_category as sub_category',
+        'kf.tags',
+        'kf.postHeading',
+        'kf.postDescription',
+        'kf.postImageLink',
+        'kf.postVideoLink',
+        'kf.postMultipleImage',
+        'kf.postLink',
+        'kf.postUpdateDate',
+        'fm.kcName as postTypeDisplayName'
+    )
+    ->where('kf.status', 1)
+    ->where('fm.status', 1)
+    ->where('fm.isFeed', 1)
+    ->when($search, function ($query, $search) {
+        return $query->where(function ($q) use ($search) {
+            $q->where('kf.postHeading', 'LIKE', "%{$search}%")
+              ->orWhere('kf.postDescription', 'LIKE', "%{$search}%");
         });
-    });
+    })
+    ->orderByDesc('kf.postUpdateDate')
+    ->offset($offset)
+    ->limit($limit)
+    ->get();
+
+// Fetch gallery images
+$feedIds = $allFeeds->pluck('feedID');
+$postIds = $allFeeds->pluck('postID');
+
+$galleryImages = DB::table('kc-feed-gallery')
+    ->whereIn('feedID', $feedIds)
+    ->whereIn('postID', $postIds)
+    ->where('status', 1)
+    ->get()
+    ->groupBy(fn($img) => $img->feedID . '_' . $img->postID);
+
+// Map feeds with images
+$FAQs = $allFeeds->map(function ($item) use ($galleryImages) {
+    $images = ($item->postMultipleImage == 1)
+        ? ($galleryImages[$item->feedID . '_' . $item->postID] ?? collect())->pluck('imageLink')->toArray()
+        : [];
+
+    return [
+        'feedID'        => $item->feedID,
+        'category_color'=> $item->category_color,
+        'category'      => $item->category,
+        'sub_category'  => $item->sub_category,
+        'postType'      => $item->postTypeDisplayName,
+        'title'         => $item->postHeading,
+        'description'   => $item->postDescription,
+        'tags'          => $item->tags,
+        'images'        => $images,
+        'video_link'    => $item->postVideoLink,
+        'postImageLink' => $item->postImageLink,
+        'link'          => $item->postLink,
+        'updated_at'    => $item->postUpdateDate,
+    ];
+});
+
+// Return with your helper
+return $this->successResponse([
+    'guideshala' => [
+        'FAQs' => $FAQs
+    ]
+], 'Public feed fetched successfully!');
     }
         return $this->successResponse([
             'guideshala' => $grouped,

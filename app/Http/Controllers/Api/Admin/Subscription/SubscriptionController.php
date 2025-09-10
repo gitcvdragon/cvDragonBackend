@@ -19,10 +19,12 @@ class SubscriptionController extends Controller
         try {
             $subscriptions = DB::table('user-subscription as us')
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
+                ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
-                    'us.id',
                     'ub.fullName as userName',
-                    'us.design as subscriptionLabel',
+                    'ub.profileImageUrl as userimg',
+                    'rd.designName as subscriptionLine1',
+                    'rd.template as subscriptionLine2',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.status'
@@ -31,15 +33,34 @@ class SubscriptionController extends Controller
                 ->offset($offset)
                 ->limit($limit)
                 ->orderByDesc('us.dateCreated')
-                ->get();
+                ->get()
+                ->map(function($sub) {
+                    return [
+                        'userName' => $sub->userName,
+                        'userimg' => $sub->userimg ?? '/assets/avatar.png',
+                        'subscriptionLine1' => $sub->subscriptionLine1,
+                        'subscriptionLine2' => $sub->subscriptionLine2,
+                        'startDate' => $sub->startDate,
+                        'endDate' => $sub->endDate,
+                        'actionIcons' => [
+                            ['src' => '/assets/pencil-edit.svg', 'permission' => true],
+                            ['src' => '/assets/delete-icon.svg', 'permission' => true],
+                            ['src' => '/assets/download-left.svg', 'permission' => true],
+                        ]
+                    ];
+                });
 
-            return response()->json($subscriptions, 200);
+            return response()->json([
+                'subscriptions' => $subscriptions
+            ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * Get single subscription details
