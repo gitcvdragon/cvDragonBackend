@@ -76,7 +76,7 @@ class SubscriptionController extends Controller
                     'us.id',
                     'ub.fullName as userName',
                     'us.design as subscriptionLabel',
-                    'rd.content as subscriptionLine2',
+                    'us.content as subscriptionLine2',
 
                     'us.activate as startDate',
                     'us.expiry as endDate',
