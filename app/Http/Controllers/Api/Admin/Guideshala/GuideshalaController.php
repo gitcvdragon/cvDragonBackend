@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin\Guideshala;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class GuideshalaController extends Controller
 {
@@ -12,10 +13,29 @@ class GuideshalaController extends Controller
      * List all feeds (with summary)
      * Response matches: List Response
      */
-    public function listFeeds()
+
+    public function listFeeds(Request $request)
     {
         try {
-            $feeds = DB::table('kc-feed as f')
+            // validate request params
+            $validator = Validator::make($request->all(), [
+                'id' => 'nullable|integer|exists:kc-feed,id',
+                'limit'    => 'nullable|integer|min:1|max:100',
+                'offset'   => 'nullable|integer|min:0',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $postType = $request->get('id');
+            $limit    = $request->get('limit', 10);
+            $offset   = $request->get('offset', 0);
+
+            $query = DB::table('kc-feed as f')
                 ->join('kc-main as m', 'f.postType', '=', 'm.kcid')
                 ->select(
                     'f.feedID as id',
@@ -24,19 +44,34 @@ class GuideshalaController extends Controller
                     'f.postImageLink as thumbnail',
                     'm.kcName as category',
                     'f.postUpdateDate as publishedAt',
-                    DB::raw("'Admin' as author") // static for now
+                    DB::raw("'Admin' as author")
                 )
-                ->where('f.status', 1)
+                ->where('f.status', 1);
+
+            // filter by postType if provided
+            if (!empty($postType)) {
+                $query->where('f.postType', $postType);
+            }
+
+            $feeds = $query
                 ->orderByDesc('f.postUpdateDate')
+                ->offset($offset)
+                ->limit($limit)
                 ->get();
 
-            return response()->json($feeds, 200);
+            return response()->json([
+                'success' => true,
+                'data'    => $feeds,
+            ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Something went wrong: ' . $e->getMessage()
+                'success' => false,
+                'error'   => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * Single feed details
