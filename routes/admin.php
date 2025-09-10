@@ -21,6 +21,7 @@ Route::prefix('guideshala')->group(function () {
      Route::get('/categories', [GuideshalaController::class, 'listCategories']);
 
     Route::get('/{id}', [GuideshalaController::class, 'feedDetail']);
+    Route::delete('/feeds/{id}', [GuideshalaController::class, 'softDeleteFeed']);
 
 });
     Route::prefix('services')->group(function () {

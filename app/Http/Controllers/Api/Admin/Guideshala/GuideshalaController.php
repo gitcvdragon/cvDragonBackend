@@ -112,13 +112,13 @@ class GuideshalaController extends Controller
             }
 
             // related (for demo: latest 2 other feeds)
-            $related = DB::table('kc-feed')
-                ->where('feedID', '!=', $feed->id)
-                ->where('status', 1)
-                ->orderByDesc('postUpdateDate')
-                ->limit(2)
-                ->pluck('feedID')
-                ->toArray();
+            // $related = DB::table('kc-feed')
+            //     ->where('feedID', '!=', $feed->id)
+            //     ->where('status', 1)
+            //     ->orderByDesc('postUpdateDate')
+            //     ->limit(2)
+            //     ->pluck('feedID')
+            //     ->toArray();
 
             return response()->json([
                 'id'      => $feed->id,
@@ -129,7 +129,7 @@ class GuideshalaController extends Controller
                 'content' => "<p>{$feed->content}</p>", // wrap as HTML
                 'images'  => $images,
                 'tags'    => !empty($feed->tags) ? explode(',', $feed->tags) : [],
-                'related' => $related,
+                // 'related' => $related,
             ], 200);
 
         } catch (\Exception $e) {
@@ -164,4 +164,40 @@ class GuideshalaController extends Controller
             ], 500);
         }
     }
+
+    public function softDeleteFeed($id)
+{
+    try {
+        // Check if feed exists and is active
+        $feed = DB::table('kc-feed')
+            ->where('feedID', $id)
+            ->where('status', 1)
+            ->first();
+
+        if (!$feed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Feed not found or already deleted',
+            ], 404);
+        }
+
+        // Soft delete by updating status to 0
+        DB::table('kc-feed')
+            ->where('feedID', $id)
+            ->update(['status' => 0]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feed soft deleted successfully',
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong!',
+            'error'   => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }
