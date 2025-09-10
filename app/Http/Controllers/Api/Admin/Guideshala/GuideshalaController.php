@@ -40,6 +40,10 @@ class GuideshalaController extends Controller
                 ->select(
                     'f.feedID as id',
                     'f.postHeading as title',
+                    'f.postImageLink',
+                    'f.postVideoLink',
+                    'f.postLikes',
+                    'f.postShares',
                     'f.postDescription as shortDesc',
                     'f.postImageLink as thumbnail',
                     'm.kcName as category',
@@ -86,8 +90,11 @@ class GuideshalaController extends Controller
                     'f.feedID as id',
                     'f.postHeading as title',
                     'f.postDescription as content',
-                    'f.postImageLink',
                     'm.kcName as category',
+                    'f.postImageLink',
+                    'f.postVideoLink',
+                    'f.postLikes',
+                    'f.postShares',
                     'f.postUpdateDate as publishedAt',
                     DB::raw("'Admin' as author"),
                     'f.tags'
@@ -97,7 +104,7 @@ class GuideshalaController extends Controller
                 ->first();
 
             if (!$feed) {
-                return response()->json(['error' => 'Feed not found'], 404);
+                return response()->json(['error' => 'GuideShala not found'], 404);
             }
 
             // images
@@ -125,6 +132,10 @@ class GuideshalaController extends Controller
                 'category'   => $feed->category,
                 'author'   => $feed->author,
                 'title'   => $feed->title,
+                'postImageLink'   => $feed->postImageLink,
+                'postVideoLink'   => $feed->postVideoLink,
+                'postLikes'   => $feed->postLikes,
+                'postShares'   => $feed->postShares,
                 'publishedAt'   => $feed->publishedAt,
                 'content' => "<p>{$feed->content}</p>", // wrap as HTML
                 'images'  => $images,
@@ -177,7 +188,7 @@ class GuideshalaController extends Controller
         if (!$feed) {
             return response()->json([
                 'success' => false,
-                'message' => 'Feed not found or already deleted',
+                'message' => 'GuideShala not found or already deleted',
             ], 404);
         }
 
@@ -188,7 +199,7 @@ class GuideshalaController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Feed soft deleted successfully',
+            'message' => 'GuideShala soft deleted successfully',
         ], 200);
 
     } catch (\Exception $e) {
