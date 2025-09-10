@@ -13,8 +13,15 @@ use App\Http\Controllers\Api\Admin\HelpCenter\HelpCenterController;
 use App\Http\Controllers\Api\Admin\Section\SectionController;
 use App\Http\Controllers\Api\Admin\Service\ServiceController;
 use App\Http\Controllers\Api\Admin\Guideshala\GuideshalaController;
+use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
 
 Route::prefix('admin')->group(function () {
+    Route::prefix('subscriptions')->group(function () {
+        Route::get('/', [SubscriptionController::class, 'listSubscriptions']);
+        Route::get('/{id}', [SubscriptionController::class, 'subscriptionDetail']);
+        Route::patch('/{id}', [SubscriptionController::class, 'updateSubscription']);
+        Route::delete('/{id}', [SubscriptionController::class, 'softDeleteSubscription']);
+    });
 
 Route::prefix('guideshala')->group(function () {
     Route::get('/', [GuideshalaController::class, 'listFeeds']);
