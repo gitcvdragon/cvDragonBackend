@@ -84,7 +84,7 @@ class SubscriptionController extends Controller
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
                 ->leftJoin('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
-                    'us.id',
+                    'us.sn',
                     'us.design',
                     'ub.fullName as userName',
                     'rd.designName',
@@ -174,7 +174,7 @@ class SubscriptionController extends Controller
             }
 
             DB::table('user-subscription')
-                ->where('id', $id)
+                ->where('sn', $id)
                 ->update(['status' => 0]);
 
             return response()->json([
