@@ -21,7 +21,7 @@ class SubscriptionController extends Controller
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
                 ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
-                    'us.id',
+                    'us.sn',
 
                     'ub.fullName as userName',
                     'ub.profileImageUrl as userimg',
@@ -85,7 +85,7 @@ class SubscriptionController extends Controller
                     'us.securityKey',
                     'us.status'
                 )
-                ->where('us.id', $id)
+                ->where('us.sn', $id)
                 ->first();
 
             if (!$subscription) {
@@ -109,7 +109,7 @@ class SubscriptionController extends Controller
 
         try {
             $updated = DB::table('user-subscription')
-                ->where('id', $id)
+                ->where('sn', $id)
                 ->update($data);
 
             if ($updated) {
@@ -139,7 +139,7 @@ class SubscriptionController extends Controller
     {
         try {
             $subscription = DB::table('user-subscription')
-                ->where('id', $id)
+                ->where('sn', $id)
                 ->where('status', 1)
                 ->first();
 

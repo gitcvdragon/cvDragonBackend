@@ -97,3 +97,4 @@ Route::get('/all-templates', [AllTemplateswithCategory::class, 'getAllTemplatesW
 
 Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'deleteDocument'])->middleware('auth:api');
 Route::get('/subscriptions/active', [MySubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
+Route::post('/redeem-voucher', [MySubscriptionController::class, 'redeemVoucher'])->middleware('auth:api');
