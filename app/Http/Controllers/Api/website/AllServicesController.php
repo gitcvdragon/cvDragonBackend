@@ -27,6 +27,7 @@ class AllServicesController extends Controller
 
             $services = DB::table('microservice')
                 ->where('microsite', 'services')
+				 ->where('main', '')
                 ->where('status', 1)
                 ->orderBy('order-no', 'asc')
                 ->get()
@@ -138,7 +139,7 @@ class AllServicesController extends Controller
 
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
-                ->where('microsite', '!=', 'main')
+                ->where('main', '')
                 ->where('status', 1)
 
                 ->orderBy('order-no', 'asc')
@@ -153,6 +154,7 @@ class AllServicesController extends Controller
                         'icon'        => $service->icon,
                         'purchases'   => $service->purchases,
                         'name'        => $service->heading,
+						'category'        => $service->category,
                         'description' => $service->description,
                         'rating'      => $service->rating,
                         'cost'        => $service->cost,
@@ -169,6 +171,17 @@ class AllServicesController extends Controller
                     ];
                 });
 
+
+                $servicesmain = DB::table('microservice')
+                ->where('microsite', '=', $microsite)
+                ->where('category', '=','main')
+                ->where('main', '')
+                ->where('status', 1)
+
+                ->orderBy('order-no', 'asc')
+
+
+                ->first();
 
 
 
@@ -220,6 +233,7 @@ class AllServicesController extends Controller
                 $service = DB::table('microservice')
     ->where('microsite', $microsite)
     ->where('category', 'main')
+    ->where('main', '')
     ->where('status', 1)
     ->first();
 
@@ -229,6 +243,7 @@ $result = $service ? [
 ] : null;
 
             return $this->successResponse([
+                'heading_details'       => $servicesmain,
                 'category' => $category,
                 'sub_category'=>$categoryId,
 'heading'       => $result['heading'] ?? null,
@@ -244,7 +259,8 @@ $result = $service ? [
         }
     }
 
-    public function getServicesBlockonClickMain(Request $request)
+    public function getServicesBlockonMain(Request $request)
+
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -272,46 +288,7 @@ $result = $service ? [
             ->orderBy('order-no', 'asc')
             ->first();
 
-        $service = [
-            'sn'                  => $service->sn,
-            'image'               => $service->image,
-            'name'                => $service->heading,
-            'description'         => $service->description,
-            'content'             => $service->content,
-            'heading1'            => $service->heading1,
-            'content1'            => $service->content1,
-            'heading2'            => $service->heading2,
-            'content2'            => $service->content2,
-            'heading3'            => $service->heading3,
-            'content3'            => $service->content3,
-            'heading4'            => $service->heading4,
-            'content4'            => $service->content4,
-            'button'              => $service->button,
-            'note1'               => $service->note1,
-            'note2'               => $service->note2,
-            'form'                => $service->form,
-            'pp_heading'          => $service->{'pp-heading'},
-            'pp_description'      => $service->{'pp-description'},
-            'ppp_message'         => $service->{'ppp-message'},
-            'trackstatus_headings'=> $service->{'trackstatus-headings'},
-            'has_link'            => $service->has_link,
-            'link_heading'        => $service->link_heading,
-            'link_content'        => $service->link_content,
-            'value_1'             => $service->value_1,
-            'value_2'             => $service->value_2,
-            'value_3'             => $service->value_3,
-            'icon'                => $service->icon,
-            'target'              => $service->target,
-            'banner'              => $service->banner,
-            'duration'            => $service->duration,
-            'cost'                => $service->cost,
-            'offer'               => $service->offer,
-            'gst'                 => $service->gst,
-            'discount'            => $service->discount,
-            'rating'              => $service->rating,
-            'purchases'           => $service->purchases,
-            'link'                => $service->link,
-        ];
+
 
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
@@ -352,6 +329,81 @@ $result = $service ? [
             return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
         }
     }
+
+    public function getServicesBlockonClickMain(Request $request)
+
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'service_category' => 'required|string',
+                'category'     => 'required|string|max:50',
+                'sub_category' => 'required|string|max:100',
+
+                'microsite'      => 'required|string',
+
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse($validator->errors()->first(), 422);
+            }
+            $category   = $request->input('category') ?? 'services';
+            $category   = $request->input('category') ?? 'services';
+            $service_category   = $request->input('service_category') ?? 'services';
+            $categoryId = $request->input('sub_category');
+            // $main = $this->decryptSafe($request->input('main'));
+            // $microsite = $this->decryptSafe($request->input('microsite'));
+            $sn = $request->input('sn');
+            $microsite = $request->input('microsite');
+
+            $service = DB::table('microservice')
+            ->where('microsite', $microsite)
+            ->where('main', $service_category)
+            ->where('category', 'main')
+            ->where('status', 1)
+            ->first();
+
+
+
+            $testimonials = DB::table('resource_testimonials')
+                ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
+                ->where([
+                    ['category', '=', $category],
+                    ['sub_category', '=', $categoryId],
+                    ['status', '=', 1],
+                ])
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+
+            $faqs = DB::table('resource_faqs')
+                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->where([
+                    ['category', '=', $category],
+                    ['sub_category', '=', $categoryId],
+
+                    ['status', '=', 1],
+                ])
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+
+
+
+
+            return $this->successResponse([
+                'category' => $category,
+                'categoryId'=>$categoryId,
+                'services'     => $service,
+                'testimonials' => $testimonials,
+                'faqs'         => $faqs,
+                // 'statistics'  => $statistics,
+            ], 'All Services Fetched!!');
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);
+        }
+    }
+
 
 
     public function allServicesBlock(Request $request)
