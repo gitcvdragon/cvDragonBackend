@@ -9,7 +9,8 @@ use App\Models\CvProfileSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Str;   // <-- Add this line
+use Carbon\Carbon;
 class MySubscriptionController extends Controller
 {
     use ApiResponseTrait;
