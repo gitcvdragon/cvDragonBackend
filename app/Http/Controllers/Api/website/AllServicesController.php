@@ -265,65 +265,35 @@ $result = $service ? [
         try {
             $validator = Validator::make($request->all(), [
                 'sn' => 'required|integer|exists:microservice,sn',
-                'category'     => 'required|string|max:50',
-                'sub_category' => 'required|string|max:100',
 
-                'microsite'      => 'required|string',
 
             ]);
 
             if ($validator->fails()) {
                 return $this->errorResponse($validator->errors()->first(), 422);
             }
-            $category   = $request->input('category') ?? 'services';
-            $categoryId = $request->input('sub_category');
-            // $main = $this->decryptSafe($request->input('main'));
-            // $microsite = $this->decryptSafe($request->input('microsite'));
+
             $sn = $request->input('sn');
-            $microsite = $request->input('microsite');
+
 
             $service = DB::table('microservice')
             ->where('sn', $sn)
             ->where('status', 1)
-            ->orderBy('order-no', 'asc')
             ->first();
 
 
 
-            $testimonials = DB::table('resource_testimonials')
-                ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
-                ->where([
-                    ['category', '=', $category],
-                    ['sub_category', '=', $categoryId],
-                    ['status', '=', 1],
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
 
-            $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
-                ->where([
-                    ['category', '=', $category],
-                    ['sub_category', '=', $categoryId],
-
-                    ['status', '=', 1],
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
 
 
 
 
             return $this->successResponse([
-                'category' => $category,
-                'categoryId'=>$categoryId,
+
                 'services'     => $service,
-                'testimonials' => $testimonials,
-                'faqs'         => $faqs,
+
                 // 'statistics'  => $statistics,
-            ], 'All Services Fetched!!');
+            ], 'Individual Services Fetched!!');
 
         } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong! ' . $e->getMessage(), 500);

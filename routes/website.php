@@ -44,7 +44,7 @@ Route::get('/faq/category/view-all', [AllFAQController::class, 'AllFaqBasedOnCat
 Route::get('/service-all', [AllServicesController::class, 'getServicesBlock']);
 Route::get('/service/category', [AllServicesController::class, 'getServicesBlockonClick']);
 Route::get('/service/category/main', [AllServicesController::class, 'getServicesBlockonClickMain']);
-Route::get('/service/{sn}', [AllServicesController::class, 'getServicesBlockonMain']);
+Route::get('/service-individual', [AllServicesController::class, 'getServicesBlockonMain']);
 Route::get('/all-services', [AllServicesController::class, 'allServicesBlock']);
 
 Route::get('/app-download', [AppDownload::class, 'appDownload']);
