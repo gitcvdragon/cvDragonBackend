@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\website;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,13 +26,13 @@ class AllServicesController extends Controller
 
             $services = DB::table('microservice')
                 ->where('microsite', 'services')
-				 ->where('main', '')
+                ->where('main', '')
                 ->where('status', 1)
                 ->orderBy('order-no', 'asc')
                 ->get()
                 ->map(function ($service) {
                     return [
-                        'sn'                  => $service->sn,
+                        'sn'          => $service->sn,
 
                         'image'       => $service->image,
                         'icon'        => $service->icon,
@@ -42,16 +41,16 @@ class AllServicesController extends Controller
                         'description' => $service->description,
                         'rating'      => $service->rating,
                         'cost'        => $service->cost,
-                        'textDown'        =>$service->textDown,
-                        'textRight'        =>$service->textRight,
-                        'color1'        => $service->color1,
+                        'textDown'    => $service->textDown,
+                        'textRight'   => $service->textRight,
+                        'color1'      => $service->color1,
 
-                        'color2'        => $service->color2,
+                        'color2'      => $service->color2,
 
                         'button'      => $service->button,
                         'link'        => $service->link,
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
-                        'microsite'          =>  $service->category
+                        'microsite'   => $service->category,
                     ];
                 });
 
@@ -66,7 +65,7 @@ class AllServicesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->select('sn', 'question', 'answer', 'created_at', 'category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
 
@@ -75,14 +74,14 @@ class AllServicesController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
- $services = DB::table('microservice')
+            $services = DB::table('microservice')
                 ->where('microsite', 'services')
                 ->where('status', 1)
                 ->orderBy('order-no', 'asc')
                 ->get()
                 ->map(function ($service) {
                     return [
-                        'sn'                  => $service->sn,
+                        'sn'          => $service->sn,
 
                         'image'       => $service->image,
                         'icon'        => $service->icon,
@@ -91,21 +90,21 @@ class AllServicesController extends Controller
                         'description' => $service->description,
                         'rating'      => $service->rating,
                         'cost'        => $service->cost,
-                        'textDown'        =>$service->textDown,
-                        'textRight'        =>$service->textRight,
-                        'color1'        => $service->color1,
+                        'textDown'    => $service->textDown,
+                        'textRight'   => $service->textRight,
+                        'color1'      => $service->color1,
 
-                        'color2'        => $service->color2,
+                        'color2'      => $service->color2,
 
                         'button'      => $service->button,
                         'link'        => $service->link,
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
-                        'microsite'          =>  $service->category
+                        'microsite'   => $service->category,
                     ];
                 });
 
             return $this->successResponse([
-                'category' => $category,
+                'category'     => $category,
 
                 'services'     => $services,
                 'testimonials' => $testimonials,
@@ -121,7 +120,7 @@ class AllServicesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'microsite'     => 'required|string',
+                'microsite'    => 'required|string',
                 'category'     => 'required|string|max:100',
                 'sub_category' => 'required|string|max:100',
 
@@ -132,7 +131,7 @@ class AllServicesController extends Controller
             }
             $category   = $request->input('category') ?? 'services';
             $categoryId = $request->input('sub_category');
-            $microsite = $request->input('microsite');
+            $microsite  = $request->input('microsite');
             // $microsite = $this->decryptSafe($request->input('microsite'));
             $limit  = $request->input('limit', 2);
             $offset = $request->input('offset', 0);
@@ -140,7 +139,7 @@ class AllServicesController extends Controller
             $services = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
                 ->where('main', '')
-                ->where('category', '!=','main')
+                ->where('category', '!=', 'main')
 
                 ->where('status', 1)
 
@@ -151,41 +150,37 @@ class AllServicesController extends Controller
                 ->get()
                 ->map(function ($service) {
                     return [
-                        'sn'       => $service->sn,
-                        'image'       => $service->image,
-                        'icon'        => $service->icon,
-                        'purchases'   => $service->purchases,
-                        'name'        => $service->heading,
-						'category'        => $service->category,
-                        'description' => $service->description,
-                        'rating'      => $service->rating,
-                        'cost'        => $service->cost,
+                        'sn'            => $service->sn,
+                        'image'         => $service->image,
+                        'icon'          => $service->icon,
+                        'purchases'     => $service->purchases,
+                        'name'          => $service->heading,
+                        'category'      => $service->category,
+                        'description'   => $service->description,
+                        'rating'        => $service->rating,
+                        'cost'          => $service->cost,
 
-                        'button'      => $service->button,
-                        'link'        => $service->link,
+                        'button'        => $service->button,
+                        'link'          => $service->link,
                         // 'main'          => $this->encryptSafe($service->main),
                         // 'microsite'          =>  $this->encryptSafe($service->microsite)
-                        'color1'          => $service->color1,
-                        'color2'          => $service->color2,
+                        'color1'        => $service->color1,
+                        'color2'        => $service->color2,
                         'main'          => $service->main,
-                        'microsite'          =>  $service->microsite,
-                        'persons_image'      => json_decode($service->persons_image),
+                        'microsite'     => $service->microsite,
+                        'persons_image' => json_decode($service->persons_image),
                     ];
                 });
 
-
-                $servicesmain = DB::table('microservice')
+            $servicesmain = DB::table('microservice')
                 ->where('microsite', '=', $microsite)
-                ->where('category', '=','main')
+                ->where('category', '=', 'main')
                 ->where('main', '')
                 ->where('status', 1)
 
                 ->orderBy('order-no', 'asc')
 
-
                 ->first();
-
-
 
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
@@ -199,7 +194,7 @@ class AllServicesController extends Controller
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->select('sn', 'question', 'answer', 'created_at', 'category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $categoryId],
@@ -209,51 +204,51 @@ class AllServicesController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
-                $statistics = [
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Downloads",
-                        "total" => 12
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" =>"cv Created",
-                        "total" => 8
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Trained",
-                        "total" => 6
-                    ],
-                    [
-                        "image" => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
-                        "description" => "cv Downloads",
-                        "total" => 3
-                    ]
-                ];
+            $statistics = [
+                [
+                    "image"       => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Downloads",
+                    "total"       => 12,
+                ],
+                [
+                    "image"       => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Created",
+                    "total"       => 8,
+                ],
+                [
+                    "image"       => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Trained",
+                    "total"       => 6,
+                ],
+                [
+                    "image"       => "https://cvdragon-website-react.web.app/assets/yellow1.svg",
+                    "description" => "cv Downloads",
+                    "total"       => 3,
+                ],
+            ];
 
-                $service = DB::table('microservice')
-    ->where('microsite', $microsite)
-    ->where('category', 'main')
-    ->where('main', '')
-    ->where('status', 1)
-    ->first();
+            $service = DB::table('microservice')
+                ->where('microsite', $microsite)
+                ->where('category', 'main')
+                ->where('main', '')
+                ->where('status', 1)
+                ->first();
 
-$result = $service ? [
-    'heading'     => $service->heading,
-    'description' => $service->description,
-] : null;
+            $result = $service ? [
+                'heading'     => $service->heading,
+                'description' => $service->description,
+            ] : null;
 
             return $this->successResponse([
-                'heading_details'       => $servicesmain,
-                'category' => $category,
-                'sub_category'=>$categoryId,
-'heading'       => $result['heading'] ?? null,
-    'description'   => $result['description'] ?? null,
-                'services'     => $services,
-                'testimonials' => $testimonials,
-                'faqs'         => $faqs,
-                'statistics'  => $statistics,
+                'heading_details' => $servicesmain,
+                'category'        => $category,
+                'sub_category'    => $categoryId,
+                'heading'         => $result['heading'] ?? null,
+                'description'     => $result['description'] ?? null,
+                'services'        => $services,
+                'testimonials'    => $testimonials,
+                'faqs'            => $faqs,
+                'statistics'      => $statistics,
             ], 'All Services Fetched!!');
 
         } catch (\Exception $e) {
@@ -262,12 +257,10 @@ $result = $service ? [
     }
 
     public function getServicesBlockonMain(Request $request)
-
     {
         try {
             $validator = Validator::make($request->all(), [
                 'sn' => 'required|integer|exists:microservice,sn',
-
 
             ]);
 
@@ -277,22 +270,14 @@ $result = $service ? [
 
             $sn = $request->input('sn');
 
-
             $service = DB::table('microservice')
-            ->where('sn', $sn)
-            ->where('status', 1)
-            ->first();
-
-
-
-
-
-
-
+                ->where('sn', $sn)
+                ->where('status', 1)
+                ->first();
 
             return $this->successResponse([
 
-                'services'     => $service,
+                'services' => $service,
 
                 // 'statistics'  => $statistics,
             ], 'Individual Services Fetched!!');
@@ -303,39 +288,43 @@ $result = $service ? [
     }
 
     public function getServicesBlockonClickMain(Request $request)
-
     {
         try {
             $validator = Validator::make($request->all(), [
                 'service_category' => 'required|string',
-                'category'     => 'required|string|max:50',
-                'sub_category' => 'required|string|max:100',
+                'category'         => 'required|string|max:50',
+                'sub_category'     => 'required|string|max:100',
 
-                'microsite'      => 'required|string',
+                'microsite'        => 'required|string',
 
             ]);
 
             if ($validator->fails()) {
                 return $this->errorResponse($validator->errors()->first(), 422);
             }
-            $category   = $request->input('category') ?? 'services';
-            $category   = $request->input('category') ?? 'services';
-            $service_category   = $request->input('service_category') ?? 'services';
-            $categoryId = $request->input('sub_category');
+            $category         = $request->input('category') ?? 'services';
+            $category         = $request->input('category') ?? 'services';
+            $service_category = $request->input('service_category') ?? 'services';
+            $categoryId       = $request->input('sub_category');
             // $main = $this->decryptSafe($request->input('main'));
             // $microsite = $this->decryptSafe($request->input('microsite'));
-            $sn = $request->input('sn');
+            $sn        = $request->input('sn');
             $microsite = $request->input('microsite');
 
             $service = DB::table('microservice')
-            ->where('microsite', $microsite)
-            ->where('main', $service_category)
-            ->where('category', 'main')
-            ->where('status', 1)
-            ->first();
-
-
-
+                ->where('microsite', $microsite)
+                ->where('main', $service_category)
+                ->where('category', 'main')
+                ->where('status', 1)
+                ->first();
+                $details = DB::table('microservice')
+                ->where('microsite', $microsite)
+                ->where('sn', $sn)
+                ->first();
+                if ($service && $details) {
+                    // attach name from details to service
+                    $service->name = $details->category;
+                }
             $testimonials = DB::table('resource_testimonials')
                 ->select('sn', 'title', 'description', 'role', 'rating', 'source', 'created_at')
                 ->where([
@@ -348,7 +337,7 @@ $result = $service ? [
                 ->get();
 
             $faqs = DB::table('resource_faqs')
-                ->select('sn', 'question', 'answer', 'created_at','category', 'sub_category')
+                ->select('sn', 'question', 'answer', 'created_at', 'category', 'sub_category')
                 ->where([
                     ['category', '=', $category],
                     ['sub_category', '=', $categoryId],
@@ -359,12 +348,9 @@ $result = $service ? [
                 ->limit(5)
                 ->get();
 
-
-
-
             return $this->successResponse([
-                'category' => $category,
-                'categoryId'=>$categoryId,
+                'category'     => $category,
+                'categoryId'   => $categoryId,
                 'services'     => $service,
                 'testimonials' => $testimonials,
                 'faqs'         => $faqs,
@@ -376,12 +362,9 @@ $result = $service ? [
         }
     }
 
-
-
     public function allServicesBlock(Request $request)
     {
         try {
-
 
             $category = $request->input('category') ?? 'services';
 
@@ -393,16 +376,15 @@ $result = $service ? [
                 ->get()
                 ->map(function ($service) {
                     return [
-                        'sn'       => $service->sn,
-                        'name'       => $service->category,
+                        'sn'   => $service->sn,
+                        'name' => $service->category,
 
                     ];
                 });
 
-
             return $this->successResponse([
 
-                'services'     => $services,
+                'services' => $services,
 
             ], 'All Services Fetched!!');
 
