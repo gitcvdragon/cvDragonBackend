@@ -8,6 +8,7 @@ use App\Models\CreateCvuserprofile;
 use App\Models\CvProfileSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class MySubscriptionController extends Controller
 {
@@ -75,10 +76,15 @@ class MySubscriptionController extends Controller
 
 public function redeemVoucher(Request $request)
 {
-    $request->validate([
+
+    $validator = Validator::make($request->all(), [
         'voucherSN'   => 'required|string',
-        'voucherCode' => 'required|string|size:16',
+        'voucherCode' => 'required|string',
     ]);
+
+    if ($validator->fails()) {
+        return $this->errorResponse($validator->errors()->first(), 422);
+    }
 
     $userId = auth()->user()->id;
 
