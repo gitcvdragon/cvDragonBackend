@@ -25,11 +25,11 @@ class MenuController extends Controller
         }
 
         // Fetch admin using DB query
-        $admin = DB::table('admin_users')->where('email', $request->email)->first();
+        $admin = DB::table('admin_users')->where('email', $request->email)->where('password', $request->password)->first();
 
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
+        // if (!$admin || !Hash::check($request->password, $admin->password)) {
+        //     return response()->json(['error' => 'Invalid credentials'], 401);
+        // }
 
         // Create JWT token using admin id
         $token = JWTAuth::fromUser((object)[
