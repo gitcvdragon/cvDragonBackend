@@ -13,8 +13,10 @@ class MenuController extends Controller
 
 
 
+
     public function login(Request $request)
     {
+        // Validate input
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
@@ -24,20 +26,24 @@ class MenuController extends Controller
             return response()->json(['error' => $validator->errors()->first()], 422);
         }
 
-        // Fetch admin using DB query
+        // Fetch admin from DB
         $admin = DB::table('admin_users')->where('email', $request->email)->where('password', $request->password)->first();
 
         // if (!$admin || !Hash::check($request->password, $admin->password)) {
         //     return response()->json(['error' => 'Invalid credentials'], 401);
         // }
 
-        // Create JWT token using admin id
-        $token = JWTAuth::fromUser((object)[
-            'id' => $admin->id,
-            'fullName' => $admin->fullName,
+        // Create a "fake" JWT payload using stdClass
+        $payload = [
+            'sub' => $admin->id,
             'email' => $admin->email,
             'role_id' => $admin->role_id,
-        ]);
+            'iat' => now()->timestamp,
+            'exp' => now()->addHours(24)->timestamp
+        ];
+
+        // Generate token manually
+        $token = JWTAuth::customClaims($payload)->fromUser((object) $payload);
 
         return response()->json([
             'success' => true,
@@ -50,6 +56,7 @@ class MenuController extends Controller
             ]
         ]);
     }
+
 
 public function logout(Request $request)
 {
