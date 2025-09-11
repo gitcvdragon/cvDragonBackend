@@ -47,7 +47,7 @@ class SubscriptionController extends Controller
                     }
 
                     return [
-                        'userName' => $sub->sn,
+                        'id' => $sub->sn,
                         'userName' => $sub->userName,
                         'userimg' => $sub->userimg ?? '/assets/avatar.png',
                         'subscriptionLine1' => $subscriptionLine1,
