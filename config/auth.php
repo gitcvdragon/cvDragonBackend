@@ -44,6 +44,10 @@ return [
             'driver' => 'jwt',
             'provider' => 'users',
         ],
+        'admin' => [
+          'driver' => 'jwt',    // or 'token' for API
+            'provider' => 'admins',   // use the database provider
+        ],
     ],
 
     /*
@@ -67,6 +71,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'admins' => [
+        'driver' => 'database',        // use database instead of eloquent
+        'table' => 'admin_users',      // your admin table
         ],
 
         // 'users' => [

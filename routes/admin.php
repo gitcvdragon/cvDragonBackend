@@ -21,7 +21,11 @@ Route::prefix('admin')->group(function () {
 
     // Route::get('/menus', [MenuController::class, 'allMenus']);
 Route::get('/menus/role/{roleId}', [MenuController::class, 'menusByRole']);
-Route::get('/menus', [MenuController::class, 'menusForLoggedInUser']);
+Route::post('login', [AuthController::class, 'login']);
+Route::middleware('auth.admin')->prefix('admin')->group(function () {
+    Route::get('/menu', [MenuController::class, 'getMenu']);
+    Route::post('logout', [AuthController::class, 'logout']);
+});
 
     Route::prefix('subscriptions')->group(function () {
         Route::get('/', [SubscriptionController::class, 'listSubscriptions']);

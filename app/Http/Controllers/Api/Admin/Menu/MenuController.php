@@ -5,9 +5,54 @@ namespace App\Http\Controllers\Api\Admin\Menu;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MenuController extends Controller
 {
+
+
+
+public function login(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'password' => 'required|string|min:6',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()->first()], 422);
+    }
+
+    $admin = \App\Models\AdminUser::where('email', $request->email)->first();
+
+    if (!$admin || !Hash::check($request->password, $admin->password)) {
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    $token = JWTAuth::fromUser($admin);
+
+    return response()->json([
+        'success' => true,
+        'token' => $token,
+        'admin' => [
+            'id' => $admin->id,
+            'fullName' => $admin->fullName,
+            'email' => $admin->email,
+            'role_id' => $admin->role_id
+        ]
+    ]);
+}
+
+public function logout(Request $request)
+{
+    Auth::guard('admin')->logout();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Logged out successfully'
+    ]);
+}
     /**
      * Fetch all active menus
      */
