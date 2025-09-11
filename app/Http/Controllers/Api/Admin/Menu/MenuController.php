@@ -13,36 +13,43 @@ class MenuController extends Controller
 
 
 
-public function login(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()->first()], 422);
-    }
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 422);
+        }
 
-    $admin = \App\Models\AdminUser::where('email', $request->email)->first();
+        // Fetch admin using DB query
+        $admin = DB::table('admin_users')->where('email', $request->email)->first();
 
-    if (!$admin || !Hash::check($request->password, $admin->password)) {
-        return response()->json(['error' => 'Invalid credentials'], 401);
-    }
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
 
-    $token = JWTAuth::fromUser($admin);
-
-    return response()->json([
-        'success' => true,
-        'token' => $token,
-        'admin' => [
+        // Create JWT token using admin id
+        $token = JWTAuth::fromUser((object)[
             'id' => $admin->id,
             'fullName' => $admin->fullName,
             'email' => $admin->email,
-            'role_id' => $admin->role_id
-        ]
-    ]);
-}
+            'role_id' => $admin->role_id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'token' => $token,
+            'admin' => [
+                'id' => $admin->id,
+                'fullName' => $admin->fullName,
+                'email' => $admin->email,
+                'role_id' => $admin->role_id
+            ]
+        ]);
+    }
 
 public function logout(Request $request)
 {
