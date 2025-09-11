@@ -19,14 +19,14 @@ class SubscriptionController extends Controller
         try {
             $subscriptions = DB::table('user-subscription as us')
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
-                ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
+                ->leftJoin('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
                     'us.sn',
-
+                    'us.design',
                     'ub.fullName as userName',
                     'ub.profileImageUrl as userimg',
-                    'rd.designName as subscriptionLine1',
-                    'rd.content as subscriptionLine2',
+                    'rd.designName',
+                    'rd.content',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.status'
@@ -36,12 +36,21 @@ class SubscriptionController extends Controller
                 ->limit($limit)
                 ->orderByDesc('us.dateCreated')
                 ->get()
-                ->map(function($sub) {
+                ->map(function ($sub) {
+                    // Handle Pro subscription
+                    if ($sub->design == 0) {
+                        $subscriptionLine1 = 'Pro Subscription';
+                        $subscriptionLine2 = null;
+                    } else {
+                        $subscriptionLine1 = $sub->designName;
+                        $subscriptionLine2 = $sub->content;
+                    }
+
                     return [
                         'userName' => $sub->userName,
                         'userimg' => $sub->userimg ?? '/assets/avatar.png',
-                        'subscriptionLine1' => $sub->subscriptionLine1,
-                        'subscriptionLine2' => $sub->subscriptionLine2,
+                        'subscriptionLine1' => $subscriptionLine1,
+                        'subscriptionLine2' => $subscriptionLine2,
                         'startDate' => $sub->startDate,
                         'endDate' => $sub->endDate,
                         'actionIcons' => [
@@ -64,6 +73,7 @@ class SubscriptionController extends Controller
     }
 
 
+
     /**
      * Get single subscription details
      */
@@ -72,14 +82,13 @@ class SubscriptionController extends Controller
         try {
             $subscription = DB::table('user-subscription as us')
                 ->join('user-basic as ub', 'us.user_id', '=', 'ub.id')
-                ->join('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
-
+                ->leftJoin('resource-profiledesign as rd', 'us.design', '=', 'rd.designid')
                 ->select(
                     'us.id',
+                    'us.design',
                     'ub.fullName as userName',
-                    'us.design as subscriptionLabel',
-                    'rd.designName as subscriptionLine1',
-                    'rd.content as subscriptionLine2',
+                    'rd.designName',
+                    'rd.content',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.securityKey',
@@ -92,13 +101,27 @@ class SubscriptionController extends Controller
                 return response()->json(['error' => 'Subscription not found'], 404);
             }
 
+            // Handle Pro subscription
+            if ($subscription->design == 0) {
+                $subscription->subscriptionLine1 = 'Pro Subscription';
+                $subscription->subscriptionLine2 = null;
+            } else {
+                $subscription->subscriptionLine1 = $subscription->designName;
+                $subscription->subscriptionLine2 = $subscription->content;
+            }
+
+            // Remove raw designName/content to avoid confusion
+            unset($subscription->designName, $subscription->content);
+
             return response()->json($subscription, 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * Update subscription
