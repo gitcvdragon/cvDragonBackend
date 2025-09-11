@@ -113,7 +113,7 @@ public function logout(Request $request)
     /**
      * Optional: Fetch menus for the logged-in admin
      */
-    public function menusForLoggedInUser(Request $request)
+    public function getMenu(Request $request)
     {
         $userId = auth()->user()->id;
 

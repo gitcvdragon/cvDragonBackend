@@ -22,7 +22,7 @@ Route::prefix('admin')->group(function () {
     // Route::get('/menus', [MenuController::class, 'allMenus']);
 Route::get('/menus/role/{roleId}', [MenuController::class, 'menusByRole']);
 Route::post('login', [MenuController::class, 'login']);
-Route::middleware('auth.admin')->prefix('admin')->group(function () {
+Route::middleware('auth.admin')->group(function () {
     Route::get('/menu', [MenuController::class, 'getMenu']);
     Route::post('logout', [MenuController::class, 'logout']);
 });
