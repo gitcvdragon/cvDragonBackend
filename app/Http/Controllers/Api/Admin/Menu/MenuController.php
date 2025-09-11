@@ -146,4 +146,5 @@ public function logout(Request $request)
             'menus' => $menus
         ]);
     }
+    // ?test
 }
