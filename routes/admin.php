@@ -14,8 +14,15 @@ use App\Http\Controllers\Api\Admin\Section\SectionController;
 use App\Http\Controllers\Api\Admin\Service\ServiceController;
 use App\Http\Controllers\Api\Admin\Guideshala\GuideshalaController;
 use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
+use App\Http\Controllers\Api\Admin\Menu\MenuController;
 
 Route::prefix('admin')->group(function () {
+
+
+    Route::get('/menus', [MenuController::class, 'allMenus']);
+Route::get('/menus/role/{roleId}', [MenuController::class, 'menusByRole']);
+Route::get('/menus/me', [MenuController::class, 'menusForLoggedInUser']);
+
     Route::prefix('subscriptions')->group(function () {
         Route::get('/', [SubscriptionController::class, 'listSubscriptions']);
         Route::get('/{id}', [SubscriptionController::class, 'subscriptionDetail']);
