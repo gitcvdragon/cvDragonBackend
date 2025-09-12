@@ -18,7 +18,6 @@ class ServiceController extends Controller
 
             $user = auth()->user();
 
-            // 🔍 Fetch active services
             $services = DB::table('user_services as us')
                 ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
                 ->leftJoin('service_steps as ss', 'us.current_step_id', '=', 'ss.id')
@@ -32,8 +31,11 @@ class ServiceController extends Controller
                     'us.id as user_service_id',
                     'us.microservice_id',
                     'us.current_step_id',
+                    'us.activation_date',
+                    'us.expiry_date',
                     'us.status as service_status',
                     'ms.category as service_name',
+                    'ms.days as days',
                     'ss.pre_text',
                     'ss.inprogress_text',
                     'ss.post_text',
