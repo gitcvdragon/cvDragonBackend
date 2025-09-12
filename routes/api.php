@@ -104,3 +104,5 @@ Route::post('/redeem-voucher', [MySubscriptionController::class, 'redeemVoucher'
 
 
 Route::middleware('auth:api')->get('/services/active', [ServiceController::class, 'activeServices']);
+Route::middleware('auth:api')->get('/services/completed', [ServiceController::class, 'completedServices']);
+Route::middleware('auth:api')->get('/services/details', [ServiceController::class, 'activeServices']);

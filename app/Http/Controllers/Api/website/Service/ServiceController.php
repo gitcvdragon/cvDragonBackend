@@ -91,4 +91,190 @@ class ServiceController extends Controller
             ], 500);
         }
     }
+
+
+    public function serviceSteps(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            // Get user_service and microservice info
+            $userService = DB::table('user_services as us')
+                ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
+                ->where('us.id', $user->id)
+                ->where('us.user_id', $user->id)
+                ->select(
+                    'us.*',
+                    'ms.category',
+                    'ms.heading',
+                    'ms.days',
+                    'ms.microsite',
+                    'ms.main'
+                )
+                ->first();
+
+            if (!$userService) {
+                return response()->json(['error' => 'Service not found'], 404);
+            }
+
+            // Get all steps for this microservice
+            $steps = DB::table('service_steps')
+                ->where('microservice_id', $userService->microservice_id)
+                ->where('status', 1)
+                ->orderBy('step_order', 'asc')
+                ->get();
+
+            // Get transaction/order for this service
+            $transaction = DB::table('transactions')
+                ->where('feature_sn', $userService->microservice_id)
+                ->where('platformid', $userService->user_id)
+                ->first();
+
+            // Format steps with done / in_progress / not_done
+            $currentStepOrder = DB::table('service_steps')
+                ->where('id', $userService->current_step_id)
+                ->value('step_order') ?? 1; // fallback to 1 if NULL
+
+            $formattedSteps = $steps->map(function ($step) use ($currentStepOrder) {
+                $status = 'not_done';
+                if ($step->step_order < $currentStepOrder) {
+                    $status = 'done';
+                } elseif ($step->step_order == $currentStepOrder) {
+                    $status = 'in_progress';
+                }
+                return [
+                    'id'              => $step->id,
+                    'step_order'      => $step->step_order,
+                    'pre_text'        => $step->pre_text,
+                    'inprogress_text' => $step->inprogress_text,
+                    'post_text'       => $step->post_text,
+                    'require_upload'  => $step->require_upload,
+                    'require_approval'=> $step->require_approval,
+                    'icon'            => $step->icon,
+                    'status'          => $status,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'service' => [
+                    'user_service_id' => $userService->id,
+                    'microservice_id' => $userService->microservice_id,
+                    'service_name'    => $userService->category,
+                    'current_step_id' => $userService->current_step_id,
+                    'steps'           => $formattedSteps,
+                    'transaction'     => $transaction ? [
+                        'orderid'        => $transaction->orderid,
+                        'orderStatus'    => $transaction->orderStatus,
+                        'paymentMode'    => $transaction->paymentMode,
+                        'totalAmount'    => $transaction->totalAmount,
+                        'currency'       => $transaction->currency,
+                        'transactionDate'=> $transaction->transactionDate,
+                    ] : null
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error'   => 'Something went wrong',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function completedServices(Request $request)
+{
+    try {
+        $user = auth()->user();
+
+        // Fetch all completed services for this user
+        $services = DB::table('user_services as us')
+            ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
+            ->where('us.user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('us.status', 0) // inactive
+                  ->orWhere('us.expiry_date', '<', now()); // expired
+            })
+            ->select(
+                'us.*',
+                'ms.category',
+                'ms.heading',
+                'ms.days',
+                'ms.microsite',
+                'ms.main'
+            )
+            ->orderBy('us.expiry_date', 'desc')
+            ->get();
+
+        // Format each service with all steps + transaction details
+        $result = $services->map(function ($userService) {
+            // all steps
+            $steps = DB::table('service_steps')
+                ->where('microservice_id', $userService->microservice_id)
+                ->where('status', 1)
+                ->orderBy('step_order', 'asc')
+                ->get();
+
+            $currentStepOrder = DB::table('service_steps')
+                ->where('id', $userService->current_step_id)
+                ->value('step_order') ?? (count($steps) > 0 ? max($steps->pluck('step_order')->toArray()) : 1);
+
+            $formattedSteps = $steps->map(function ($step) use ($currentStepOrder) {
+                $status = 'not_done';
+                if ($step->step_order < $currentStepOrder) {
+                    $status = 'done';
+                } elseif ($step->step_order == $currentStepOrder) {
+                    $status = 'in_progress';
+                } elseif ($step->step_order <= $currentStepOrder) {
+                    $status = 'done';
+                }
+                return [
+                    'id'              => $step->id,
+                    'step_order'      => $step->step_order,
+                    'pre_text'        => $step->pre_text,
+                    'inprogress_text' => $step->inprogress_text,
+                    'post_text'       => $step->post_text,
+                    'require_upload'  => $step->require_upload,
+                    'require_approval'=> $step->require_approval,
+                    'icon'            => $step->icon,
+                    'status'          => $status,
+                ];
+            });
+
+            // transaction
+            $transaction = DB::table('transactions')
+                ->where('feature_sn', $userService->microservice_id)
+                ->where('platformid', $userService->user_id)
+                ->first();
+
+            return [
+                'user_service_id' => $userService->id,
+                'microservice_id' => $userService->microservice_id,
+                'service_name'    => $userService->category,
+                'current_step_id' => $userService->current_step_id,
+                'steps'           => $formattedSteps,
+                'transaction'     => $transaction ? [
+                    'orderid'        => $transaction->orderid,
+                    'orderStatus'    => $transaction->orderStatus,
+                    'paymentMode'    => $transaction->paymentMode,
+                    'totalAmount'    => $transaction->totalAmount,
+                    'currency'       => $transaction->currency,
+                    'transactionDate'=> $transaction->transactionDate,
+                ] : null
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'completed_services' => $result
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error'   => 'Something went wrong',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }
