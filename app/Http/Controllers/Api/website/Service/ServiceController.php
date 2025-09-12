@@ -15,11 +15,8 @@ class ServiceController extends Controller
     public function activeServices(Request $request)
     {
         try {
-            // 🔑 Get logged in user from JWT token
-            $user = JWTAuth::parseToken()->authenticate();
-            if (!$user) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
+
+            $user = auth()->user();
 
             // 🔍 Fetch active services
             $services = DB::table('user_services as us')
