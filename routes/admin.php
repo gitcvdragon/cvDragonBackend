@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Admin\Section\SectionController;
 use App\Http\Controllers\Api\Admin\Service\ServiceController;
 use App\Http\Controllers\Api\Admin\Guideshala\GuideshalaController;
 use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
+use App\Http\Controllers\Api\Admin\Auth\AuthController;
 use App\Http\Controllers\Api\Admin\Menu\MenuController;
 
 Route::prefix('admin')->group(function () {
@@ -21,10 +22,10 @@ Route::prefix('admin')->group(function () {
 
     // Route::get('/menus', [MenuController::class, 'allMenus']);
 Route::get('/menus/role/{roleId}', [MenuController::class, 'menusByRole']);
-Route::post('login', [MenuController::class, 'login']);
+Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth.admin')->group(function () {
     Route::get('/menu', [MenuController::class, 'getMenu']);
-    Route::post('logout', [MenuController::class, 'logout']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
     Route::prefix('subscriptions')->group(function () {

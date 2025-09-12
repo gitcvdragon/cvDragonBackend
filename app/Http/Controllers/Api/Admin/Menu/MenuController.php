@@ -5,76 +5,18 @@ namespace App\Http\Controllers\Api\Admin\Menu;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Hash;
+
 class MenuController extends Controller
 {
-
-
-
-
-    public function login(Request $request)
-    {
-        // Validate input
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->first()], 422);
-        }
-
-        // Fetch admin from DB
-        $admin = DB::table('admin_users')->where('email', $request->email)->where('password', $request->password)->first();
-
-        // if (!$admin || !Hash::check($request->password, $admin->password)) {
-        //     return response()->json(['error' => 'Invalid credentials'], 401);
-        // }
-
-        // Create a "fake" JWT payload using stdClass
-        $payload = [
-            'sub' => $admin->id,
-            'email' => $admin->email,
-            'role_id' => $admin->role_id,
-            'iat' => now()->timestamp,
-            'exp' => now()->addHours(24)->timestamp
-        ];
-
-        // Generate token manually
-        $token = JWTAuth::customClaims($payload)->fromUser((object) $payload);
-
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'admin' => [
-                'id' => $admin->id,
-                'fullName' => $admin->fullName,
-                'email' => $admin->email,
-                'role_id' => $admin->role_id
-            ]
-        ]);
-    }
-
-
-public function logout(Request $request)
-{
-    Auth::guard('admin')->logout();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Logged out successfully'
-    ]);
-}
     /**
      * Fetch all active menus
      */
     public function allMenus()
     {
-        $menus = DB::table('resource-menu')
+        $menus = DB::table('resource_menus') // changed from resource-menu
             ->where('status', 1)
-            ->orderBy('orderMenu')
+            ->orderBy('order_menu') // use snake_case if possible
             ->get();
 
         return response()->json([
@@ -87,8 +29,12 @@ public function logout(Request $request)
      */
     public function menusByRole($roleId)
     {
+        if (!is_numeric($roleId)) {
+            return response()->json(['error' => 'Invalid role ID'], 422);
+        }
+
         $menus = DB::table('role_menu as rm')
-            ->join('resource-menu as m', 'rm.menu_id', '=', 'm.sn')
+            ->join('resource_menus as m', 'rm.menu_id', '=', 'm.sn')
             ->where('rm.role_id', $roleId)
             ->where('m.status', 1)
             ->select(
@@ -96,13 +42,13 @@ public function logout(Request $request)
                 'm.index',
                 'm.content',
                 'm.heading',
-                'm.displayHeading',
-                'm.orderMenu',
+                'm.display_heading',
+                'm.order_menu',
                 'rm.can_view',
                 'rm.can_edit',
                 'rm.can_delete'
             )
-            ->orderBy('m.orderMenu')
+            ->orderBy('m.order_menu')
             ->get();
 
         return response()->json([
@@ -111,13 +57,12 @@ public function logout(Request $request)
     }
 
     /**
-     * Optional: Fetch menus for the logged-in admin
+     * Fetch menus for the logged-in admin
      */
     public function getMenu(Request $request)
     {
-        $userId = auth()->user()->id;
+        $user = JWTAuth::user(); // safer than auth()->user()
 
-        $user = DB::table('admin_users')->where('id', $userId)->first();
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
@@ -125,7 +70,7 @@ public function logout(Request $request)
         $roleId = $user->role_id;
 
         $menus = DB::table('role_menu as rm')
-            ->join('resource-menu as m', 'rm.menu_id', '=', 'm.sn')
+            ->join('resource_menus as m', 'rm.menu_id', '=', 'm.sn')
             ->where('rm.role_id', $roleId)
             ->where('m.status', 1)
             ->select(
@@ -133,18 +78,17 @@ public function logout(Request $request)
                 'm.index',
                 'm.content',
                 'm.heading',
-                'm.displayHeading',
-                'm.orderMenu',
+                'm.display_heading',
+                'm.order_menu',
                 'rm.can_view',
                 'rm.can_edit',
                 'rm.can_delete'
             )
-            ->orderBy('m.orderMenu')
+            ->orderBy('m.order_menu')
             ->get();
 
         return response()->json([
             'menus' => $menus
         ]);
     }
-    // ?test
 }
