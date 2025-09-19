@@ -37,6 +37,7 @@ class SectionController extends Controller
 
                 $response[] = [
                     'id'    => $section->id,
+                    'name'    => $section->id,
                     'title' => $section->heading,
                     'order' => $section->ordering,
                     'rows'  => $rows,

@@ -20,6 +20,7 @@ class MyDocumentsController extends Controller
             'documentTitle'      => 'required|string|max:255',
             'documentSection'    => 'nullable|integer',
             'documentSubSection' => 'nullable|integer',
+            'documentSectionData' => 'nullable|integer',
             'documentFile'       => 'required|string|',
         ]);
 
@@ -31,6 +32,7 @@ class MyDocumentsController extends Controller
             'documentLocation'   => $request->documentFile,
             'documentSection'    => $request->documentSection,
             'documentSubSection' => $request->documentSubSection,
+            'documentSectionData' => $request->documentSectionData,
             'id'                 => $userId,
             'date'               => now(),
             'status'             => 1,
@@ -67,7 +69,10 @@ public function getMyDocuments()
             ->select(
                 'ud.documentID',
                 'ud.documentTitle',
+                'ud.documentSection',
+                'ud.documentSubSection',
                 'ud.documentLocation',
+                'ud.documentSectionData',
                 'ud.date',
                 'ud.status',
                 'mcs.heading as sectionName',
@@ -129,6 +134,7 @@ public function editDocument(Request $request)
             'documentSection'    => 'nullable|integer',
             'documentSubSection' => 'nullable|integer',
             'documentFile'       => 'nullable|string',
+            'documentSectionData'       => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -150,6 +156,7 @@ public function editDocument(Request $request)
             'documentTitle'      => $request->documentTitle,
             'documentSection'    => $request->documentSection,
             'documentSubSection' => $request->documentSubSection,
+            'documentSectionData' => $request->documentSectionData,
             'date'               => now(),
         ];
 

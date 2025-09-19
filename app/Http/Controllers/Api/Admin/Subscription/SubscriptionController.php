@@ -27,6 +27,7 @@ class SubscriptionController extends Controller
                     'ub.profileImageUrl as userimg',
                     'rd.designName',
                     'rd.content',
+                    'rd.price',
                     'us.activate as startDate',
                     'us.expiry as endDate',
                     'us.status'
@@ -53,6 +54,7 @@ class SubscriptionController extends Controller
                         'subscriptionLine1' => $subscriptionLine1,
                         'subscriptionLine2' => $subscriptionLine2,
                         'startDate' => $sub->startDate,
+                        'purchaseAmount' => $sub->price,
                         'endDate' => $sub->endDate,
                         'actionIcons' => [
                             ['src' => '/assets/pencil-edit.svg', 'permission' => true],

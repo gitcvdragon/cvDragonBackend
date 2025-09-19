@@ -16,7 +16,7 @@ class HelpController extends Controller
         $limit = $request->query('limit', 10);
         $offset = $request->query('offset', 0);
         $helpVideos = DB::table('help-videos')
-        ->select('videoID', 'heading', 'link', 'dateCreated')
+        ->select('videoID', 'heading', 'link', 'dateCreated','coverImage')
             ->where('status', 1)
             ->limit($limit)
             ->offset($offset)
