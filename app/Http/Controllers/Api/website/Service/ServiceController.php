@@ -295,7 +295,7 @@ public function subscribeService(Request $request)
 
         if ($existing) {
             $transaction = DB::table('transactions')
-                ->where('platformid', $user->id)
+                ->where('id', $user->id)
                 ->where('feature', 'service_subscription')
                 ->where('feature_sn', $microserviceId)
                 ->first();
