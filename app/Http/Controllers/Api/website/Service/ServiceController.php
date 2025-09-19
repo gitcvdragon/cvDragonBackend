@@ -381,14 +381,15 @@ public function subscribeService(Request $request)
             'updated_at'       => now(),
         ]);
 
-        // Create Razorpay order
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
-        $razorpayOrder = $api->order->create([
-            'receipt'         => 'order_rcpt_' . $userServiceId,
-            'amount'          => $amount,
-            'currency'        => $currency,
-            'payment_capture' => 1
-        ]);
+             $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+             $razorpayOrder = $api->order->create([
+                 'receipt'         => 'order_rcpt_' . $userServiceId,
+                 'amount'          => $amount,
+                 'currency'        => $currency,
+                 'payment_capture' => 1
+             ]);
+
+$razorpayOrder = $razorpayOrder->toArray();
 
         // Insert transaction with Created status
         DB::table('transactions')->insert([
@@ -401,7 +402,7 @@ public function subscribeService(Request $request)
             'totalAmount'     => $amountInRupees,
             'currency'        => $currency,
             'transactionDate' => now(),
-            'status'          => 0, // pending
+            'status'          => 1, // pending
             'created_at'      => now(),
             'updated_at'      => now(),
         ]);
