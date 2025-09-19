@@ -389,10 +389,10 @@ public function subscribeService(Request $request)
                  'payment_capture' => 1
              ]);
 
-$razorpayOrder = $razorpayOrder->toArray();
+          $razorpayOrder = $razorpayOrder->toArray();
 
-        // Insert transaction with Created status
-        DB::table('transactions')->insert([
+          // Insert transaction with Created status
+           DB::table('transactions')->insert([
             'id'  => $user->id,
             'feature'         => 'service_subscription',
             'feature_sn'      => $microserviceId,
@@ -405,7 +405,7 @@ $razorpayOrder = $razorpayOrder->toArray();
             'status'          => 1, // pending
             'created_at'      => now(),
             'updated_at'      => now(),
-        ]);
+          ]);
 
         return response()->json([
             'success' => true,
