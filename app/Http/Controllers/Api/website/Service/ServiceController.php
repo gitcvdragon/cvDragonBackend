@@ -392,7 +392,7 @@ public function subscribeService(Request $request)
 
         // Insert transaction with Created status
         DB::table('transactions')->insert([
-            'platformid'      => $user->id,
+            'id'  => $user->id,
             'feature'         => 'service_subscription',
             'feature_sn'      => $microserviceId,
             'orderid'         => $razorpayOrder['id'],
