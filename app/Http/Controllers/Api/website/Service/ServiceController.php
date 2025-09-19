@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Razorpay\Api\Api;
 
 class ServiceController extends Controller
 {
@@ -271,6 +272,216 @@ class ServiceController extends Controller
     } catch (\Exception $e) {
         return response()->json([
             'error'   => 'Something went wrong',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function subscribeService(Request $request)
+{
+    try {
+        $request->validate([
+            'microservice_id' => 'required|integer|exists:microservice,sn',
+        ]);
+
+        $user = auth()->user();
+        $microserviceId = $request->microservice_id;
+
+        $existing = DB::table('user_services')
+            ->where('user_id', $user->id)
+            ->where('microservice_id', $microserviceId)
+            ->where('status', 1) // active
+            ->first();
+
+        if ($existing) {
+            $transaction = DB::table('transactions')
+                ->where('platformid', $user->id)
+                ->where('feature', 'service_subscription')
+                ->where('feature_sn', $microserviceId)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($transaction) {
+                if ($transaction->orderStatus === 'Success') {
+                    // Already paid → reject
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Already subscribed and payment successful'
+                    ], 400);
+                }
+
+                if ($transaction->orderStatus === 'Created') {
+                    // Retry: re-create Razorpay order
+                    $microservice = DB::table('microservice')->where('sn', $microserviceId)->first();
+                    $amountInRupees = $microservice->cost ?? 0;
+                    $amount = $amountInRupees * 100;
+                    $currency = "INR";
+
+                    $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+                    $razorpayOrder = $api->order->create([
+                        'receipt'         => 'order_rcpt_' . $existing->id,
+                        'amount'          => $amount,
+                        'currency'        => $currency,
+                        'payment_capture' => 1
+                    ]);
+
+                    // Update transaction with new order id
+                    DB::table('transactions')->where('id', $transaction->id)->update([
+                        'orderid'     => $razorpayOrder['id'],
+                        'updated_at'  => now(),
+                        'orderStatus' => 'Created',
+                    ]);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Payment pending, new order created. Please complete payment.',
+                        'user_service_id' => $existing->id,
+                        'razorpay_order'  => $razorpayOrder,
+                        'amount'          => $amountInRupees,
+                        'currency'        => $currency,
+                        'service_name'    => $microservice->heading ?? $microservice->category
+                    ]);
+                }
+            }
+        }
+
+        // -------------------------
+        // NEW SUBSCRIPTION
+        // -------------------------
+
+        // Fetch microservice info (with cost)
+        $microservice = DB::table('microservice')->where('sn', $microserviceId)->first();
+        if (!$microservice) {
+            return response()->json(['success' => false, 'message' => 'Microservice not found'], 404);
+        }
+
+        $amountInRupees = $microservice->cost ?? 0;
+        $amount = $amountInRupees * 100;
+        $currency = "INR";
+
+        // Get first step
+        $firstStep = DB::table('service_steps')
+            ->where('microservice_id', $microserviceId)
+            ->where('status', 1)
+            ->orderBy('step_order', 'asc')
+            ->first();
+
+        if (!$firstStep) {
+            return response()->json(['success' => false, 'message' => 'No steps found for this service'], 404);
+        }
+
+        // Insert user_services
+        $userServiceId = DB::table('user_services')->insertGetId([
+            'user_id'          => $user->id,
+            'microservice_id'  => $microserviceId,
+            'current_step_id'  => $firstStep->id,
+            'activation_date'  => now(),
+            'expiry_date'      => null,
+            'status'           => 1, // active
+            'created_at'       => now(),
+            'updated_at'       => now(),
+        ]);
+
+        // Create Razorpay order
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        $razorpayOrder = $api->order->create([
+            'receipt'         => 'order_rcpt_' . $userServiceId,
+            'amount'          => $amount,
+            'currency'        => $currency,
+            'payment_capture' => 1
+        ]);
+
+        // Insert transaction with Created status
+        DB::table('transactions')->insert([
+            'platformid'      => $user->id,
+            'feature'         => 'service_subscription',
+            'feature_sn'      => $microserviceId,
+            'orderid'         => $razorpayOrder['id'],
+            'orderStatus'     => 'Created',
+            'paymentMode'     => 'Razorpay',
+            'totalAmount'     => $amountInRupees,
+            'currency'        => $currency,
+            'transactionDate' => now(),
+            'status'          => 0, // pending
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Service subscription initiated',
+            'user_service_id' => $userServiceId,
+            'razorpay_order'  => $razorpayOrder,
+            'amount'          => $amountInRupees,
+            'currency'        => $currency,
+            'service_name'    => $microservice->heading ?? $microservice->category
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error'   => 'Failed to subscribe service',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+public function updateStep(Request $request, $userServiceId)
+{
+    try {
+        $request->validate([
+            'step_id' => 'required|integer|exists:service_steps,id',
+        ]);
+
+        $user = auth()->user();
+
+        $userService = DB::table('user_services')
+            ->where('id', $userServiceId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$userService) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found'
+            ], 404);
+        }
+
+        // Verify step belongs to this service
+        $step = DB::table('service_steps')
+            ->where('id', $request->step_id)
+            ->where('microservice_id', $userService->microservice_id)
+            ->first();
+
+        if (!$step) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid step for this service'
+            ], 400);
+        }
+
+        // Decide status based on require_approval
+        $newStatus = $step->require_approval ? 'in_progress' : 'done';
+
+        // Update current step + status
+        DB::table('user_services')
+            ->where('id', $userServiceId)
+            ->update([
+                'current_step_id' => $request->step_id,
+                'status'          => $newStatus,
+                'updated_at'      => now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Step updated successfully',
+            'step_id' => $request->step_id,
+            'status'  => $newStatus
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error'   => 'Failed to update step',
             'message' => $e->getMessage()
         ], 500);
     }
