@@ -298,7 +298,6 @@ public function subscribeService(Request $request)
                 ->where('platformid', $user->id)
                 ->where('feature', 'service_subscription')
                 ->where('feature_sn', $microserviceId)
-                ->orderBy('created_at', 'desc')
                 ->first();
 
             if ($transaction) {
