@@ -71,12 +71,12 @@ class ServiceController extends Controller
                 'fs.post_text as first_post_text',
 
                 // transaction
-                't.orderid',
-                't.orderStatus',
-                't.paymentMode',
-                't.totalAmount',
-                't.currency',
-                't.transactionDate'
+                // 't.orderid',
+                // 't.orderStatus',
+                // 't.paymentMode',
+                // 't.totalAmount',
+                // 't.currency',
+                // 't.transactionDate'
             )
             ->orderBy('us.created_at', 'desc')
             ->get();
