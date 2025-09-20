@@ -334,7 +334,7 @@ public function getSingleFeed(Request $request)
 
         $data = [
             'feedID'       => $feed->feedID,
-            'category_color'       => $item->category_color,
+            'category_color'       => $feed->category_color,
 
             'category'       => $feed->category,
             'sub_category'       => $feed->sub_category,
