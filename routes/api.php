@@ -58,7 +58,7 @@ Route::post('/user-sections-rename', [CvSectionController::class, 'updateShowNam
 
 
 // Route::post('/get-config', [AppConfigController::class, 'getConfig']);
-Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs']);
+Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs'])->middleware('auth:api');
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);
