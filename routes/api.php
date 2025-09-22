@@ -104,7 +104,7 @@ Route::post('/redeem-voucher', [MySubscriptionController::class, 'redeemVoucher'
 
 
 Route::middleware('auth:api')->get('/services/active', [ServiceController::class, 'activeServices']);
-Route::middleware('auth:api')->post('/services/get', [ServiceController::class, 'subscribeService']);
+Route::middleware('auth:api')->post('/services/purchase', [ServiceController::class, 'purchase']);
 Route::middleware('auth:api')->post('/services/step/update', [ServiceController::class, 'updateStep']);
 Route::middleware('auth:api')->get('/services/completed', [ServiceController::class, 'completedServices']);
 Route::middleware('auth:api')->get('/services/details', [ServiceController::class, 'serviceSteps']);
