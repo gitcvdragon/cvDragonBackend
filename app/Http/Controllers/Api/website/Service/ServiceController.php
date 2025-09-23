@@ -538,10 +538,12 @@ if ($pendingOrders->isNotEmpty()) {
 }
 
 
-public function updateStep(Request $request, $userServiceId)
+public function updateStep(Request $request)
 {
     try {
         $request->validate([
+           'microservice_id' => 'required|integer|exists:microservice,sn',
+            'order_id' => 'required|integer|exists:orders,orderid',
             'step_id' => 'required|integer|exists:service_steps,id',
             'link' => 'nullable|string',
         ]);
@@ -549,8 +551,9 @@ public function updateStep(Request $request, $userServiceId)
         $user = auth()->user();
 
         $userService = DB::table('user_services')
-            ->where('id', $userServiceId)
-            ->where('user_id', $user->id)
+            ->where('microservice_id', $request->microservice_id)
+            ->where('id', $user->id)
+            ->where('order_id', $request->order_id)
             ->first();
 
         if (!$userService) {
