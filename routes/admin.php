@@ -16,9 +16,13 @@ use App\Http\Controllers\Api\Admin\Guideshala\GuideshalaController;
 use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
 use App\Http\Controllers\Api\Admin\Auth\AuthController;
 use App\Http\Controllers\Api\Admin\Menu\MenuController;
+use App\Http\Controllers\Api\Admin\Notification\NotificationController;
+
 
 Route::prefix('admin')->group(function () {
 
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notification/{id}', [NotificationController::class, 'getNotification']);
 
     // Route::get('/menus', [MenuController::class, 'allMenus']);
 Route::get('/menus/role/{roleId}', [MenuController::class, 'menusByRole']);

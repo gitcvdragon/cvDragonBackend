@@ -19,7 +19,6 @@ class ServiceController extends Controller
      * Get all active services for the logged-in user
      */
 
-
 public function activeServices(Request $request)
 {
     try {
@@ -27,15 +26,12 @@ public function activeServices(Request $request)
 
         $services = DB::table('user_services as us')
             ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
-            ->leftJoin('service_steps as css', 'us.current_step_id', '=', 'css.sn')
             ->leftJoin('service_steps as fs', function ($join) {
                 $join->on('fs.microservice_id', '=', 'us.microservice_id')
                      ->where('fs.step_order', '=', 1);
             })
             ->leftJoin('orders as o', 'us.order_id', '=', 'o.orderid')
-            ->leftJoin('transactions as t', function ($join) {
-                $join->on('t.orderid', '=', 'us.order_id');
-            })
+            ->leftJoin('transactions as t', 't.orderid', '=', 'us.order_id')
             ->where('us.id', $user->id)
             ->where('us.status', 1)
             ->where(function ($q) {
@@ -43,9 +39,8 @@ public function activeServices(Request $request)
                   ->orWhere('o.expiry_date', '>=', now());
             })
             ->select(
-                'us.sn as user_step_id',
+                DB::raw('MAX(us.sn) as user_step_id'),   // ✅ latest user_services row
                 'us.microservice_id',
-                'us.current_step_id',
                 'us.order_id',
                 'ms.category as service_name',
                 'ms.days',
@@ -54,25 +49,39 @@ public function activeServices(Request $request)
                 'ms.persons_image',
                 'ms.purchases',
                 'ms.button',
-                'ms.persons_image',
                 'fs.post_text as first_post_text',
                 'o.activate_date as order_activate_date',
-                'us.created_at',
+                DB::raw('MAX(us.created_at) as created_at'), // ✅ latest created_at
                 DB::raw('DATEDIFF(o.expiry_date, NOW()) as days_left'),
                 't.totalAmount as transaction_amount',
                 't.paymentMode'
             )
-            ->orderBy('us.created_at', 'desc')
+            ->groupBy(
+                'us.microservice_id',
+                'us.order_id',
+                'ms.category',
+                'ms.days',
+                'ms.microsite',
+                'ms.heading',
+                'ms.persons_image',
+                'ms.purchases',
+                'ms.button',
+                'fs.post_text',
+                'o.activate_date',
+                't.totalAmount',
+                't.paymentMode',
+			'o.expiry_date'
+
+            )
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Fetch steps for each service
+        // Attach steps for each service
         foreach ($services as $service) {
 
-            if (!empty($service->persons_image)) {
-                $service->persons_image = json_decode($service->persons_image, true);
-            } else {
-                $service->persons_image = [];
-            }
+            $service->persons_image = !empty($service->persons_image)
+                ? json_decode($service->persons_image, true)
+                : [];
 
             // fetch all steps for this microservice
             $steps = DB::table('service_steps')
@@ -84,8 +93,7 @@ public function activeServices(Request $request)
             $userSteps = DB::table('user_services')
                 ->where('order_id', $service->order_id)
                 ->where('microservice_id', $service->microservice_id)
-                ->where('current_step_id', $service->current_step_id)
-                ->pluck('step_status as ststus', 'current_step_id as step_id');
+                ->pluck('step_status', 'current_step_id');
 
             $stepDetails = [];
             foreach ($steps as $step) {
@@ -98,18 +106,30 @@ public function activeServices(Request $request)
                     $text = $step->inprogress_text;
                 }
 
+                $remarks = DB::table('user_services')
+                    ->where('order_id', $service->order_id)
+                    ->where('microservice_id', $service->microservice_id)
+                    ->where('id', $user->id)
+                    ->where('current_step_id', $step->sn)
+                    ->value('remarks');
+
+                $completedAt = null;
+                if ($status === 'completed') {
+                    $completedAt = DB::table('user_services')
+                        ->where('order_id', $service->order_id)
+                        ->where('microservice_id', $service->microservice_id)
+                        ->where('id', $user->id)
+                        ->where('current_step_id', $step->sn)
+                        ->value('created_at');
+                }
+
                 $stepDetails[] = [
                     'step_id' => $step->sn,
                     'status' => $status,
                     'text' => $text,
                     'icon' => $step->icon ?? null,
-                    'completed_at' => ($status === 'completed') ? DB::table('user_services')
-                        ->where('order_id', $service->order_id)
-                        ->where('microservice_id', $service->microservice_id)
-                        ->where('id', $user->id)
-                        ->where('current_step_id', $step->sn)
-                        ->value('created_at') : null,
-                ];
+                    'completed_at' => $completedAt,
+                ] + ($remarks ? ['remarks' => $remarks] : []);
             }
 
             $service->steps = $stepDetails;
@@ -123,12 +143,12 @@ public function activeServices(Request $request)
     }
 }
 
-   public function completedServices(Request $request)
+ public function completedServices(Request $request)
 {
     try {
         $user = auth()->user();
 
-        // Fetch only completed services
+        // Fetch only completed services (grouped by order_id + microservice_id)
         $services = DB::table('user_services as us')
             ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
             ->leftJoin('service_steps as fs', function ($join) {
@@ -136,18 +156,15 @@ public function activeServices(Request $request)
                      ->where('fs.step_order', '=', 1);
             })
             ->leftJoin('orders as o', 'us.order_id', '=', 'o.orderid')
-            ->leftJoin('transactions as t', function ($join) {
-                $join->on('t.orderid', '=', 'us.order_id');
-            })
+            ->leftJoin('transactions as t', 't.orderid', '=', 'us.order_id')
             ->where('us.id', $user->id)
             ->where(function ($q) {
                 $q->where('us.status', 2)
                   ->orWhere('o.all_steps_completed', 1);
             })
             ->select(
-                'us.sn as user_step_id',
+                DB::raw('MAX(us.sn) as user_step_id'), // latest record
                 'us.microservice_id',
-                'us.current_step_id',
                 'us.order_id',
                 'ms.category as service_name',
                 'ms.days',
@@ -157,24 +174,32 @@ public function activeServices(Request $request)
                 'ms.purchases',
                 'ms.button',
                 'fs.post_text as first_post_text',
-                'o.activate_date as order_activate_date',
-                'us.created_at',
-                DB::raw('DATEDIFF(o.expiry_date, NOW()) as days_left'),
-                't.totalAmount as transaction_amount',
-                't.paymentMode'
+                DB::raw('MAX(o.activate_date) as order_activate_date'),
+                DB::raw('MAX(us.created_at) as created_at'),
+                DB::raw('DATEDIFF(MAX(o.expiry_date), NOW()) as days_left'),
+                DB::raw('MAX(t.totalAmount) as transaction_amount'),
+                DB::raw('MAX(t.paymentMode) as paymentMode')
             )
-            ->orderBy('us.created_at', 'desc')
+            ->groupBy(
+                'us.microservice_id',
+                'us.order_id',
+                'ms.category',
+                'ms.days',
+                'ms.microsite',
+                'ms.heading',
+                'ms.persons_image',
+                'ms.purchases',
+                'ms.button',
+                'fs.post_text'
+            )
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Fetch steps for each completed service
         foreach ($services as $service) {
-
-            // Decode person images if exist
-            if (!empty($service->persons_image)) {
-                $service->persons_image = json_decode($service->persons_image, true);
-            } else {
-                $service->persons_image = [];
-            }
+            // Decode persons_image if exist
+            $service->persons_image = !empty($service->persons_image)
+                ? json_decode($service->persons_image, true)
+                : [];
 
             // Fetch all steps for this microservice
             $steps = DB::table('service_steps')
@@ -182,34 +207,31 @@ public function activeServices(Request $request)
                 ->orderBy('step_order', 'asc')
                 ->get();
 
-            // Fetch the user's step statuses for this service
+            // Fetch the user's step records for this service
             $userStepRecords = DB::table('user_services')
                 ->where('order_id', $service->order_id)
                 ->where('microservice_id', $service->microservice_id)
                 ->get()
-                ->keyBy('current_step_id'); // key by step id for fast lookup
+                ->keyBy('current_step_id');
 
             $stepDetails = [];
             foreach ($steps as $step) {
                 $status = 'not_started';
                 $completedAt = null;
 
-                // Check if this step exists in user_services
                 if (isset($userStepRecords[$step->sn])) {
                     $record = $userStepRecords[$step->sn];
-                    $status = $record->step_status; // pending, in-progress, completed
+                    $status = $record->step_status;
                     if ($status === 'completed') {
                         $completedAt = $record->created_at;
                     }
                 }
 
-                // Set text according to status
-                $text = $step->pre_text;
-                if ($status === 'completed') {
-                    $text = $step->post_text;
-                } elseif ($status === 'in-progress') {
-                    $text = $step->inprogress_text;
-                }
+                $text = match ($status) {
+                    'completed'   => $step->post_text,
+                    'in_progress' => $step->inprogress_text,
+                    default       => $step->pre_text,
+                };
 
                 $stepDetails[] = [
                     'step_id'      => $step->sn,
@@ -224,12 +246,13 @@ public function activeServices(Request $request)
         }
 
         return $this->successResponse([
-            'active_services' => $services,
+            'completed_services' => $services,
         ]);
     } catch (\Exception $e) {
         return $this->errorResponse($e->getMessage(), 500);
     }
 }
+
 
 
 
@@ -544,7 +567,7 @@ public function updateStep(Request $request)
         $request->validate([
            'microservice_id' => 'required|integer|exists:microservice,sn',
             'order_id' => 'required|integer|exists:orders,orderid',
-            'step_id' => 'required|integer|exists:service_steps,id',
+            'step_id' => 'required|integer|exists:service_steps,sn',
             'link' => 'nullable|string',
         ]);
 
@@ -552,7 +575,8 @@ public function updateStep(Request $request)
 
         $userService = DB::table('user_services')
             ->where('microservice_id', $request->microservice_id)
-            ->where('id', $user->id)
+            //->where('current_step_id',  $request->step_id)
+			 ->where('id', $user->id)
             ->where('order_id', $request->order_id)
             ->first();
 
@@ -578,7 +602,7 @@ public function updateStep(Request $request)
         }
 
         $step = DB::table('service_steps')
-            ->where('id', $request->step_id)
+            ->where('sn', $request->step_id)
             ->where('microservice_id', $userService->microservice_id)
             ->first();
 
@@ -589,16 +613,30 @@ public function updateStep(Request $request)
 
         $newStatus = $step->require_approval ? 'in_progress' : 'completed';
 
-        $updateData = [
+        $insertData = [
+			'id'=>$user->id,
+			'microservice_id'=>$request->microservice_id,
+
+			'order_id'=>$request->order_id,
             'current_step_id' => $request->step_id,
             'step_status' => $newStatus,
             'remarks' => $request->remarks,
             'created_at' => now(),
         ];
 
+if ($step->require_upload != 1) {
+
+	return $this->errorResponse([
+    'message' => 'No action required from your side.',
+
+]);
+}
+
+
+
         if ($step->require_upload == 1 && $request->hasFile('link')) {
 
-            $updateData['link'] = $request->file('link');
+            $insertData['link'] = $request->file('link');
         }
 
 
@@ -606,9 +644,7 @@ public function updateStep(Request $request)
         DB::beginTransaction();
 
         // Update user_services
-        DB::table('user_services')
-            ->where('id', $userServiceId)
-            ->update($updateData);
+         DB::table('user_services')->insert($insertData);
 
         // Check if this is the last step
         $lastStep = DB::table('service_steps')
@@ -616,7 +652,7 @@ public function updateStep(Request $request)
             ->orderBy('step_order', 'desc')
             ->first();
 
-        if ($lastStep && $request->step_id == $lastStep->id) {
+        if ($lastStep && $request->step_id == $lastStep->sn) {
             // Mark order as completed
             DB::table('orders')
                 ->where('orderid', $userService->order_id)
