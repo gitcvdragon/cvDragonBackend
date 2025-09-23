@@ -8,91 +8,235 @@ use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Razorpay\Api\Api;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 class ServiceController extends Controller
 {
     /**
      * Get all active services for the logged-in user
      */
-    public function activeServices(Request $request)
-    {
-        try {
 
-            $user = auth()->user();
 
-            $services = DB::table('user_services as us')
+public function activeServices(Request $request)
+{
+    try {
+        $user = auth()->user();
+
+        $services = DB::table('user_services as us')
             ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
-
-            // current step (user progress)
-            ->leftJoin('service_steps as ss', 'us.current_step_id', '=', 'ss.id')
-
-            // first step (step_order = 1)
+            ->leftJoin('service_steps as css', 'us.current_step_id', '=', 'css.sn')
             ->leftJoin('service_steps as fs', function ($join) {
                 $join->on('fs.microservice_id', '=', 'us.microservice_id')
                      ->where('fs.step_order', '=', 1);
             })
-
-            // transaction join
+            ->leftJoin('orders as o', 'us.order_id', '=', 'o.orderid')
             ->leftJoin('transactions as t', function ($join) {
-                $join->on('t.id', '=', 'us.user_id')
-                     ->on('t.feature_sn', '=', 'us.microservice_id');
+                $join->on('t.orderid', '=', 'us.order_id');
             })
-
-            ->where('us.user_id', $user->id)
+            ->where('us.id', $user->id)
             ->where('us.status', 1)
-            // ->where(function ($q) {
-            //     $q->whereNull('us.expiry_date')
-            //       ->orWhere('us.expiry_date', '>=', now());
-            // })
-
+            ->where(function ($q) {
+                $q->whereNull('o.expiry_date')
+                  ->orWhere('o.expiry_date', '>=', now());
+            })
             ->select(
-                'us.id as user_service_id',
+                'us.sn as user_step_id',
                 'us.microservice_id',
                 'us.current_step_id',
-                'us.activation_date',
-                'us.expiry_date',
-                'us.status as service_status',
-
+                'us.order_id',
                 'ms.category as service_name',
                 'ms.days',
                 'ms.microsite',
                 'ms.heading',
-                'ms.main',
-
-                // current step details
-                'ss.id as current_step_id',
-                'ss.pre_text as current_pre_text',
-                'ss.inprogress_text as current_inprogress_text',
-                'ss.post_text as current_post_text',
-
-                // first step details
-                'fs.id as first_step_id',
-                'fs.pre_text as first_pre_text',
-                'fs.inprogress_text as first_inprogress_text',
+                'ms.persons_image',
+                'ms.purchases',
+                'ms.button',
+                'ms.persons_image',
                 'fs.post_text as first_post_text',
-
-                // transaction
-                // 't.orderid',
-                // 't.orderStatus',
-                // 't.paymentMode',
-                // 't.totalAmount',
-                // 't.currency',
-                // 't.transactionDate'
+                'o.activate_date as order_activate_date',
+                'us.created_at',
+                DB::raw('DATEDIFF(o.expiry_date, NOW()) as days_left'),
+                't.totalAmount as transaction_amount',
+                't.paymentMode'
             )
             ->orderBy('us.created_at', 'desc')
             ->get();
 
-            return response()->json([
-                'success' => true,
-                'active_services' => $services
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Something went wrong',
-                'message' => $e->getMessage()
-            ], 500);
+        // Fetch steps for each service
+        foreach ($services as $service) {
+
+            if (!empty($service->persons_image)) {
+                $service->persons_image = json_decode($service->persons_image, true);
+            } else {
+                $service->persons_image = [];
+            }
+
+            // fetch all steps for this microservice
+            $steps = DB::table('service_steps')
+                ->where('microservice_id', $service->microservice_id)
+                ->orderBy('step_order', 'asc')
+                ->get();
+
+            // fetch all user step statuses for this order+service
+            $userSteps = DB::table('user_services')
+                ->where('order_id', $service->order_id)
+                ->where('microservice_id', $service->microservice_id)
+                ->where('current_step_id', $service->current_step_id)
+                ->pluck('step_status as ststus', 'current_step_id as step_id');
+
+            $stepDetails = [];
+            foreach ($steps as $step) {
+                $status = $userSteps[$step->sn] ?? 'not_started';
+                $text = $step->pre_text;
+
+                if ($status === 'completed') {
+                    $text = $step->post_text;
+                } elseif ($status === 'in_progress') {
+                    $text = $step->inprogress_text;
+                }
+
+                $stepDetails[] = [
+                    'step_id' => $step->sn,
+                    'status' => $status,
+                    'text' => $text,
+                    'icon' => $step->icon ?? null,
+                    'completed_at' => ($status === 'completed') ? DB::table('user_services')
+                        ->where('order_id', $service->order_id)
+                        ->where('microservice_id', $service->microservice_id)
+                        ->where('id', $user->id)
+                        ->where('current_step_id', $step->sn)
+                        ->value('created_at') : null,
+                ];
+            }
+
+            $service->steps = $stepDetails;
         }
+
+        return response()->json([
+            'success' => true,
+            'active_services' => $services,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Something went wrong',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
+   public function completedServices(Request $request)
+{
+    try {
+        $user = auth()->user();
+
+        // Fetch only completed services
+        $services = DB::table('user_services as us')
+            ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
+            ->leftJoin('service_steps as fs', function ($join) {
+                $join->on('fs.microservice_id', '=', 'us.microservice_id')
+                     ->where('fs.step_order', '=', 1);
+            })
+            ->leftJoin('orders as o', 'us.order_id', '=', 'o.orderid')
+            ->leftJoin('transactions as t', function ($join) {
+                $join->on('t.orderid', '=', 'us.order_id');
+            })
+            ->where('us.id', $user->id)
+            ->where(function ($q) {
+                $q->where('us.status', 2)
+                  ->orWhere('o.all_steps_completed', 1);
+            })
+            ->select(
+                'us.sn as user_step_id',
+                'us.microservice_id',
+                'us.current_step_id',
+                'us.order_id',
+                'ms.category as service_name',
+                'ms.days',
+                'ms.microsite',
+                'ms.heading',
+                'ms.persons_image',
+                'ms.purchases',
+                'ms.button',
+                'fs.post_text as first_post_text',
+                'o.activate_date as order_activate_date',
+                'us.created_at',
+                DB::raw('DATEDIFF(o.expiry_date, NOW()) as days_left'),
+                't.totalAmount as transaction_amount',
+                't.paymentMode'
+            )
+            ->orderBy('us.created_at', 'desc')
+            ->get();
+
+        // Fetch steps for each completed service
+        foreach ($services as $service) {
+
+            // Decode person images if exist
+            if (!empty($service->persons_image)) {
+                $service->persons_image = json_decode($service->persons_image, true);
+            } else {
+                $service->persons_image = [];
+            }
+
+            // Fetch all steps for this microservice
+            $steps = DB::table('service_steps')
+                ->where('microservice_id', $service->microservice_id)
+                ->orderBy('step_order', 'asc')
+                ->get();
+
+            // Fetch the user's step statuses for this service
+            $userStepRecords = DB::table('user_services')
+                ->where('order_id', $service->order_id)
+                ->where('microservice_id', $service->microservice_id)
+                ->get()
+                ->keyBy('current_step_id'); // key by step id for fast lookup
+
+            $stepDetails = [];
+            foreach ($steps as $step) {
+                $status = 'not_started';
+                $completedAt = null;
+
+                // Check if this step exists in user_services
+                if (isset($userStepRecords[$step->sn])) {
+                    $record = $userStepRecords[$step->sn];
+                    $status = $record->step_status; // pending, in-progress, completed
+                    if ($status === 'completed') {
+                        $completedAt = $record->created_at;
+                    }
+                }
+
+                // Set text according to status
+                $text = $step->pre_text;
+                if ($status === 'completed') {
+                    $text = $step->post_text;
+                } elseif ($status === 'in-progress') {
+                    $text = $step->inprogress_text;
+                }
+
+                $stepDetails[] = [
+                    'step_id'      => $step->sn,
+                    'status'       => $status,
+                    'text'         => $text,
+                    'icon'         => $step->icon ?? null,
+                    'completed_at' => $completedAt,
+                ];
+            }
+
+            $service->steps = $stepDetails;
+        }
+
+        return response()->json([
+            'success' => true,
+            'active_services' => $services
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Something went wrong',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
 
     public function serviceSteps(Request $request)
@@ -134,7 +278,7 @@ class ServiceController extends Controller
             // Format steps with done / in_progress / not_done
             $currentStepOrder = DB::table('service_steps')
                 ->where('id', $userService->current_step_id)
-                ->value('step_order') ?? 1; // fallback to 1 if NULL
+                ->value('step_order') ?? 1;
 
             $formattedSteps = $steps->map(function ($step) use ($currentStepOrder) {
                 $status = 'not_done';
@@ -183,107 +327,19 @@ class ServiceController extends Controller
         }
     }
 
-    public function completedServices(Request $request)
-{
-    try {
-        $user = auth()->user();
-
-        // Fetch all completed services for this user
-        $services = DB::table('user_services as us')
-            ->join('microservice as ms', 'us.microservice_id', '=', 'ms.sn')
-            ->where('us.user_id', $user->id)
-            ->where(function ($q) {
-                $q->where('us.status', 0) // inactive
-                  ->orWhere('us.expiry_date', '<', now()); // expired
-            })
-            ->select(
-                'us.*',
-                'ms.category',
-                'ms.heading',
-                'ms.days',
-                'ms.microsite',
-                'ms.main'
-            )
-            ->orderBy('us.expiry_date', 'desc')
-            ->get();
-
-        // Format each service with all steps + transaction details
-        $result = $services->map(function ($userService) {
-            // all steps
-            $steps = DB::table('service_steps')
-                ->where('microservice_id', $userService->microservice_id)
-                ->where('status', 1)
-                ->orderBy('step_order', 'asc')
-                ->get();
-
-            $currentStepOrder = DB::table('service_steps')
-                ->where('id', $userService->current_step_id)
-                ->value('step_order') ?? (count($steps) > 0 ? max($steps->pluck('step_order')->toArray()) : 1);
-
-            $formattedSteps = $steps->map(function ($step) use ($currentStepOrder) {
-                $status = 'not_done';
-                if ($step->step_order < $currentStepOrder) {
-                    $status = 'done';
-                } elseif ($step->step_order == $currentStepOrder) {
-                    $status = 'in_progress';
-                } elseif ($step->step_order <= $currentStepOrder) {
-                    $status = 'done';
-                }
-                return [
-                    'id'              => $step->id,
-                    'step_order'      => $step->step_order,
-                    'pre_text'        => $step->pre_text,
-                    'inprogress_text' => $step->inprogress_text,
-                    'post_text'       => $step->post_text,
-                    'require_upload'  => $step->require_upload,
-                    'require_approval'=> $step->require_approval,
-                    'icon'            => $step->icon,
-                    'status'          => $status,
-                ];
-            });
-
-            // transaction
-            $transaction = DB::table('transactions')
-                ->where('feature_sn', $userService->microservice_id)
-                ->where('id', $userService->user_id)
-                ->first();
-
-            return [
-                'user_service_id' => $userService->id,
-                'microservice_id' => $userService->microservice_id,
-                'service_name'    => $userService->category,
-                'current_step_id' => $userService->current_step_id,
-                'steps'           => $formattedSteps,
-                'transaction'     => $transaction ? [
-                    'orderid'        => $transaction->orderid,
-                    'orderStatus'    => $transaction->orderStatus,
-                    'paymentMode'    => $transaction->paymentMode,
-                    'totalAmount'    => $transaction->totalAmount,
-                    'currency'       => $transaction->currency,
-                    'transactionDate'=> $transaction->transactionDate,
-                ] : null
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'completed_services' => $result
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'error'   => 'Something went wrong',
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
 
 public function purchase(Request $request)
 {
-    $request->validate([
-        'user_id' => 'required|integer',
+    $validator = Validator::make($request->all(), [
         'microservice_sn' => 'required|integer'
     ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'error' => 'Validation failed',
+            'messages' => $validator->errors()
+        ], 422);
+    }
 
     $user = auth()->user();
     $userId = $user->id;
@@ -292,20 +348,123 @@ public function purchase(Request $request)
     DB::beginTransaction();
 
     try {
-        $microservice = DB::table('microservice')
-            ->where('sn', $microserviceSn)
-            ->first();
+        // Fetch microservice
+        $microservice = DB::table('microservice')->where('sn', $microserviceSn)->first();
 
         if (!$microservice) {
             return response()->json(['error' => 'Microservice not found'], 404);
         }
 
-        $cost = $microservice->cost;
+        // Check if user already has active service
+        $alreadyPurchased = DB::table('user_services as us')
+            ->join('orders as o', 'us.order_id', '=', 'o.orderid')
+            ->where('us.id', $userId)
+            ->where('us.microservice_id', $microserviceSn)
+            ->where('us.status', 1)
+            ->where(function ($q) {
+                $q->whereNull('o.expiry_date')->orWhere('o.expiry_date', '>', now());
+            })
+            ->first();
 
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        if ($alreadyPurchased) {
+            return response()->json([
+                'error' => 'Service already purchased and active',
+                'expiry_date' => $alreadyPurchased->expiry_date
+            ], 409);
+        }
+
+        $cost = $microservice->cost;
+        $totalDays = $microservice->days;
+        $activateDate = now();
+        $expiryDate = Carbon::parse($activateDate)->addDays($totalDays);
+
+        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+        // Check for all pending orders for this user & microservice
+       $pendingOrders = DB::table('orders')
+    ->where('user_id', $userId)
+    ->where('service_sn', $microserviceSn)
+    ->where('payment_status', 'created')
+    ->get(); // fetch all pending orders
+
+if ($pendingOrders->isNotEmpty()) {
+    $updatedOrders = [];
+
+    foreach ($pendingOrders as $order) {
+        // Create new Razorpay order for retry
         $razorpayOrder = $api->order->create([
             'receipt' => Str::uuid()->toString(),
-            'amount' => $cost * 100, // paise
+            'amount' => $cost * 100,
+            'currency' => 'INR',
+            'payment_capture' => 1
+        ]);
+
+        $activateDate = now();
+        $expiryDate = Carbon::parse($activateDate)->addDays($totalDays);
+
+        // Update all relevant columns in orders
+        DB::table('orders')->where('orderid', $order->orderid)->update([
+            'total_amount' => $cost,
+            'activate_date' => $activateDate,
+            'expiry_date' => $expiryDate,
+            'payment_status' => 'created',
+            'all_steps_completed' => 0,
+            'updated_at' => now()
+        ]);
+
+        // Update all relevant columns in transactions
+        DB::table('transactions')->where('orderid', $order->orderid)->update([
+            'totalAmount' => $cost,
+            'payment_status' => 'created',
+            'razorpay_order_id' => $razorpayOrder['id'],
+            'transactionDate' => $activateDate,
+            'status' => 0,
+            'updated_at' => now()
+        ]);
+
+        // Update user_services for this order
+        $firstStep = DB::table('service_steps')
+            ->where('microservice_id', $microserviceSn)
+            ->orderBy('step_order', 'asc')
+            ->first();
+
+        $firstStepId = $firstStep ? $firstStep->sn : null;
+
+        DB::table('user_services')->updateOrInsert(
+            ['id' => $userId, 'microservice_id' => $microserviceSn],
+            [
+                'current_step_id' => $firstStepId,
+                'order_id' => $order->orderid,
+                'step_status' => 'pending',
+                'status' => 0,
+                'updated_at' => now(),
+                'created_at' => now()
+            ]
+        );
+
+        $updatedOrders[] = [
+            'order_id' => $order->orderid,
+            'user_id' => $userId,
+            'microservice_sn' => $microserviceSn,
+            'total_amount' => $cost,
+            'activate_date' => $activateDate,
+            'expiry_date' => $expiryDate,
+            'current_step_id' => $firstStepId,
+            'razorpay_order_id' => $razorpayOrder['id']
+        ];
+    }
+
+    DB::commit();
+
+    return response()->json([
+        'message' => 'Pending orders updated successfully',
+        'orders' => $updatedOrders
+    ]);
+}
+        // No pending orders, create new
+        $razorpayOrder = $api->order->create([
+            'receipt' => Str::uuid()->toString(),
+            'amount' => $cost * 100,
             'currency' => 'INR',
             'payment_capture' => 1
         ]);
@@ -315,40 +474,43 @@ public function purchase(Request $request)
             'service_sn' => $microserviceSn,
             'total_amount' => $cost,
             'order_date' => now(),
-            'activate_date' => now(),
+            'activate_date' => $activateDate,
+            'expiry_date' => $expiryDate,
             'payment_status' => 'created',
             'all_steps_completed' => 0,
-            'transaction_sn' => 'TXN' . rand(1000,9999),
+            'transaction_sn' => 'TXN' . rand(1000, 9999),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
+        // Fetch first step
         $firstStep = DB::table('service_steps')
             ->where('microservice_id', $microserviceSn)
             ->orderBy('step_order', 'asc')
             ->first();
 
-        $firstStepId = $firstStep ? $firstStep->id : null;
+        $firstStepId = $firstStep ? $firstStep->sn : null;
 
         DB::table('user_services')->insert([
-            'user_id' => $userId,
+            'id' => $userId,
             'microservice_id' => $microserviceSn,
             'current_step_id' => $firstStepId,
             'order_id' => $orderId,
-            'step_status' => 'completed',
-            'status' => 1,
+            'step_status' => 'pending',
+            'status' => 0,
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         DB::table('transactions')->insert([
+            'id' => $userId,
             'orderid' => $orderId,
             'payment_status' => 'created',
             'paymentMode' => 'Online',
             'currency' => 'INR',
             'totalAmount' => $cost,
             'transactionDate' => now(),
-            'status' => 1,
+            'status' => 0,
             'razorpay_order_id' => $razorpayOrder['id'],
             'feature' => 'microservice',
             'feature_sn' => $microserviceSn,
@@ -374,9 +536,13 @@ public function purchase(Request $request)
 
     } catch (\Exception $e) {
         DB::rollBack();
-        return response()->json(['error' => 'Something went wrong', 'details' => $e->getMessage()], 500);
+        return response()->json([
+            'error' => 'Something went wrong',
+            'details' => $e->getMessage()
+        ], 500);
     }
 }
+
 
 public function updateStep(Request $request, $userServiceId)
 {
@@ -495,5 +661,85 @@ public function updateStep(Request $request, $userServiceId)
     }
 }
 
+
+public function verifyPayment(Request $request)
+{
+    $request->validate([
+        'razorpay_payment_id' => 'required|string',
+        'razorpay_order_id' => 'required|string',
+        'razorpay_signature' => 'required|string',
+        'order_id' => 'required|integer|exists:orders,orderid'
+    ]);
+
+    try {
+        $orderId = $request->order_id;
+        $razorpayPaymentId = $request->razorpay_payment_id;
+        $razorpayOrderId = $request->razorpay_order_id;
+        $razorpaySignature = $request->razorpay_signature;
+
+        $order = DB::table('orders')->where('orderid', $orderId)->first();
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        // Verify signature
+        $attributes = [
+            'razorpay_order_id' => $razorpayOrderId,
+            'razorpay_payment_id' => $razorpayPaymentId,
+            'razorpay_signature' => $razorpaySignature
+        ];
+
+        $api->utility->verifyPaymentSignature($attributes);
+
+        DB::beginTransaction();
+
+        // Update orders table
+        DB::table('orders')->where('orderid', $orderId)->update([
+            'payment_status' => 'success',
+            'activate_date' => now(),
+            'expiry_date' => now()->addDays($order->days ?? 30),
+            'updated_at' => now()
+        ]);
+
+        // Update transactions table
+        DB::table('transactions')->insert([
+            'orderid' => $orderId,
+            'payment_status' => 'success',
+            'paymentMode' => 'Razorpay',
+            'currency' => 'INR',
+            'totalAmount' => $order->total_amount,
+            'transactionDate' => now(),
+            'status' => 1,
+            'razorpay_order_id' => $razorpayOrderId,
+            'razorpay_payment_id' => $razorpayPaymentId,
+            'razorpay_signature' => $razorpaySignature,
+            'feature' => 'microservice_purchase',
+            'feature_sn' => $order->service_sn,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Optionally, activate user_services
+        DB::table('user_services')->where('order_id', $orderId)->update([
+            'status' => 1,
+            'updated_at' => now()
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment verified successfully',
+        ]);
+
+    } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+        return response()->json(['error' => 'Invalid signature', 'message' => $e->getMessage()], 400);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Payment verification failed', 'message' => $e->getMessage()], 500);
+    }
+}
 
 }
