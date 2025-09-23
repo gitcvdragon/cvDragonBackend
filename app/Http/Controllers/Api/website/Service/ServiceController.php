@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Razorpay\Api\Api;
+use Illuminate\Support\Str;
 
 class ServiceController extends Controller
 {
