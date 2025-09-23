@@ -100,7 +100,9 @@ Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'dele
 Route::get('/subscriptions/active', [MySubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
 Route::post('/redeem-voucher', [MySubscriptionController::class, 'redeemVoucher'])->middleware('auth:api');
 
-
+Route::post('/subscriptions/verify', [MySubscriptionController::class, 'verifyPayment'])->middleware('auth:api');
+Route::post('/subscriptions/order-create', [MySubscriptionController::class, 'createSubscriptionOrder'])->middleware('auth:api');
+Route::post('/subscriptions/order-details', [MySubscriptionController::class, 'createRazorpayOrder'])->middleware('auth:api');
 
 
 Route::middleware('auth:api')->get('/services/active', [ServiceController::class, 'activeServices']);
@@ -109,3 +111,5 @@ Route::middleware('auth:api')->post('/services/step/update', [ServiceController:
 Route::middleware('auth:api')->get('/services/completed', [ServiceController::class, 'completedServices']);
 Route::middleware('auth:api')->get('/services/details', [ServiceController::class, 'serviceSteps']);
 Route::middleware('auth:api')->get('/services/verify', [ServiceController::class, 'verifyPayment']);
+
+

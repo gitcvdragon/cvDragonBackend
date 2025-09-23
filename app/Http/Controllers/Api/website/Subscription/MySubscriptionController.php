@@ -134,4 +134,245 @@ public function redeemVoucher(Request $request)
 }
 
 
+
+public function createSubscriptionOrder(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'microservice_sn' => 'required|integer|exists:microservice,sn',
+    ]);
+
+    if ($validator->fails()) {
+        return $this->errorResponse($validator->errors()->first(), 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $user = auth()->user();
+        $microserviceSn = $request->microservice_sn;
+
+        $microservice = DB::table('microservice')->where('sn', $microserviceSn)->first();
+
+        if (!$microservice) {
+            DB::rollBack();
+            return $this->errorResponse('Subscription not found', 404);
+        }
+
+        $cost = $microservice->cost;
+        $totalDays = $microservice->days ?? 30;
+        $activateDate = now();
+        $expiryDate = Carbon::parse($activateDate)->addDays($totalDays);
+
+        // Check if an order for this user+subscription already exists in initialized state
+        $existingOrder = DB::table('orders')
+            ->where('user_id', $user->id)
+            ->where('service_sn', $microserviceSn)
+            ->where('payment_status', 'initialized')
+            ->first();
+
+        if ($existingOrder) {
+            // Update the existing initialized order
+            DB::table('orders')
+                ->where('orderid', $existingOrder->orderid)
+                ->update([
+                    'total_amount' => $cost,
+                    'activate_date' => $activateDate,
+                    'expiry_date' => $expiryDate,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+            $orderId = $existingOrder->orderid;
+        } else {
+            // Create a new order
+            $orderId = Str::uuid()->toString();
+
+            DB::table('orders')->insert([
+                'orderid' => $orderId,
+                'user_id' => $user->id,
+                'service_sn' => $microserviceSn,
+                'total_amount' => $cost,
+                'order_date' => now(),
+                'payment_status' => 'initialized',
+                'activate_date' => $activateDate,
+                'expiry_date' => $expiryDate,
+                'all_steps_completed' => 0,
+                'transaction_sn' => null,
+                'is_refund' => 0,
+                'is_cancled' => 0,
+                'admin_comment' => null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        DB::commit();
+
+        return $this->successResponse([
+            'order_id' => $orderId,
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return $this->errorResponse('Failed to create subscription order: ' . $e->getMessage(), 500);
+    }
+}
+public function createRazorpayOrder(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'order_id' => 'required|string|exists:orders,orderid',
+        'payment_mode' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return $this->errorResponse($validator->errors()->first(), 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $user = auth()->user();
+        $orderId = $request->order_id;
+        $paymentMode = $request->payment_mode;
+
+        // Fetch order
+        $order = DB::table('orders')->where('orderid', $orderId)->first();
+        if (!$order) {
+            DB::rollBack();
+            return $this->errorResponse('Order not found', 404);
+        }
+
+        // Create Razorpay order
+        $razorpay = new \Razorpay\Api\Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+        $razorpayOrder = $razorpay->order->create([
+            'receipt'         => $orderId,
+            'amount'          => intval($order->total_amount * 100), // in paise
+            'currency'        => 'INR',
+            'payment_capture' => 1
+        ]);
+
+        // Insert transaction record
+        $transactionId = DB::table('transactions')->insertGetId([
+            'orderid'          => $orderId,
+            'id'               => $user->id,
+            'payment_status'   => 'created',
+            'paymentMode'      => $paymentMode,
+            'currency'         => 'INR',
+            'totalAmount'      => $order->total_amount,
+            'transactionDate'  => now(),
+            'status'           => 1,
+            'razorpay_order_id'=> $razorpayOrder['id'],
+            'created_at'       => now(),
+            'updated_at'       => now(),
+            'feature' => 'microservice',
+                'feature_sn' => $order->service_sn,
+
+
+                'sub_feature' => 'orders',
+                'sub_feature_sn' => $orderId,
+        ]);
+
+        DB::commit();
+
+        return $this->successResponse([
+            'order_id' => $orderId,
+            'razorpay_order_id' => $razorpayOrder['id'],
+            'transaction_id' => $transactionId,
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return $this->errorResponse('Failed to create Razorpay order: ' . $e->getMessage(), 500);
+    }
+}
+
+public function subscriptionVerifyPayment(Request $request)
+{
+    $request->validate([
+        'razorpay_payment_id' => 'required|string',
+        'razorpay_order_id'   => 'required|string|exists:transactions,razorpay_order_id',
+        'razorpay_signature'  => 'required|string',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $user = auth()->user();
+        $transaction = DB::table('transactions')
+            ->where('razorpay_order_id', $request->razorpay_order_id)
+            ->first();
+
+        if (!$transaction) {
+            DB::rollBack();
+            return $this->errorResponse('Transaction not found', 404);
+        }
+
+        // Verify Razorpay signature
+        $api = new \Razorpay\Api\Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+        try {
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
+        } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+            // Mark transaction as failed
+            DB::table('transactions')->where('razorpay_order_id', $request->razorpay_order_id)
+                ->update(['payment_status' => 'failed', 'status' => 0, 'updated_at' => now()]);
+            DB::rollBack();
+            return $this->errorResponse('Payment verification failed: ' . $e->getMessage(), 400);
+        }
+
+        // Update transaction as success
+        DB::table('transactions')->where('razorpay_order_id', $request->razorpay_order_id)
+            ->update([
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'payment_status' => 'success',
+                'status' => 1,
+                'updated_at' => now()
+            ]);
+
+        $order = DB::table('orders')->where('orderid', $transaction->orderid)->first();
+        if (!$order) {
+            DB::rollBack();
+            return $this->errorResponse('Order not found', 404);
+        }
+
+        // Create user subscription
+        $activate = now();
+        $expiry = Carbon::parse($activate)->addDays($order->total_amount ?? 30);
+
+        DB::table('user-subscription')->insert([
+            'user_id'    => $user->id,
+            'service_sn' => $transaction->feature_sn,
+            'activate'   => $activate,
+            'expiry'     => $expiry,
+            'securityKey'=> Str::random(19),
+            'status'     => 1,
+            'dateCreated'=> $activate,
+            'dateUpdated'=> now(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::commit();
+
+        return $this->successResponse([
+            'message' => 'Payment verified and subscription activated successfully',
+            'subscription' => [
+                'user_id'    => $user->id,
+                'service_sn' => $transaction->feature_sn,
+                'activate'   => $activate,
+                'expiry'     => $expiry,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return $this->errorResponse('Failed to verify payment: ' . $e->getMessage(), 500);
+    }
+}
+
+
 }

@@ -112,15 +112,11 @@ public function activeServices(Request $request)
             $service->steps = $stepDetails;
         }
 
-        return response()->json([
-            'success' => true,
+        return $this->successResponse([
             'active_services' => $services,
         ]);
     } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Something went wrong',
-            'message' => $e->getMessage()
-        ], 500);
+        return $this->errorResponse($e->getMessage(), 500);
     }
 }
 
@@ -224,16 +220,11 @@ public function activeServices(Request $request)
             $service->steps = $stepDetails;
         }
 
-        return response()->json([
-            'success' => true,
-            'active_services' => $services
+        return $this->successResponse([
+            'active_services' => $services,
         ]);
-
     } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Something went wrong',
-            'message' => $e->getMessage()
-        ], 500);
+        return $this->errorResponse($e->getMessage(), 500);
     }
 }
 
@@ -335,11 +326,9 @@ public function purchase(Request $request)
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'error' => 'Validation failed',
-            'messages' => $validator->errors()
-        ], 422);
+        return $this->errorResponse($validator->errors()->first(), 422);
     }
+
 
     $user = auth()->user();
     $userId = $user->id;
@@ -352,7 +341,7 @@ public function purchase(Request $request)
         $microservice = DB::table('microservice')->where('sn', $microserviceSn)->first();
 
         if (!$microservice) {
-            return response()->json(['error' => 'Microservice not found'], 404);
+            return $this->errorResponse('Microservice not found', 404);
         }
 
         // Check if user already has active service
@@ -367,10 +356,12 @@ public function purchase(Request $request)
             ->first();
 
         if ($alreadyPurchased) {
-            return response()->json([
-                'error' => 'Service already purchased and active',
-                'expiry_date' => $alreadyPurchased->expiry_date
-            ], 409);
+            return $this->errorResponse(
+                'Service already purchased and active',
+                409,
+                ['expiry_date' => $alreadyPurchased->expiry_date]
+            );
+
         }
 
         $cost = $microservice->cost;
@@ -456,10 +447,11 @@ if ($pendingOrders->isNotEmpty()) {
 
     DB::commit();
 
-    return response()->json([
+    return $this->successResponse([
         'message' => 'Pending orders updated successfully',
-        'orders' => $updatedOrders
+        'orders'  => $updatedOrders
     ]);
+
 }
         // No pending orders, create new
         $razorpayOrder = $api->order->create([
@@ -522,7 +514,7 @@ if ($pendingOrders->isNotEmpty()) {
 
         DB::commit();
 
-        return response()->json([
+        return $this->successResponse([
             'message' => 'Order created successfully',
             'order' => [
                 'order_id' => $orderId,
@@ -534,13 +526,12 @@ if ($pendingOrders->isNotEmpty()) {
             ]
         ]);
 
+
     } catch (\Exception $e) {
         DB::rollBack();
-        return response()->json([
-            'error' => 'Something went wrong',
-            'details' => $e->getMessage()
-        ], 500);
+        return $this->errorResponse('Something went wrong', 500, $e->getMessage());
     }
+
 }
 
 
@@ -562,10 +553,9 @@ public function updateStep(Request $request, $userServiceId)
             ->first();
 
         if (!$userService) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service not found'
-            ], 404);
+            return $this->errorResponse('Service not found', 404);
+
+
         }
 
         $order = DB::table('orders')
@@ -578,10 +568,9 @@ public function updateStep(Request $request, $userServiceId)
             ->first();
 
         if (!$order) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order is not valid or has expired'
-            ], 403);
+
+            return $this->errorResponse('Order is not valid or has expired', 400);
+
         }
 
         $step = DB::table('service_steps')
@@ -589,12 +578,10 @@ public function updateStep(Request $request, $userServiceId)
             ->where('microservice_id', $userService->microservice_id)
             ->first();
 
-        if (!$step) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid step for this service'
-            ], 400);
-        }
+            if (!$step) {
+                return $this->errorResponse('Invalid step for this service', 400);
+            }
+
 
         $newStatus = $step->require_approval ? 'in_progress' : 'completed';
 
@@ -642,23 +629,18 @@ public function updateStep(Request $request, $userServiceId)
 
         DB::commit();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Step updated successfully',
+        return $this->successResponse([
             'step_id' => $request->step_id,
-            'status' => $newStatus,
-            'link' => $updateData['link'] ?? null,
-            'ans' => $updateData['ans'] ?? null
-        ]);
+            'status'  => $newStatus,
+            'link'    => $updateData['link'] ?? null,
+            'ans'     => $updateData['ans'] ?? null,
+        ], 'Step updated successfully');
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'error' => 'Failed to update step',
-            'message' => $e->getMessage()
-        ], 500);
-    }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse('Failed to update step', 500, $e->getMessage());
+        }
+
 }
 
 
@@ -679,7 +661,7 @@ public function verifyPayment(Request $request)
 
         $order = DB::table('orders')->where('orderid', $orderId)->first();
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return $this->errorResponse('Order not found', 404);
         }
 
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
@@ -691,55 +673,80 @@ public function verifyPayment(Request $request)
             'razorpay_signature' => $razorpaySignature
         ];
 
-        $api->utility->verifyPaymentSignature($attributes);
-
         DB::beginTransaction();
 
-        // Update orders table
-        DB::table('orders')->where('orderid', $orderId)->update([
-            'payment_status' => 'success',
-            'activate_date' => now(),
-            'expiry_date' => now()->addDays($order->days ?? 30),
-            'updated_at' => now()
-        ]);
+        try {
+            $api->utility->verifyPaymentSignature($attributes);
 
-        // Update transactions table
-        DB::table('transactions')->insert([
-            'orderid' => $orderId,
-            'payment_status' => 'success',
-            'paymentMode' => 'Razorpay',
-            'currency' => 'INR',
-            'totalAmount' => $order->total_amount,
-            'transactionDate' => now(),
-            'status' => 1,
-            'razorpay_order_id' => $razorpayOrderId,
-            'razorpay_payment_id' => $razorpayPaymentId,
-            'razorpay_signature' => $razorpaySignature,
-            'feature' => 'microservice_purchase',
-            'feature_sn' => $order->service_sn,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // Payment successful
+            DB::table('orders')->where('orderid', $orderId)->update([
+                'payment_status' => 'success',
+                'activate_date' => now(),
+                'expiry_date' => now()->addDays($order->days ?? 30),
+                'updated_at' => now()
+            ]);
 
-        // Optionally, activate user_services
-        DB::table('user_services')->where('order_id', $orderId)->update([
-            'status' => 1,
-            'updated_at' => now()
-        ]);
+            DB::table('transactions')->insert([
+                'orderid' => $orderId,
+                'payment_status' => 'success',
+                'paymentMode' => 'Razorpay',
+                'currency' => 'INR',
+                'totalAmount' => $order->total_amount,
+                'transactionDate' => now(),
+                'status' => 1,
+                'razorpay_order_id' => $razorpayOrderId,
+                'razorpay_payment_id' => $razorpayPaymentId,
+                'razorpay_signature' => $razorpaySignature,
+                'feature' => 'microservice_purchase',
+                'feature_sn' => $order->service_sn,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
 
-        DB::commit();
+            DB::commit();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment verified successfully',
-        ]);
+            return $this->successResponse([
+                'message' => 'Payment verified successfully',
+            ]);
 
-    } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
-        return response()->json(['error' => 'Invalid signature', 'message' => $e->getMessage()], 400);
+        } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+            // Payment failed: insert failed transaction
+            DB::table('orders')->where('orderid', $orderId)->update([
+                'payment_status' => 'failed',
+                'updated_at' => now()
+            ]);
+
+            DB::table('transactions')->insert([
+                'orderid' => $orderId,
+                'payment_status' => 'failed',
+                'paymentMode' => 'Razorpay',
+                'currency' => 'INR',
+                'totalAmount' => $order->total_amount,
+                'transactionDate' => now(),
+                'status' => 0,
+                'razorpay_order_id' => $razorpayOrderId,
+                'razorpay_payment_id' => $razorpayPaymentId,
+                'razorpay_signature' => $razorpaySignature,
+                'feature' => 'microservice',
+                'feature_sn' => $order->service_sn,
+
+
+                'sub_feature' => 'orders',
+                'sub_feature_sn' => $orderId,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            DB::commit();
+
+            return $this->errorResponse('Invalid signature: ' . $e->getMessage(), 400);
+        }
+
     } catch (\Exception $e) {
         DB::rollBack();
-        return response()->json(['error' => 'Payment verification failed', 'message' => $e->getMessage()], 500);
+        return $this->errorResponse('Payment verification failed: ' . $e->getMessage(), 500);
     }
 }
+
 
 }
