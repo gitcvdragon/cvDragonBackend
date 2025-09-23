@@ -544,8 +544,6 @@ public function updateStep(Request $request, $userServiceId)
         $request->validate([
             'step_id' => 'required|integer|exists:service_steps,id',
             'link' => 'nullable|string',
-            'qn' => 'nullable|string|max:500',
-            'remarks' => 'nullable|string|max:500'
         ]);
 
         $user = auth()->user();
@@ -600,10 +598,7 @@ public function updateStep(Request $request, $userServiceId)
             $updateData['link'] = $request->file('link');
         }
 
-        // Case 2: is_faq
-        if (isset($step->is_faq) && $step->is_faq == 1 && $request->ans) {
-            $updateData['qn'] = $request->qn;
-        }
+
 
         DB::beginTransaction();
 
@@ -624,10 +619,7 @@ public function updateStep(Request $request, $userServiceId)
                 ->where('orderid', $userService->order_id)
                 ->update(['all_steps_completed' => 1, 'updated_at' => now()]);
 
-            // Mark user_services status as completed
-            // DB::table('user_services')
-            //     ->where('id', $userServiceId)
-            //     ->update(['status' => 2]); // 2 = completed
+
         }
 
         DB::commit();
