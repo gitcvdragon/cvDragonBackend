@@ -9,7 +9,7 @@ use App\Models\CvProfileSection;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;   // <-- Add this line
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 class MySubscriptionController extends Controller
 {
@@ -218,8 +218,8 @@ public function createSubscriptionOrder(Request $request)
 public function createRazorpayOrder(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'order_id' => 'required|string|exists:orders,orderid',
-        'payment_mode' => 'required|string',
+        'order_id' => 'required|integer|exists:orders,orderid',
+        'payment_mode' => 'nullable|string',
     ]);
 
     if ($validator->fails()) {
@@ -245,7 +245,7 @@ public function createRazorpayOrder(Request $request)
 
         $razorpayOrder = $razorpay->order->create([
             'receipt'         => $orderId,
-            'amount'          => intval($order->total_amount * 100), // in paise
+            'amount'          => intval($order->total_amount * 100),
             'currency'        => 'INR',
             'payment_capture' => 1
         ]);

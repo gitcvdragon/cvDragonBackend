@@ -107,7 +107,7 @@ Route::post('/subscriptions/order-details', [MySubscriptionController::class, 'c
 
 Route::middleware('auth:api')->get('/services/active', [ServiceController::class, 'activeServices']);
 Route::middleware('auth:api')->post('/services/purchase', [ServiceController::class, 'purchase']);
-Route::middleware('auth:api')->post('/services/step/update', [ServiceController::class, 'updateStep']);
+Route::middleware('auth:api')->post('/services/add/step', [ServiceController::class, 'updateStep']);
 Route::middleware('auth:api')->get('/services/completed', [ServiceController::class, 'completedServices']);
 Route::middleware('auth:api')->get('/services/details', [ServiceController::class, 'serviceSteps']);
 Route::middleware('auth:api')->get('/services/verify', [ServiceController::class, 'verifyPayment']);
