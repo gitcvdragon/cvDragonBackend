@@ -12,56 +12,61 @@ class NotificationController extends Controller
      * Get a single notification by ID
      */
 
-     public function index()
-     {
-         try {
-             // Fetch active notifications
-             $notifications = DB::table('notifications')
-                 ->where('status', 1)
-                 ->orderBy('created_at', 'desc')
-                 ->get();
+     public function index(Request $request)
+{
+    try {
+        // Get limit and offset from request, default values
+        $limit = $request->input('limit', 10);   // default 10
+        $offset = $request->input('offset', 0);  // default 0
 
-             // Fetch all active user categories once (id => name)
-             $categoryMap = DB::table('user_categories')
-                 ->where('status', 1)
-                 ->pluck('category', 'usercategoryid')
-                 ->toArray(); // e.g., [1 => 'Free', 2 => 'Premium']
+        // Fetch active notifications with limit & offset
+        $notifications = DB::table('notifications')
+            ->where('status', 1)
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->offset($offset)
+            ->get();
 
-             $highlights = $notifications->map(function ($item) use ($categoryMap) {
-                 // Decode the JSON array from the DB
-                 $categories = json_decode($item->notificationCategory, true) ?? [];
+        // Fetch all active user categories once (id => name)
+        $categoryMap = DB::table('user_categories')
+            ->where('status', 1)
+            ->pluck('category', 'usercategoryid')
+            ->toArray();
 
-                 // If 0 exists, replace with all active category IDs
-                 if (in_array(0, $categories)) {
-                     $categories = array_keys($categoryMap); // all IDs
-                 }
+        $highlights = $notifications->map(function ($item) use ($categoryMap) {
+            // Decode the JSON array from DB
+            $categories = json_decode($item->notificationCategory, true) ?? [];
 
-                 // Map IDs to names
-                 $categoryNames = [];
-                 foreach ($categories as $catId) {
-                     if (isset($categoryMap[$catId])) {
-                         $categoryNames[] = $categoryMap[$catId];
-                     }
-                 }
+            // If 0 exists, replace with all active category IDs
+            if (in_array(0, $categories)) {
+                $categories = array_keys($categoryMap);
+            }
 
-                 return [
-                     'id'       => $item->notificationID,
-                     'title'    => $item->heading,
-                     'category' => $categoryNames,
-                 ];
-             });
+            // Map IDs to names
+            $categoryNames = [];
+            foreach ($categories as $catId) {
+                if (isset($categoryMap[$catId])) {
+                    $categoryNames[] = $categoryMap[$catId];
+                }
+            }
 
-             return response()->json([
-                 'highlights' => $highlights
-             ], 200);
+            return [
+                'id'       => $item->notificationID,
+                'title'    => $item->heading,
+                'category' => $categoryNames,
+            ];
+        });
 
-         } catch (\Exception $e) {
-             return response()->json([
-                 'status'  => 'error',
-                 'message' => $e->getMessage()
-             ], 500);
-         }
-     }
+        return response()->json([
+            'highlights' => $highlights
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }}
      public function getNotification($id)
      {
          try {
