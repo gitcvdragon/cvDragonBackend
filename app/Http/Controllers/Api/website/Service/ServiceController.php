@@ -10,8 +10,11 @@ use Razorpay\Api\Api;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Traits\ApiResponseTrait;
+
 class ServiceController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Get all active services for the logged-in user
      */
