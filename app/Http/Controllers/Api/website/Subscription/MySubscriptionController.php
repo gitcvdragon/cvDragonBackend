@@ -185,10 +185,8 @@ public function createSubscriptionOrder(Request $request)
             $orderId = $existingOrder->orderid;
         } else {
             // Create a new order
-            $orderId = Str::uuid()->toString();
 
-            DB::table('orders')->insert([
-                'orderid' => $orderId,
+            $orderId = DB::table('orders')->insertGetId([
                 'user_id' => $user->id,
                 'service_sn' => $microserviceSn,
                 'total_amount' => $cost,
@@ -233,7 +231,7 @@ public function createRazorpayOrder(Request $request)
     try {
         $user = auth()->user();
         $orderId = $request->order_id;
-        $paymentMode = $request->payment_mode;
+        $paymentMode = $request->payment_mode ?? 'Online';
 
         // Fetch order
         $order = DB::table('orders')->where('orderid', $orderId)->first();
