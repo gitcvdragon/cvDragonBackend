@@ -11,6 +11,77 @@ class CvProfileController extends Controller
 {
     use ApiResponseTrait;
 
+// public function getUserProfile(Request $request)
+// {
+//     $userId = auth()->user()->id;
+
+//     // Fetch user profile(s) with associated cvProfileSection
+//     $profiles = CreateCvuserprofile::with('cvProfileSection')
+//         ->where('id', $userId)
+//         ->where('status', 1)
+//         ->get();
+
+//     // If no profiles found
+//     if ($profiles->isEmpty()) {
+//         return $this->successResponse(
+//             ['profiles' => null],
+//             'No Profiles Fetched!!'
+//         );
+//     }
+
+//     // Fetch all possible sections
+//     $allSections = DB::table('resource-section')
+//         ->where('status', 1)
+//         ->orderBy('orderSection')
+//         ->get();
+
+//     $profilesWithSections = $profiles->map(function ($profile) use ($allSections) {
+//         $profileData = $profile->toArray();
+
+//         $profileData['profile_id'] = $profile->cvid ?? null;
+
+//         $profileData['sections'] = is_array($profile->sections)
+//             ? $profile->sections
+//             : json_decode($profile->sections, true);
+
+//         $profileData['sectionOrder'] = is_array($profile->sectionOrder)
+//             ? $profile->sectionOrder
+//             : json_decode($profile->sectionOrder, true);
+
+//         // Map existing user sections into an array for quick lookup
+//         $existingSections = collect($profile->cvProfileSection ?? [])
+//             ->mapWithKeys(function ($s) {
+//                 return [(int) $s['section'] => $s];
+//             });
+
+//         // Merge all sections with user data (or fallback empty)
+//         $cvProfileSection = $allSections->map(function ($section) use ($profile, $existingSections) {
+//             if ($existingSections->has((int) $section->id)) {
+//                 // User already has data for this section
+//                 return $existingSections->get((int) $section->id);
+//             }
+
+//             // No data: return empty structure
+//             return [
+//                 'cvid'       => $profile->cvid,
+//                 'section'    => (int) $section->id,
+//                 'subsection' => [],
+//                 'showName'   => $section->sectionName,
+//             ];
+//         })->toArray();
+
+//         $profileData['cv_profile_section'] = $cvProfileSection;
+
+//         return $profileData;
+//     });
+
+//     return $this->successResponse(
+//         ['profiles' => $profilesWithSections],
+//         'All Profiles Fetched!!'
+//     );
+// }
+
+
 public function getUserProfile(Request $request)
 {
     $userId = auth()->user()->id;
@@ -40,85 +111,51 @@ public function getUserProfile(Request $request)
 
         $profileData['profile_id'] = $profile->cvid ?? null;
 
+        // Decode sections and sectionOrder safely, default to empty arrays
         $profileData['sections'] = is_array($profile->sections)
             ? $profile->sections
-            : json_decode($profile->sections, true);
+            : (json_decode($profile->sections ?? '[]', true) ?: []);
 
         $profileData['sectionOrder'] = is_array($profile->sectionOrder)
             ? $profile->sectionOrder
-            : json_decode($profile->sectionOrder, true);
+            : (json_decode($profile->sectionOrder ?? '[]', true) ?: []);
 
-        // Map existing user sections into an array for quick lookup
+        // Map existing user sections for quick lookup
         $existingSections = collect($profile->cvProfileSection ?? [])
-            ->mapWithKeys(function ($s) {
-                return [(int) $s['section'] => $s];
-            });
+            ->mapWithKeys(fn($s) => [(int) $s['section'] => $s]);
 
-        // Merge all sections with user data (or fallback empty)
+        // Merge all sections with user data or fallback defaults
         $cvProfileSection = $allSections->map(function ($section) use ($profile, $existingSections) {
-            if ($existingSections->has((int) $section->id)) {
-                // User already has data for this section
-                return $existingSections->get((int) $section->id);
-            }
-
-            // No data: return empty structure
-            return [
+            return $existingSections->get((int) $section->id, [
                 'cvid'       => $profile->cvid,
                 'section'    => (int) $section->id,
                 'subsection' => [],
                 'showName'   => $section->sectionName,
-            ];
+            ]);
         })->toArray();
 
         $profileData['cv_profile_section'] = $cvProfileSection;
 
+        // Ensure sections and sectionOrder mirror cv_profile_section ids
+        $profileData['sections'] = array_column($cvProfileSection, 'section');
+        $profileData['sectionOrder'] = array_column($cvProfileSection, 'section');
+
         return $profileData;
     });
 
+    // If only one profile, return as object
+    $profilesOutput = $profilesWithSections->count() === 1
+        ? $profilesWithSections->first()
+        : $profilesWithSections;
+
     return $this->successResponse(
-        ['profiles' => $profilesWithSections],
+        ['profiles' => $profilesOutput],
         'All Profiles Fetched!!'
     );
 }
 
 
-    public function getUserProfilee(Request $request)
-    {
-        // $userId   = $request->id;
-    $userId = auth()->user()->id;
 
-        $profiles = CreateCvuserprofile::with('cvProfileSection')->where('id', $userId)->where('status', 1)->get();
-
-        if ($profiles->isEmpty()) {
-            return $this->successResponse(
-                [
-                    'profiles' => null,
-                ],
-                'No Profiles Fetched!!',
-            );
-        }
-
-        // Extract section IDs from JSON field (assumed)
-        $profilesWithSections = $profiles->map(function ($profile) {
-        $profileData               = $profile->toArray();
-        $profileData['profile_id'] = $profile->cvid ?? null;
-        $sectionIds                = is_array($profile->sections) ? $profile->sections : json_decode($profile->sections, true);
-        $profile->sectionOrder               = is_array($profile->sectionOrder) ? $profile->sectionOrder : json_decode($profile->sectionOrder, true);
-
-
-           return $profileData;
-         });
-
-
-
-
-        return $this->successResponse(
-            [
-                'profiles' => $profilesWithSections,
-            ],
-            'All Profiles Fetched!!',
-        );
-    }
 
     public function addUserProfile(Request $request)
 {

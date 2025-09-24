@@ -143,12 +143,12 @@ class OTPAuthController extends Controller
                 DB::commit();
                 $token = JWTAuth::fromUser($user);
 
-                $user = \App\Models\User::find( $createdId);
+                $user = \App\Models\User::find( $user->id);
 
-                if ($user) {
-                    $token = JWTAuth::fromUser($user);
-                    JWTAuth::invalidate($token, true);
-                }
+                // if ($user) {
+                //     $token = JWTAuth::fromUser($user);
+                //     JWTAuth::invalidate($token, true);
+                // }
                // $userId
                 return $this->successResponse(
                     [

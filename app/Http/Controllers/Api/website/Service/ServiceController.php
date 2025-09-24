@@ -39,7 +39,7 @@ public function activeServices(Request $request)
                   ->orWhere('o.expiry_date', '>=', now());
             })
             ->select(
-                DB::raw('MAX(us.sn) as user_step_id'),   // ✅ latest user_services row
+                DB::raw('MAX(us.sn) as user_step_id'),
                 'us.microservice_id',
                 'us.order_id',
                 'ms.category as service_name',
@@ -51,7 +51,7 @@ public function activeServices(Request $request)
                 'ms.button',
                 'fs.post_text as first_post_text',
                 'o.activate_date as order_activate_date',
-                DB::raw('MAX(us.created_at) as created_at'), // ✅ latest created_at
+                DB::raw('MAX(us.created_at) as created_at'),
                 DB::raw('DATEDIFF(o.expiry_date, NOW()) as days_left'),
                 't.totalAmount as transaction_amount',
                 't.paymentMode'
@@ -473,10 +473,12 @@ if ($pendingOrders->isNotEmpty()) {
 
     DB::commit();
 
-    return $this->successResponse([
-        'message' => 'Pending orders updated successfully',
-        'orders'  => $updatedOrders
-    ]);
+return $this->successResponse([
+    'message' => 'Pending orders updated successfully',
+    'orders'  => count($updatedOrders) === 1
+        ? $updatedOrders[0]   // return single object
+        : $updatedOrders      // return array
+]);
 
 }
         // No pending orders, create new
