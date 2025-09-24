@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use App\Traits\ApiResponseTrait;
-
+use Illuminate\Support\Facades\Validator;
 class AppConfigController extends Controller
 {
     use  ApiResponseTrait;
