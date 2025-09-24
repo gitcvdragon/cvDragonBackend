@@ -19,12 +19,9 @@ class GeminiController extends Controller
     {
         $query = $request->input('query');
 
-        if (!$query) {
-            return response()->json(['error' => 'Query is required'], 400);
-        }
+        if (!$query) return response()->json(['error' => 'Query is required'], 400);
 
         $result = $this->gemini->query($query);
-
         return response()->json($result);
     }
 }
