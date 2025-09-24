@@ -101,9 +101,9 @@ Route::post('/user-sections-details-hardDelete', [CvSectionController::class, 'g
 Route::post('/user-sections-rename', [CvSectionController::class, 'updateShowName'])->middleware('auth:api');
 
 
-// Route::post('/get-config', [AppConfigController::class, 'getConfig']);
+// Route::post('/get-config', [AppConfigController::class, 'getConfig']);`
 Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs'])->middleware('auth:api');
-Route::post('/get-config-by-key', [AppConfigController::class, 'getActiveConfigSingle']);
+Route::post('/`get-config-by-key`', [AppConfigController::class, 'getActiveConfigSingle']);
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);
