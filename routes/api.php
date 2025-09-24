@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\website\MyDocumentsController;
 use App\Http\Controllers\Api\website\Subscription\MySubscriptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\website\Service\ServiceController;
+use App\Http\Controllers\Gemini\GeminiController;
 
 /*namespace App\Http\Controllers\Api\website\Subscription;
 
@@ -113,3 +114,5 @@ Route::middleware('auth:api')->get('/services/details', [ServiceController::clas
 Route::middleware('auth:api')->get('/services/verify', [ServiceController::class, 'verifyPayment']);
 
 
+
+Route::post('/gemini-search', [GeminiController::class, 'search']);
