@@ -116,18 +116,11 @@ class AppConfigController extends Controller
     public function getActiveConfigSingle(Request $request)
 {
     try {
-        $userId = auth()->id();
 
-        if (! $userId) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'User not authenticated',
-            ], 401);
-        }
 
         // Validate request params
         $validator = Validator::make($request->all(), [
-            'configkey' => 'nullable|string|max:255', // optional but must be string
+            'configkey' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -138,14 +131,7 @@ class AppConfigController extends Controller
             ], 422);
         }
 
-        // Fetch categoryid for this user
-        $category = DB::table('users')
-            ->where('id', $userId)
-            ->value('categoryid');
 
-        if (! $category) {
-            return $this->errorResponse('Missing category', 400);
-        }
 
         // Build query
         $query = DB::table('resource-appconfig-user')
@@ -159,8 +145,7 @@ class AppConfigController extends Controller
                 'sendData',
                 'status'
             )
-            ->where('status', 1)
-            ->where('user_category', $category);
+            ->where('status', 1);
 
         if ($request->filled('configkey')) {
             $query->where('configkey', $request->input('configkey'));
