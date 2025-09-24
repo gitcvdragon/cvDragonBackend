@@ -17,7 +17,20 @@ use App\Http\Controllers\Api\website\Subscription\MySubscriptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\website\Service\ServiceController;
 use App\Http\Controllers\Gemini\GeminiController;
+use Gemini\Laravel\Facades\Gemini;
 
+Route::get('/search-gemini', function (\Illuminate\Http\Request $request) {
+    $query = $request->input('q', '');
+    if (!$query) {
+        return 'Please provide a search query, e.g. ?q=John';
+    }
+
+    // Simple call to Gemini
+    $response = Gemini::geminiPro()->generateContent($query);
+
+    // Return text response
+    return $response->text();
+});
 /*namespace App\Http\Controllers\Api\website\Subscription;
 
 use App\Http\Controllers\Controller;
