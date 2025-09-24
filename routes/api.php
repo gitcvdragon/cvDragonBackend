@@ -17,20 +17,50 @@ use App\Http\Controllers\Api\website\Subscription\MySubscriptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\website\Service\ServiceController;
 use App\Http\Controllers\Gemini\GeminiController;
+
+use Illuminate\Http\Request;
+   use Gemini\Data\UploadedFile;
+use Gemini\Enums\MimeType;
 use Gemini\Laravel\Facades\Gemini;
 
-Route::get('/search-gemini', function (\Illuminate\Http\Request $request) {
-    $query = $request->input('q', '');
-    if (!$query) {
-        return 'Please provide a search query, e.g. ?q=John';
+use Illuminate\Support\Facades\Http;
+
+
+Route::get('/generate', function (Request $request) {
+    $query = $request->input('q', 'Laravel developer'); // default query if none given
+
+    $prompt = "Extract the key skills from this text: \"$query\".
+    Return ONLY a JSON array of strings.
+    Example: [\"PHP\", \"Laravel\", \"MySQL\", \"REST APIs\"]";
+
+    $response = Http::withHeaders([
+        'Content-Type' => 'application/json',
+        'X-Goog-Api-Key' => env('GEMINI_API_KEY'),
+    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
+        "contents" => [
+            [
+                "parts" => [
+                    ["text" => $prompt]
+                ]
+            ]
+        ]
+    ]);
+
+    $json = $response->json();
+
+    // Try to decode the model’s text into an array
+    $skills = [];
+    if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
+        $text = $json['candidates'][0]['content']['parts'][0]['text'];
+        $skills = json_decode($text, true) ?? [$text]; // fallback if not valid JSON
     }
 
-    // Simple call to Gemini
-    $response = Gemini::geminiPro()->generateContent($query);
-
-    // Return text response
-    return $response->text();
+    return response()->json([
+        'query' => $query,
+        'skills' => $skills
+    ]);
 });
+
 /*namespace App\Http\Controllers\Api\website\Subscription;
 
 use App\Http\Controllers\Controller;
@@ -73,6 +103,7 @@ Route::post('/user-sections-rename', [CvSectionController::class, 'updateShowNam
 
 // Route::post('/get-config', [AppConfigController::class, 'getConfig']);
 Route::post('/get-config', [AppConfigController::class, 'getActiveConfigs'])->middleware('auth:api');
+Route::post('/get-config-by-key', [AppConfigController::class, 'getActiveConfigSingle']);
 //sections apis
 Route::get('/cv-sections', [CvSectionController::class, 'getGroupSections']);
 Route::post('/resource-section-questions', [CvSectionController::class, 'getSectionQuestions']);
