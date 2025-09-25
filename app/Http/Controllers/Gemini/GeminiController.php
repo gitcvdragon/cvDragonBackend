@@ -15,30 +15,27 @@ class GeminiController extends Controller
         $limit = $request->input('limit') ?? 50;
         $offset = $request->input('offset') ?? 0;
 
-        // Step 0: Fetch active prompt
+        // Fetch active prompt
         $promptRow = DB::table('prompts')
             ->where('keyphrases_sn', $keyphrasesSn)
-            ->where('is_active', 1)
+            ->where('status', 1)
             ->first();
 
-        // Step 1: Fetch all existing skills
+        // Fetch all existing skills
         $existingSkills = DB::table('keyphrasesdetails')
             ->where('keyphrases_sn', $keyphrasesSn)
             ->pluck('keyphrase_value')
             ->toArray();
-$existingSkillsCount = DB::table('keyphrasesdetails')
-    ->where('keyphrases_sn', $keyphrasesSn)
-    ->count();
+
+        $existingSkillsCount = count($existingSkills);
         $neededSkills = ($offset + $limit) - $existingSkillsCount;
 
-if ($promptRow && $neededSkills > 0) {
-
-            // Fetch details for AI prompt
+        // Call AI only if we need more skills
+        if ($promptRow && $neededSkills > 0) {
             $details = DB::table('keyphrasesdetails')
                 ->where('keyphrases_sn', $keyphrasesSn)
                 ->first();
 
-            // Build AI prompt
             $aiPrompt = $promptRow->prompt_text . "\n\n";
             $aiPrompt .= "Candidate Details:\n";
             $aiPrompt .= "Course: " . ($details->course ?? 'N/A') . "\n";
@@ -48,35 +45,41 @@ if ($promptRow && $neededSkills > 0) {
             $aiPrompt .= "Year: " . ($details->year ?? 'N/A') . "\n";
             $aiPrompt .= $promptRow->return_data_structure;
 
-            // Call AI
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'X-Goog-Api-Key' => env('GEMINI_API_KEY'),
-            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
-                "contents" => [
-                    [
-                        "parts" => [
-                            ["text" => $aiPrompt]
+            ])->post(
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+                [
+                    "contents" => [
+                        [
+                            "parts" => [
+                                ["text" => $aiPrompt]
+                            ]
                         ]
                     ]
                 ]
-            ]);
+            );
 
             $json = $response->json();
+            $text = $json['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $text = trim($text);
 
-            if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
-                $text = trim($json['candidates'][0]['content']['parts'][0]['text']);
-                $text = preg_replace('/^```json|```$/m', '', $text);
-                $decoded = json_decode($text, true);
+            // Extract JSON between first { and last }
+            $start = strpos($text, '{');
+            $end = strrpos($text, '}');
 
-                // Only accept valid JSON with 'skills' array
+            if ($start !== false && $end !== false && $end > $start) {
+                $jsonText = substr($text, $start, $end - $start + 1);
+                $decoded = json_decode($jsonText, true);
+
                 if (is_array($decoded) && isset($decoded['skills']) && is_array($decoded['skills'])) {
                     foreach ($decoded['skills'] as $skill) {
-                        if (!in_array($skill, $existingSkills) &&
-                            !DB::table('keyphrasesdetails')
-                                ->where('keyphrases_sn', $keyphrasesSn)
-                                ->where('keyphrase_value', $skill)
-                                ->exists()
+                        $skill = trim($skill);
+                        if ($skill && !DB::table('keyphrasesdetails')
+                            ->where('keyphrases_sn', $keyphrasesSn)
+                            ->where('keyphrase_value', $skill)
+                            ->exists()
                         ) {
                             DB::table('keyphrasesdetails')->insert([
                                 'keyphrases_sn'   => $keyphrasesSn,
@@ -96,14 +99,14 @@ if ($promptRow && $neededSkills > 0) {
             }
         }
 
-      // Apply limit + offset on the latest DB skills
-    $paginatedSkills = DB::table('keyphrasesdetails')
-    ->where('keyphrases_sn', $keyphrasesSn)
-    ->orderBy('sn')
-    ->skip($offset)
-    ->take($limit)
-    ->pluck('keyphrase_value')
-    ->toArray();
+        // Apply limit + offset
+        $paginatedSkills = DB::table('keyphrasesdetails')
+            ->where('keyphrases_sn', $keyphrasesSn)
+            ->orderBy('sn')
+            ->skip($offset)
+            ->take($limit)
+            ->pluck('keyphrase_value')
+            ->toArray();
 
         return response()->json([
             'keyphrases_sn' => $keyphrasesSn,
