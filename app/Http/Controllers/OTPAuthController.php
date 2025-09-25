@@ -95,10 +95,9 @@ class OTPAuthController extends Controller
             return $this->successResponse(
                 [
                     'token'        => $token,
-                    'userId'       => $user->id,
-                    'userauthKey'  => $userauthKey,
-                    'userCategory' => $userCategory,
-                    'showWizard'   => $showWizard,
+                'userId'       => $user->id,
+                'ftl'      => $user->ftl,
+                'userCategory' => $userCategory,
                 ],
                 'OTP verified successfully!!',
             );
@@ -150,14 +149,15 @@ class OTPAuthController extends Controller
                 //     JWTAuth::invalidate($token, true);
                 // }
                // $userId
+
                 return $this->successResponse(
                     [
+                        'token'        => $token,
                         'user_id'      => $user->id,
                         'ftl'      => $user->ftl,
-                        'token'        => $token,
                         'userCategory' => $userCategory,
                     ],
-                    'OTP verified successfully and New User is created !!',
+                    'OTP verified successfully!!',
                 );
             } catch (\Exception $e) {
                 DB::rollBack();

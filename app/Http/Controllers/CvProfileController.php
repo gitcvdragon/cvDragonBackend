@@ -143,13 +143,10 @@ public function getUserProfile(Request $request)
         return $profileData;
     });
 
-    // If only one profile, return as object
-    $profilesOutput = $profilesWithSections->count() === 1
-        ? $profilesWithSections->first()
-        : $profilesWithSections;
+
 
     return $this->successResponse(
-        ['profiles' => $profilesOutput],
+        ['profiles' => $profilesWithSections],
         'All Profiles Fetched!!'
     );
 }

@@ -12,87 +12,102 @@ class GeminiController extends Controller
     public function generate(Request $request)
     {
         $keyphrasesSn = $request->input('keyphrases_sn');
-        $query = $request->input('q', null);
+        $limit = $request->input('limit') ?? 50;
+        $offset = $request->input('offset') ?? 0;
 
-        // Step 0: Fetch prompt from the prompts table
+        // Step 0: Fetch active prompt
         $promptRow = DB::table('prompts')
             ->where('keyphrases_sn', $keyphrasesSn)
             ->where('is_active', 1)
             ->first();
 
-        // Step 1: Check DB for existing skills
+        // Step 1: Fetch all existing skills
         $existingSkills = DB::table('keyphrasesdetails')
             ->where('keyphrases_sn', $keyphrasesSn)
             ->pluck('keyphrase_value')
-            ->filter()
             ->toArray();
+$existingSkillsCount = DB::table('keyphrasesdetails')
+    ->where('keyphrases_sn', $keyphrasesSn)
+    ->count();
+        $neededSkills = ($offset + $limit) - $existingSkillsCount;
 
-        // If no active prompt, return only DB values
-        if (!$promptRow) {
-            return response()->json([
-                'keyphrases_sn' => $keyphrasesSn,
-                'skills' => $existingSkills,
-                'source' => 'database_only'
-            ]);
-        }
+if ($promptRow && $neededSkills > 0) {
 
-        // If already 20+ skills in DB, return them
-        if (count($existingSkills) >= 20) {
-            return response()->json([
-                'keyphrases_sn' => $keyphrasesSn,
-                'skills' => $existingSkills,
-                'source' => 'database'
-            ]);
-        }
+            // Fetch details for AI prompt
+            $details = DB::table('keyphrasesdetails')
+                ->where('keyphrases_sn', $keyphrasesSn)
+                ->first();
 
-        // Step 2: Build AI prompt
-        $aiPrompt = $promptRow->prompt_text;
-        if ($query) {
-            $aiPrompt .= "\n\nText to extract skills from: \"$query\"";
-        }
+            // Build AI prompt
+            $aiPrompt = $promptRow->prompt_text . "\n\n";
+            $aiPrompt .= "Candidate Details:\n";
+            $aiPrompt .= "Course: " . ($details->course ?? 'N/A') . "\n";
+            $aiPrompt .= "Specialization: " . ($details->specialization ?? 'N/A') . "\n";
+            $aiPrompt .= "Work Industry: " . ($details->work_industry ?? 'N/A') . "\n";
+            $aiPrompt .= "Work Profile: " . ($details->work_profile ?? 'N/A') . "\n";
+            $aiPrompt .= "Year: " . ($details->year ?? 'N/A') . "\n";
+            $aiPrompt .= $promptRow->return_data_structure;
 
-        // Call Gemini AI
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-Goog-Api-Key' => env('GEMINI_API_KEY'),
-        ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
-            "contents" => [
-                [
-                    "parts" => [
-                        ["text" => $aiPrompt]
+            // Call AI
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Goog-Api-Key' => env('GEMINI_API_KEY'),
+            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
+                "contents" => [
+                    [
+                        "parts" => [
+                            ["text" => $aiPrompt]
+                        ]
                     ]
                 ]
-            ]
-        ]);
+            ]);
 
-        $json = $response->json();
+            $json = $response->json();
 
-        $skills = [];
-        if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
-            $text = $json['candidates'][0]['content']['parts'][0]['text'];
-            $skills = json_decode($text, true) ?? [$text]; // fallback if JSON fails
-        }
+            if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
+                $text = trim($json['candidates'][0]['content']['parts'][0]['text']);
+                $text = preg_replace('/^```json|```$/m', '', $text);
+                $decoded = json_decode($text, true);
 
-        // Step 3: Insert new skills into DB (skip duplicates)
-        foreach ($skills as $skill) {
-            if (!in_array($skill, $existingSkills)) {
-                DB::table('keyphrasesdetails')->insert([
-                    'keyphrases_sn'   => $keyphrasesSn,
-                    'course'          => null,
-                    'specialization'  => null,
-                    'work_industry'   => null,
-                    'work_profile'    => null,
-                    'year'            => null,
-                    'keyphrase_value' => $skill,
-                    'keyphrase_status'=> 1,
-                    'created_at'      => now(),
-                ]);
+                // Only accept valid JSON with 'skills' array
+                if (is_array($decoded) && isset($decoded['skills']) && is_array($decoded['skills'])) {
+                    foreach ($decoded['skills'] as $skill) {
+                        if (!in_array($skill, $existingSkills) &&
+                            !DB::table('keyphrasesdetails')
+                                ->where('keyphrases_sn', $keyphrasesSn)
+                                ->where('keyphrase_value', $skill)
+                                ->exists()
+                        ) {
+                            DB::table('keyphrasesdetails')->insert([
+                                'keyphrases_sn'   => $keyphrasesSn,
+                                'course'          => $details->course ?? null,
+                                'specialization'  => $details->specialization ?? null,
+                                'work_industry'   => $details->work_industry ?? null,
+                                'work_profile'    => $details->work_profile ?? null,
+                                'year'            => $details->year ?? null,
+                                'keyphrase_value' => $skill,
+                                'keyphrase_status'=> 1,
+                                'created_at'      => now(),
+                            ]);
+                            $existingSkills[] = $skill;
+                        }
+                    }
+                }
             }
         }
 
+      // Apply limit + offset on the latest DB skills
+    $paginatedSkills = DB::table('keyphrasesdetails')
+    ->where('keyphrases_sn', $keyphrasesSn)
+    ->orderBy('sn')
+    ->skip($offset)
+    ->take($limit)
+    ->pluck('keyphrase_value')
+    ->toArray();
+
         return response()->json([
             'keyphrases_sn' => $keyphrasesSn,
-            'skills' => $skills,
+            'skills' => $paginatedSkills,
             'source' => 'ai'
         ]);
     }
