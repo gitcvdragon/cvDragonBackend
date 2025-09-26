@@ -89,9 +89,7 @@ $aiPrompt .= !empty($details->wizardWorkSpecialization)
             // Extract JSON between first { and last }
             $start = strpos($text, '{');
             $end = strrpos($text, '}');
-            $details = DB::table('keyphrasesdetails')
-            ->where('keyphrases_sn', $keyphrasesSn)
-            ->first();
+
             if ($start !== false && $end !== false && $end > $start) {
                 $jsonText = substr($text, $start, $end - $start + 1);
                 $decoded = json_decode($jsonText, true);
