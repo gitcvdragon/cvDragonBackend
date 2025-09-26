@@ -22,12 +22,13 @@ use Illuminate\Http\Request;
    use Gemini\Data\UploadedFile;
 use Gemini\Enums\MimeType;
 use Gemini\Laravel\Facades\Gemini;
+use App\Http\Controllers\Api\website\Onboading\OnboadingController;
 
 use Illuminate\Support\Facades\Http;
 
 
 Route::get('/generate', function (Request $request) {
-    $query = $request->input('q', 'Laravel developer'); // default query if none given
+    $query = $request->input('q', 'Laravel developer');
 
     $prompt = "Extract the key skills from this text: \"$query\".
     Return ONLY a JSON array of strings.
@@ -74,6 +75,18 @@ use App\Http\Controllers\Controller;
 |
 */
 // fallback route for ANY unknown API endpoint
+
+
+
+
+//onboading
+
+
+Route::prefix('onboarding')->group(function () {
+    Route::get('courses', [OnboadingController::class, 'getCourses']);
+    Route::get('specializations', [OnboadingController::class, 'getSpecializations']);
+    Route::get('interests', [OnboadingController::class, 'getInterests']);
+});
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
