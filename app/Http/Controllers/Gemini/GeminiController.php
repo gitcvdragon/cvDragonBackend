@@ -15,13 +15,14 @@ class GeminiController extends Controller
         $limit = $request->input('limit') ?? 50;
         $offset = $request->input('offset') ?? 0;
         $userId = auth()->user()->id;
+
         // Fetch active prompt
         $promptRow = DB::table('prompts')
             ->where('keyphrases_sn', $keyphrasesSn)
             ->where('status', 1)
             ->first();
 
-        // Fetch all existing skills
+        // Fetch existing skills
         $existingSkills = DB::table('keyphrasesdetails')
             ->where('keyphrases_sn', $keyphrasesSn)
             ->pluck('keyphrase_value')
@@ -30,42 +31,27 @@ class GeminiController extends Controller
         $existingSkillsCount = count($existingSkills);
         $neededSkills = ($offset + $limit) - $existingSkillsCount;
 
-        // Call AI only if we need more skills
         if ($promptRow && $neededSkills > 0) {
-            // $details = DB::table('user-basic')
-            // ->where('id', $userId)
-            // ->first();
+            // Fetch candidate details
+            $details = DB::table('user-basic')
+                ->where('id', $userId)
+                ->first();
 
-            $aiPrompt = $promptRow->prompt_text . "\n\n";
-            $aiPrompt .= "Candidate Details:\n";
-            // $aiPrompt .= "Course: " . ($details->course ?? 'N/A') . "\n";
-            // $aiPrompt .= "Specialization: " . ($details->specialization ?? 'N/A') . "\n";
-            // $aiPrompt .= "Work Industry: " . ($details->work_industry ?? 'N/A') . "\n";
-            // $aiPrompt .= "Work Profile: " . ($details->work_profile ?? 'N/A') . "\n";
-            // $aiPrompt .= "Year: " . ($details->year ?? 'N/A') . "\n";
-
+            // Build AI prompt
+            $aiPrompt = $promptRow->prompt_text . "\n\nCandidate Details:\n";
             $aiPrompt .= !empty($details->wizardWorkExp)
-    ? "Work Experience: " . $details->wizardWorkExp . "\n"
-    : "";
-
-$aiPrompt .= !empty($details->wizardEducationProfile)
-    ? "Education Profile: " . $details->wizardEducationProfile . "\n"
-    : "";
-
-$aiPrompt .= !empty($details->wizardWorkProfile)
-    ? "Work Profile (Wizard): " . $details->wizardWorkProfile . "\n"
-    : "";
-
-$aiPrompt .= !empty($details->wizardEducationSpecialization)
-    ? "Education Specialization: " . $details->wizardEducationSpecialization . "\n"
-    : "";
-
-$aiPrompt .= !empty($details->wizardWorkSpecialization)
-    ? "Work Specialization: " . $details->wizardWorkSpecialization . "\n"
-    : "";
-
+                ? "Work Experience: " . $details->wizardWorkExp . "\n" : "";
+            $aiPrompt .= !empty($details->wizardEducationProfile)
+                ? "Education Profile: " . $details->wizardEducationProfile . "\n" : "";
+            $aiPrompt .= !empty($details->wizardWorkProfile)
+                ? "Work Profile (Wizard): " . $details->wizardWorkProfile . "\n" : "";
+            $aiPrompt .= !empty($details->wizardEducationSpecialization)
+                ? "Education Specialization: " . $details->wizardEducationSpecialization . "\n" : "";
+            $aiPrompt .= !empty($details->wizardWorkSpecialization)
+                ? "Work Specialization: " . $details->wizardWorkSpecialization . "\n" : "";
             $aiPrompt .= $promptRow->return_data_structure;
 
+            // Call Gemini API
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'X-Goog-Api-Key' => env('GEMINI_API_KEY'),
@@ -83,10 +69,18 @@ $aiPrompt .= !empty($details->wizardWorkSpecialization)
             );
 
             $json = $response->json();
-            $text = $json['candidates'][0]['content']['parts'][0]['text'] ?? '';
-            $text = trim($text);
+            $text = trim($json['candidates'][0]['content']['parts'][0]['text'] ?? '');
 
-            // Extract JSON between first { and last }
+            // Store raw prompt + response and get inserted ID
+            $insertedId = DB::table('ai_prompts_deatils')->insertGetId([
+                'keyphrase_id' => $keyphrasesSn,
+                'prompt_text'  => $aiPrompt,
+                'ai_response'  => $text,
+                'created_at'   => now(),
+                'updated_at'   => now(),
+            ]);
+
+            // Extract JSON from AI response
             $start = strpos($text, '{');
             $end = strrpos($text, '}');
 
@@ -95,13 +89,18 @@ $aiPrompt .= !empty($details->wizardWorkSpecialization)
                 $decoded = json_decode($jsonText, true);
 
                 if (is_array($decoded) && isset($decoded['skills']) && is_array($decoded['skills'])) {
+                    // Update the AI response with pretty JSON
+                    DB::table('ai_prompts_deatils')
+                        ->where('id', $insertedId)
+                        ->update([
+                            'ai_response' => json_encode($decoded, JSON_PRETTY_PRINT),
+                            'updated_at'  => now(),
+                        ]);
+
+                    // Insert individual skills into keyphrasesdetails
                     foreach ($decoded['skills'] as $skill) {
                         $skill = trim($skill);
-                        if ($skill && !DB::table('keyphrasesdetails')
-                            ->where('keyphrases_sn', $keyphrasesSn)
-                            ->where('keyphrase_value', $skill)
-                            ->exists()
-                        ) {
+                        if ($skill && !in_array($skill, $existingSkills)) {
                             DB::table('keyphrasesdetails')->insert([
                                 'keyphrases_sn'   => $keyphrasesSn,
                                 'course'          => $details->wizardEducationSpecialization ?? null,

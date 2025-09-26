@@ -296,6 +296,7 @@ class AllServicesController extends Controller
                 'sub_category'     => 'required|string|max:100',
 
                 'microsite'        => 'required|string',
+                'sn'        => 'required',
 
             ]);
 
@@ -310,13 +311,20 @@ class AllServicesController extends Controller
             // $microsite = $this->decryptSafe($request->input('microsite'));
             $sn        = $request->input('sn');
             $microsite = $request->input('microsite');
-
+if($microsite=="subscription"){
             $service = DB::table('microservice')
+                ->where('sn', $request->sn)
+                ->where('status', 1)
+                ->first();
+}else{
+    $service = DB::table('microservice')
                 ->where('microsite', $microsite)
                 ->where('main', $service_category)
                 ->where('category', 'main')
                 ->where('status', 1)
                 ->first();
+}
+
                 $details = DB::table('microservice')
                 ->where('microsite', $microsite)
                 ->where('sn', $sn)
