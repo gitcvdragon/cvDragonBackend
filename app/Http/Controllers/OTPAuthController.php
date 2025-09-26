@@ -95,7 +95,7 @@ class OTPAuthController extends Controller
             return $this->successResponse(
                 [
                     'token'        => $token,
-                'userId'       => $user->id,
+                'user_id'       => $user->id,
                 'ftl'      => $user->ftl,
                 'userCategory' => $userCategory,
                 ],
