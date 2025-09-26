@@ -219,7 +219,7 @@ public function createRazorpayOrder(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'order_id' => 'required|integer|exists:orders,orderid',
-        'payment_mode' => 'nullable|string',
+
     ]);
 
     if ($validator->fails()) {
@@ -244,7 +244,7 @@ public function createRazorpayOrder(Request $request)
         $razorpay = new \Razorpay\Api\Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
 
         $razorpayOrder = $razorpay->order->create([
-            'receipt'         => $orderId,
+           'receipt' => 'order_' . $orderId,
             'amount'          => intval($order->total_amount * 100),
             'currency'        => 'INR',
             'payment_capture' => 1
