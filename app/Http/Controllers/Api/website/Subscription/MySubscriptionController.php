@@ -349,9 +349,8 @@ public function subscriptionVerifyPayment(Request $request)
             'securityKey'=> Str::random(19),
             'status'     => 1,
             'dateCreated'=> $activate,
-            'dateUpdated'=> now(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'dateUpdated'=> now()
+
         ]);
 
         DB::commit();
