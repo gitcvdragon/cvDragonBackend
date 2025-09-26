@@ -12,10 +12,11 @@ class GeminiController extends Controller
     public function generate(Request $request)
     {
         $keyphrasesSn = $request->input('keyphrases_sn');
+        $prompt_name = $request->input('prompt_name');
         $limit = $request->input('limit') ?? 50;
         $offset = $request->input('offset') ?? 0;
         $userId = auth()->user()->id;
-
+if( $keyphrasesSn){
         // Fetch active prompt
         $promptRow = DB::table('prompts')
             ->where('keyphrases_sn', $keyphrasesSn)
@@ -133,5 +134,8 @@ class GeminiController extends Controller
             'skills' => $paginatedSkills,
             'source' => 'ai'
         ]);
+    }else{
+
+    }
     }
 }

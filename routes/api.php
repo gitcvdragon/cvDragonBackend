@@ -145,7 +145,7 @@ Route::delete('/my-documents/{documentID}', [MyDocumentsController::class, 'dele
 Route::get('/subscriptions/active', [MySubscriptionController::class, 'getActiveSubscriptions'])->middleware('auth:api');
 Route::post('/redeem-voucher', [MySubscriptionController::class, 'redeemVoucher'])->middleware('auth:api');
 
-Route::post('/subscriptions/verify', [MySubscriptionController::class, 'verifyPayment'])->middleware('auth:api');
+Route::post('/subscriptions/verify', [MySubscriptionController::class, 'subscriptionVerifyPayment'])->middleware('auth:api');
 Route::post('/subscriptions/order-create', [MySubscriptionController::class, 'createSubscriptionOrder'])->middleware('auth:api');
 Route::post('/subscriptions/order-details', [MySubscriptionController::class, 'createRazorpayOrder'])->middleware('auth:api');
 
