@@ -700,8 +700,12 @@ public function verifyPayment(Request $request)
             return $this->errorResponse('Order not found', 404);
         }
 
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+       $api = new Api (env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+$payment = $api->payment->fetch($razorpayPaymentId);
 
+$paymentMode = $payment->method;
+		$transactionDate = \Carbon\Carbon::createFromTimestamp($payment->created_at);
+		 $userId = auth()->user()->id;
         // Verify signature
         $attributes = [
             'razorpay_order_id' => $razorpayOrderId,
@@ -722,22 +726,30 @@ public function verifyPayment(Request $request)
                 'updated_at' => now()
             ]);
 
-            DB::table('transactions')->insert([
-                'orderid' => $orderId,
-                'payment_status' => 'success',
-                'paymentMode' => 'Razorpay',
-                'currency' => 'INR',
-                'totalAmount' => $order->total_amount,
-                'transactionDate' => now(),
-                'status' => 1,
-                'razorpay_order_id' => $razorpayOrderId,
-                'razorpay_payment_id' => $razorpayPaymentId,
-                'razorpay_signature' => $razorpaySignature,
-                'feature' => 'microservice_purchase',
-                'feature_sn' => $order->service_sn,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+          DB::table('transactions')
+    ->updateOrInsert(
+        [
+              'orderid' => $orderId,
+            'razorpay_order_id' => $razorpayOrderId,
+			'id'=>$userId
+        ],
+        [
+            'payment_status' => 'success',
+            'paymentMode' => $paymentMode,
+            'currency' => 'INR',
+            'totalAmount' => $order->total_amount,
+            'transactionDate' => $transactionDate,
+            'status' => 1,
+            'razorpay_payment_id' => $razorpayPaymentId,
+            'razorpay_signature' => $razorpaySignature,
+            'feature' => 'microservice',
+            'feature_sn' => $order->service_sn,
+            'sub_feature' => 'orders',
+            'sub_feature_sn' => $orderId,
+            'updated_at' => now(),
+            'created_at' => now()  // used only if inserting
+        ]
+    );
 
             DB::commit();
 
@@ -752,26 +764,30 @@ public function verifyPayment(Request $request)
                 'updated_at' => now()
             ]);
 
-            DB::table('transactions')->insert([
-                'orderid' => $orderId,
-                'payment_status' => 'failed',
-                'paymentMode' => 'Razorpay',
-                'currency' => 'INR',
-                'totalAmount' => $order->total_amount,
-                'transactionDate' => now(),
-                'status' => 0,
-                'razorpay_order_id' => $razorpayOrderId,
-                'razorpay_payment_id' => $razorpayPaymentId,
-                'razorpay_signature' => $razorpaySignature,
-                'feature' => 'microservice',
-                'feature_sn' => $order->service_sn,
-
-
-                'sub_feature' => 'orders',
-                'sub_feature_sn' => $orderId,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+           DB::table('transactions')
+    ->updateOrInsert(
+        [
+            'orderid' => $orderId,
+            'razorpay_order_id' => $razorpayOrderId,
+			'id'=>$userId
+        ],
+        [
+            'payment_status' => 'failed',
+            'paymentMode' => $paymentMode,
+            'currency' => 'INR',
+            'totalAmount' => $order->total_amount,
+             'transactionDate' => $transactionDate,
+            'status' => 0,
+             'razorpay_payment_id' => $razorpayPaymentId,
+            'razorpay_signature' => $razorpaySignature,
+            'feature' => 'microservice',
+            'feature_sn' => $order->service_sn,
+            'sub_feature' => 'orders',
+            'sub_feature_sn' => $orderId,
+            'updated_at' => now(),
+            'created_at' => now()
+        ]
+    );
 
             DB::commit();
 

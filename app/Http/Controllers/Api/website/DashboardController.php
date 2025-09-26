@@ -39,27 +39,39 @@ class DashboardController extends Controller
                 ->where('status', 1)
                 ->where('category', 'homepage')
                 ->where('sub_category', 'dashboard')
+                ->where('status',1)
+
                 ->get();
 
             $cvCount = DB::table('create-cvprofile')
                 ->where('id', $userId)
+                ->where('status',1)
+
                 ->count();
 
             $userBasic = DB::table('user-basic')
-            ->select('wizardEducationProfile','wizardWorkProfile','wizardEducationSpecialization','wizardWorkSpecialization')
+            ->select('profile_type','wizardWorkExp','wizardEducationProfile','wizardWorkProfile','wizardEducationSpecialization','wizardWorkSpecialization')
                 ->where('id', $userId)
+                ->where('status',1)
+
                 ->first();
 
             $userCategory = DB::table('users')
                 ->join('user_categories', 'users.categoryid', '=', 'user_categories.usercategoryid')
                 ->select('users.id', 'users.categoryid', 'user_categories.category as category_name')
                 ->where('users.id', $userId)
-                ->first();
+                ->where('status',1)
 
+                ->first();
+                $subscriptionCount = DB::table('user-subscription')
+                ->where('user_id', $userId)
+                ->where('status',1)
+                ->count();
             return $this->successResponse([
                 'designs'       => $designs,
                 'career_images' => $careerImages,
                 'cv_count'      => $cvCount,
+                'subscription_count'=> $subscriptionCount,
                 'user_basic'    => $userBasic,
                 'user_category' => $userCategory,
             ], 'Dashboard data fetched successfully!');
