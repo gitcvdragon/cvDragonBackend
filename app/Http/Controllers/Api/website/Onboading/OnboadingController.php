@@ -40,7 +40,7 @@ class OnboadingController extends Controller
     {
         try {
             $request->validate([
-                'course_id' => 'required|integer|exists:courses,id'
+                'course_id' => 'required|integer|exists:courses,sn'
             ]);
 
             $limit = $request->input('limit', 10);
@@ -66,7 +66,7 @@ class OnboadingController extends Controller
     public function getInterests(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'specialization_id' => 'required|integer|exists:specializations,id',
+            'specialization_id' => 'required|integer|exists:specializations,sn',
             'limit' => 'nullable|integer|min:1',
             'offset' => 'nullable|integer|min:0',
         ]);
