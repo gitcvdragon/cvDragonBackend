@@ -159,4 +159,4 @@ Route::middleware('auth:api')->get('/services/verify', [ServiceController::class
 
 
 
-Route::post('/search', [GeminiController::class, 'generate']);
+Route::post('/search', [GeminiController::class, 'generate'])->middleware('auth:api');

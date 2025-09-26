@@ -14,7 +14,7 @@ class GeminiController extends Controller
         $keyphrasesSn = $request->input('keyphrases_sn');
         $limit = $request->input('limit') ?? 50;
         $offset = $request->input('offset') ?? 0;
-
+        $userId = auth()->user()->id;
         // Fetch active prompt
         $promptRow = DB::table('prompts')
             ->where('keyphrases_sn', $keyphrasesSn)
@@ -32,17 +32,38 @@ class GeminiController extends Controller
 
         // Call AI only if we need more skills
         if ($promptRow && $neededSkills > 0) {
-            $details = DB::table('keyphrasesdetails')
-                ->where('keyphrases_sn', $keyphrasesSn)
-                ->first();
+            $details = DB::table('user-basic')
+            ->where('id', $userId)
+            ->first();
 
             $aiPrompt = $promptRow->prompt_text . "\n\n";
             $aiPrompt .= "Candidate Details:\n";
-            $aiPrompt .= "Course: " . ($details->course ?? 'N/A') . "\n";
-            $aiPrompt .= "Specialization: " . ($details->specialization ?? 'N/A') . "\n";
-            $aiPrompt .= "Work Industry: " . ($details->work_industry ?? 'N/A') . "\n";
-            $aiPrompt .= "Work Profile: " . ($details->work_profile ?? 'N/A') . "\n";
-            $aiPrompt .= "Year: " . ($details->year ?? 'N/A') . "\n";
+            // $aiPrompt .= "Course: " . ($details->course ?? 'N/A') . "\n";
+            // $aiPrompt .= "Specialization: " . ($details->specialization ?? 'N/A') . "\n";
+            // $aiPrompt .= "Work Industry: " . ($details->work_industry ?? 'N/A') . "\n";
+            // $aiPrompt .= "Work Profile: " . ($details->work_profile ?? 'N/A') . "\n";
+            // $aiPrompt .= "Year: " . ($details->year ?? 'N/A') . "\n";
+
+            $aiPrompt .= !empty($details->wizardWorkExp)
+    ? "Work Experience: " . $details->wizardWorkExp . "\n"
+    : "";
+
+$aiPrompt .= !empty($details->wizardEducationProfile)
+    ? "Education Profile: " . $details->wizardEducationProfile . "\n"
+    : "";
+
+$aiPrompt .= !empty($details->wizardWorkProfile)
+    ? "Work Profile (Wizard): " . $details->wizardWorkProfile . "\n"
+    : "";
+
+$aiPrompt .= !empty($details->wizardEducationSpecialization)
+    ? "Education Specialization: " . $details->wizardEducationSpecialization . "\n"
+    : "";
+
+$aiPrompt .= !empty($details->wizardWorkSpecialization)
+    ? "Work Specialization: " . $details->wizardWorkSpecialization . "\n"
+    : "";
+
             $aiPrompt .= $promptRow->return_data_structure;
 
             $response = Http::withHeaders([
@@ -68,7 +89,9 @@ class GeminiController extends Controller
             // Extract JSON between first { and last }
             $start = strpos($text, '{');
             $end = strrpos($text, '}');
-
+            $details = DB::table('keyphrasesdetails')
+            ->where('keyphrases_sn', $keyphrasesSn)
+            ->first();
             if ($start !== false && $end !== false && $end > $start) {
                 $jsonText = substr($text, $start, $end - $start + 1);
                 $decoded = json_decode($jsonText, true);
