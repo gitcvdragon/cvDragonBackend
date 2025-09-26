@@ -32,9 +32,9 @@ class GeminiController extends Controller
 
         // Call AI only if we need more skills
         if ($promptRow && $neededSkills > 0) {
-            $details = DB::table('user-basic')
-            ->where('id', $userId)
-            ->first();
+            // $details = DB::table('user-basic')
+            // ->where('id', $userId)
+            // ->first();
 
             $aiPrompt = $promptRow->prompt_text . "\n\n";
             $aiPrompt .= "Candidate Details:\n";
@@ -106,11 +106,11 @@ $aiPrompt .= !empty($details->wizardWorkSpecialization)
                         ) {
                             DB::table('keyphrasesdetails')->insert([
                                 'keyphrases_sn'   => $keyphrasesSn,
-                                'course'          => $details->course ?? null,
-                                'specialization'  => $details->specialization ?? null,
-                                'work_industry'   => $details->work_industry ?? null,
-                                'work_profile'    => $details->work_profile ?? null,
-                                'year'            => $details->year ?? null,
+                                'course'          => $details->wizardEducationSpecialization ?? null,
+                                'specialization'  => $details->wizardEducationSpecialization ?? null,
+                                'work_industry'   => $details->wizardWorkProfile ?? null,
+                                'work_profile'    => $details->wizardWorkSpecialization ?? null,
+                                'year'            => $details->wizardWorkExp ?? null,
                                 'keyphrase_value' => $skill,
                                 'keyphrase_status'=> 1,
                                 'created_at'      => now(),
