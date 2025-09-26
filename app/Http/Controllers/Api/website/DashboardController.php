@@ -60,7 +60,8 @@ class DashboardController extends Controller
                 ->join('user_categories', 'users.categoryid', '=', 'user_categories.usercategoryid')
                 ->select('users.id', 'users.categoryid', 'user_categories.category as category_name')
                 ->where('users.id', $userId)
-                ->where('status',1)
+                ->where('user_categories.status',1)
+                ->where('users.status',1)
 
                 ->first();
                 $subscriptionCount = DB::table('user-subscription')
