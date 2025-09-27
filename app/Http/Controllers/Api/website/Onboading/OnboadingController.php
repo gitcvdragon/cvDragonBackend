@@ -34,8 +34,8 @@ class OnboadingController extends Controller
 
         // Prepare update data dynamically
         $updateData = array_filter([
-            'fullName' => $request->input('fullName'),
-            'gender' => $request->input('gender'),
+          //  'fullName' => $request->input('fullName'),
+           // 'gender' => $request->input('gender'),
             'profile_type' => $request->input('profile_type'),
             'wizardEducationProfile' => $request->input('wizardEducationProfile'),
             'wizardEducationSpecialization' => $request->input('wizardEducationSpecialization'),
