@@ -277,6 +277,7 @@ class OTPAuthController extends Controller
                     'usermobile' => is_numeric($identifier) ? $identifier : null,
                     'categoryid' => $userCategory,
                     'authKey'    => $userauthKey,
+
                 ]);
 
                 // Set username same as ID
@@ -321,7 +322,7 @@ class OTPAuthController extends Controller
         return $this->successResponse([
             'token' => $token,
             'user_id' => $user->id,
-            'ftl' => $user->ftl,
+            'ftl' => $user->ftl ?? 1,
             'userCategory' => $user->categoryid,
         ], 'OTP verified successfully!');
     }

@@ -93,8 +93,7 @@ class OnboadingController extends Controller
         // ------------------------
         $updateUserBasic = array_filter([
             'fullName' => $request->input('fullName'),
-            'gender' => $request->input('gender'),
-            'userName' => $request->input('userName'),
+           // 'gender' => $request->input('gender'),
             'profile_type' => $request->input('profile_type'),
             'wizardEducationProfile' => $request->input('wizardEducationProfile'),
             'wizardEducationSpecialization' => $request->input('wizardEducationSpecialization'),
@@ -110,7 +109,7 @@ class OnboadingController extends Controller
         // Update users table
         // ------------------------
         $updateUsers = array_filter([
-            'fullName' => $request->input('fullName'),
+            'userName' => $request->input('fullName'),
             'gender' => $request->input('gender'),
         ], fn($value) => !is_null($value));
 
