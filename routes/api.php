@@ -27,6 +27,8 @@ use App\Http\Controllers\Api\website\Onboading\OnboadingController;
 use Illuminate\Support\Facades\Http;
 
 
+
+
 Route::get('/generate', function (Request $request) {
     $query = $request->input('q', 'Laravel developer');
 
@@ -83,10 +85,10 @@ use App\Http\Controllers\Controller;
 
 
 Route::prefix('onboarding')->group(function () {
-    Route::get('courses', [OnboadingController::class, 'getCourses']);
-    Route::get('specializations', [OnboadingController::class, 'getSpecializations']);
-    Route::get('interests', [OnboadingController::class, 'getInterests']);
+        Route::post('/', [OnboadingController::class, 'onboardProfile']);
+
 });
+Route::post('update-profile', [OnboadingController::class, 'updateProfile']);
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);

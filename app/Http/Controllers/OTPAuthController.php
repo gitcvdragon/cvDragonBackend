@@ -174,8 +174,159 @@ class OTPAuthController extends Controller
     //     }
     // }
 
-
     public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'identifier' => 'nullable|string',
+            'email'      => 'nullable|email',
+            'social_id'  => 'nullable|string',
+            'source'     => 'required_with:social_id|string',
+            'otp'        => 'nullable|digits:6',
+        ]);
+
+        $validator->after(function ($validator) use ($request) {
+            $identifier = $request->input('identifier');
+            $email      = $request->input('email');
+            $socialId   = $request->input('social_id');
+            $source     = $request->input('source');
+            $otp        = $request->input('otp');
+
+            if (empty($identifier) && empty($email) && empty($socialId)) {
+                $validator->errors()->add('login', 'Please provide identifier, email, or social ID.');
+            }
+
+            if (!empty($identifier)) {
+                $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
+                $isPhone = preg_match('/^(\+91|91)?[6-9]\d{9}$/', $identifier);
+
+                if (!$isEmail && !$isPhone) {
+                    $validator->errors()->add('identifier', 'Please use valid email or phone number.');
+                }
+
+                if (empty($otp)) {
+                    $validator->errors()->add('otp', 'OTP is required for email/phone login.');
+                }
+            }
+
+            if (!empty($socialId) && empty($source)) {
+                $validator->errors()->add('source', 'Source is required when using social ID.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors()->first(), $validator->errors());
+        }
+
+        $identifier = $request->input('identifier');
+        $email      = $request->input('email');
+        $socialId   = $request->input('social_id');
+        $source     = $request->input('source');
+        $otp        = $request->input('otp');
+        $userCategory = 1;
+
+        // Social login: fetch or create user without OTP
+        if ($socialId) {
+            $user = User::firstOrCreate(
+                ['socialid' => $socialId, 'socialType' => $source],
+                ['authKey' => md5(microtime() . rand()), 'categoryid' => $userCategory]
+            );
+
+            $token = JWTAuth::fromUser($user);
+
+            return $this->successResponse([
+                'token' => $token,
+                'user_id' => $user->id,
+                'ftl' => $user->ftl,
+                'userCategory' => $user->categoryid,
+            ], 'Logged in successfully via social ID!');
+        }
+
+        // Identifier/email login: verify OTP
+        $recordQuery = DB::table('user_otps');
+        if ($identifier) {
+            $recordQuery->where('identifier', $identifier);
+        } elseif ($email) {
+            $recordQuery->where('identifier', $email);
+        }
+        $recordQuery->where('otp', $otp);
+        $record = $recordQuery->first();
+
+        if (!$record) {
+            return $this->errorResponse('OTP is not valid!', 401);
+        }
+
+        $userQuery = User::query();
+        if ($identifier) {
+            $userQuery->where('userEmail', $identifier)->orWhere('usermobile', $identifier);
+        } elseif ($email) {
+            $userQuery->where('userEmail', $email);
+        }
+
+        $user = $userQuery->first();
+
+        // Create new user if not exists
+        if (!$user) {
+            DB::beginTransaction();
+            try {
+                $id = now()->timestamp . rand(1, 1000);
+                $userauthKey = md5(microtime() . rand());
+
+                $user = User::create([
+                    'id'         => $id,
+                    'userEmail'  => filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : null,
+                    'usermobile' => is_numeric($identifier) ? $identifier : null,
+                    'categoryid' => $userCategory,
+                    'authKey'    => $userauthKey,
+                ]);
+
+                // Set username same as ID
+                $user->update(['username' => $user->id]);
+
+                // Initialize UserBasic
+                UserBasic::create([
+                    'id'           => $user->id,
+                    'showWizard'   => 1,
+                    'emailAddress' => filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : null,
+                    'phoneNumber'  => is_numeric($identifier) ? $identifier : null,
+                ]);
+
+                // Initialize CV Profile
+                CreateCvuserprofile::create([
+                    'id'          => $user->id,
+                    'profileName' => 'First Profile',
+                ]);
+
+                // Initialize contact info
+                CvContact::create([
+                    'id'           => $user->id,
+                    'phoneNumber'  => is_numeric($identifier) ? $identifier : null,
+                    'emailAddress' => filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : null,
+                ]);
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return $this->errorResponse('Failed to create user: ' . $e->getMessage(), 500);
+            }
+        }
+
+        // Delete OTP after successful verification
+        DB::table('user_otps')
+            ->where('identifier', $identifier ?? $email)
+            ->where('otp', $otp)
+            ->delete();
+
+        $token = JWTAuth::fromUser($user);
+
+        return $this->successResponse([
+            'token' => $token,
+            'user_id' => $user->id,
+            'ftl' => $user->ftl,
+            'userCategory' => $user->categoryid,
+        ], 'OTP verified successfully!');
+    }
+
+    public function verifyOtpp(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'identifier' => 'nullable|string',
