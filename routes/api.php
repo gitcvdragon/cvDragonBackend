@@ -85,10 +85,10 @@ use App\Http\Controllers\Controller;
 
 
 Route::prefix('onboarding')->group(function () {
-        Route::post('/', [OnboadingController::class, 'onboardProfile']);
+        Route::post('/', [OnboadingController::class, 'onboardProfile'])->middleware('auth:api');
 
 });
-Route::post('update-profile', [OnboadingController::class, 'updateProfile']);
+Route::post('update-profile', [OnboadingController::class, 'updateProfile'])->middleware('auth:api');
 
 //Sending OTP to user Mobile or Email..
 Route::post('/send-otp', [OTPAuthController::class, 'sendOtp']);
