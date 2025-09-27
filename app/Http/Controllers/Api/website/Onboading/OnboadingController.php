@@ -147,7 +147,7 @@ class OnboadingController extends Controller
                 if (!$skill) continue;
 
                 $exists = DB::table('cv-skills')
-                    ->where('refID', $userId)
+                    ->where('refID', $cvid)
                     ->where('skill', $skill)
                     ->where('status', 1)
                     ->exists();
@@ -179,7 +179,7 @@ class OnboadingController extends Controller
                 if (!$techSkill) continue;
 
                 $exists = DB::table('cv-technical')
-                    ->where('refID', $userId)
+                    ->where('refID', $cvid)
                     ->where('technical', $techSkill)
                     ->where('status', 1)
                     ->exists();
@@ -211,7 +211,7 @@ class OnboadingController extends Controller
                 if (!$interest) continue;
 
                 $exists = DB::table('cv-interests')
-                    ->where('refID', $userId)
+                    ->where('refID', $cvid)
                     ->where('interest', $interest)
                     ->where('status', 1)
                     ->exists();
@@ -247,7 +247,7 @@ class OnboadingController extends Controller
                 if (!$language) continue;
 
                 $exists = DB::table('cv-languages')
-                    ->where('refID', $userId)
+                     ->where('refID', $cvid)
                     ->where('language', $language)
                     ->where('status', 1)
                     ->exists();
