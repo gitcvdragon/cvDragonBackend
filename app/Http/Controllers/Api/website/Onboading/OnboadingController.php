@@ -152,16 +152,17 @@ class OnboadingController extends Controller
                     ->where('status', 1)
                     ->exists();
 
-                if (!$exists) {
-                    $id = DB::table('cv-skills')->insertGetId([
-                        'id' => $userId,
-                        'skill' => $skill,
-                        'refID' => $userId,
-                        'created' => now(),
-                        'status' => 1,
-                    ]);
-                    $skillsIds[] = $id;
-                }
+                    if (!$exists) {
+                        $skillId = DB::table('cv-skills')->insertGetId([
+                            'id'      => $userId,
+                            'skill'   => $skill,
+                            'refID'   => $cvid,
+                            'created' => now(),
+                            'status'  => 1,
+                        ], 'skillid');
+
+                        $skillsIds[] = $skillId;
+                    }
             }
 
             // Add to CV profile section
