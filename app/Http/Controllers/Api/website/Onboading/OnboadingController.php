@@ -154,6 +154,7 @@ class OnboadingController extends Controller
 
                 if (!$exists) {
                     $id = DB::table('cv-skills')->insertGetId([
+                        'id' => $userId,
                         'skill' => $skill,
                         'refID' => $userId,
                         'created' => now(),
@@ -170,94 +171,99 @@ class OnboadingController extends Controller
         // ------------------------
         // Insert Technical Skills
         // ------------------------
-       // Technical Skills
-$technicalIds = [];
-if ($request->filled('technicalSkills')) {
-    foreach ($request->input('technicalSkills') as $techSkill) {
-        $techSkill = trim($techSkill);
-        if (!$techSkill) continue;
+        $technicalIds = [];
+        if ($request->filled('technicalSkills')) {
+            foreach ($request->input('technicalSkills') as $techSkill) {
+                $techSkill = trim($techSkill);
+                if (!$techSkill) continue;
 
-        $exists = DB::table('cv-technical')
-            ->where('refID', $userId)
-            ->where('technical', $techSkill)
-            ->where('status', 1)
-            ->exists();
+                $exists = DB::table('cv-technical')
+                    ->where('refID', $userId)
+                    ->where('technical', $techSkill)
+                    ->where('status', 1)
+                    ->exists();
 
-        if (!$exists) {
-            $id = DB::table('cv-technical')->insertGetId([
-                'technical' => $techSkill,
-                'refID' => $userId,
-                'created' => now(),
-                'status' => 1,
-            ]);
-            $technicalIds[] = $id;
+                if (!$exists) {
+                    $id = DB::table('cv-technical')->insertGetId([
+                        'id' => $userId,
+                        'technical' => $techSkill,
+                        'refID' => $userId,
+                        'created' => now(),
+                        'status' => 1,
+                    ]);
+                    $technicalIds[] = $id;
+                }
+            }
+
+            $insertCvProfileSection($cvid, 'Technical Skills', $request->technicalskill_id, $technicalIds);
         }
-    }
 
-    $insertCvProfileSection($cvid, 'Technical Skills', $request->technicalskill_id, $technicalIds);
-}
+        // ------------------------
+        // Insert Interests
+        // ------------------------
+        $interestIds = [];
+        if ($request->filled('interests')) {
+            foreach ($request->input('interests') as $interest) {
+                $interest = trim($interest);
+                if (!$interest) continue;
 
-// Interests
-$interestIds = [];
-if ($request->filled('interests')) {
-    foreach ($request->input('interests') as $interest) {
-        $interest = trim($interest);
-        if (!$interest) continue;
+                $exists = DB::table('cv-interests')
+                    ->where('refID', $userId)
+                    ->where('interest', $interest)
+                    ->where('status', 1)
+                    ->exists();
 
-        $exists = DB::table('cv-interests')
-            ->where('refID', $userId)
-            ->where('interest', $interest)
-            ->where('status', 1)
-            ->exists();
+                if (!$exists) {
+                    $id = DB::table('cv-interests')->insertGetId([
+                        'id' => $userId,
+                        'interest' => $interest,
+                        'refID' => $userId,
+                        'created' => now(),
+                        'status' => 1,
+                    ]);
+                    $interestIds[] = $id;
+                }
+            }
 
-        if (!$exists) {
-            $id = DB::table('cv-interests')->insertGetId([
-                'interest' => $interest,
-                'refID' => $userId,
-                'created' => now(),
-                'status' => 1,
-            ]);
-            $interestIds[] = $id;
+            $insertCvProfileSection($cvid, 'Interests', $request->interest_id, $interestIds);
         }
-    }
 
-    $insertCvProfileSection($cvid, 'Interests', $request->interest_id, $interestIds);
-}
+        // ------------------------
+        // Insert Languages
+        // ------------------------
+        $languageIds = [];
+        if ($request->filled('languages')) {
+            foreach ($request->input('languages') as $lang) {
+                $language = trim($lang['language'] ?? '');
+                $read = $lang['read'] ?? 0;
+                $write = $lang['write'] ?? 0;
+                $speak = $lang['speak'] ?? 0;
 
-// Languages
-$languageIds = [];
-if ($request->filled('languages')) {
-    foreach ($request->input('languages') as $lang) {
-        $language = trim($lang['language'] ?? '');
-        $read = $lang['read'] ?? 0;
-        $write = $lang['write'] ?? 0;
-        $speak = $lang['speak'] ?? 0;
+                if (!$language) continue;
 
-        if (!$language) continue;
+                $exists = DB::table('cv-languages')
+                    ->where('refID', $userId)
+                    ->where('language', $language)
+                    ->where('status', 1)
+                    ->exists();
 
-        $exists = DB::table('cv-languages')
-            ->where('refID', $userId)
-            ->where('language', $language)
-            ->where('status', 1)
-            ->exists();
+                if (!$exists) {
+                    $id = DB::table('cv-languages')->insertGetId([
+                        'id' => $userId,
+                        'language' => $language,
+                        'readLanguage' => $read,
+                        'writeLanguage' => $write,
+                        'speakLanguage' => $speak,
+                        'refID' => $userId,
+                        'created' => now(),
+                        'status' => 1,
+                    ]);
+                    $languageIds[] = $id;
+                }
+            }
 
-        if (!$exists) {
-            $id = DB::table('cv-languages')->insertGetId([
-                'language' => $language,
-                'readLanguage' => $read,
-                'writeLanguage' => $write,
-                'speakLanguage' => $speak,
-                'refID' => $userId,
-                'created' => now(),
-                'status' => 1,
-            ]);
-            $languageIds[] = $id;
+            $insertCvProfileSection($cvid, 'Spoken Languages', $request->language_id, $languageIds);
         }
-    }
-
-    $insertCvProfileSection($cvid, 'Spoken Languages', $request->language_id, $languageIds);
-}
-
 
         return $this->successResponse([
             'userId' => $userId
