@@ -184,16 +184,18 @@ class OnboadingController extends Controller
                     ->where('status', 1)
                     ->exists();
 
-                if (!$exists) {
-                    $id = DB::table('cv-technical')->insertGetId([
-                        'id' => $userId,
-                        'technical' => $techSkill,
-                        'refID' => $userId,
-                        'created' => now(),
-                        'status' => 1,
-                    ]);
-                    $technicalIds[] = $id;
-                }
+                    if (!$exists) {
+                        $techId = DB::table('cv-technical')->insertGetId([
+                            'id'        => $userId,   // userId as foreign key
+                            'technical' => $techSkill,
+                            'refID'     => $cvid,     // should reference CV/Profile
+                            'created'   => now(),
+                            'status'    => 1,
+                        ], 'technicalid'); // return auto-increment PK
+
+                        $technicalIds[] = $techId;
+                    }
+
             }
 
             $insertCvProfileSection($cvid, 'Technical Skills', $request->technicalskill_id, $technicalIds);
@@ -214,16 +216,18 @@ class OnboadingController extends Controller
                     ->where('status', 1)
                     ->exists();
 
-                if (!$exists) {
-                    $id = DB::table('cv-interests')->insertGetId([
-                        'id' => $userId,
-                        'interest' => $interest,
-                        'refID' => $userId,
-                        'created' => now(),
-                        'status' => 1,
-                    ]);
-                    $interestIds[] = $id;
-                }
+                    if (!$exists) {
+                        $interestId = DB::table('cv-interests')->insertGetId([
+                            'id'      => $userId,
+                            'interest'=> $interest,
+                            'refID'   => $cvid,
+                            'created' => now(),
+                            'status'  => 1,
+                        ], 'interestid'); // return auto-increment PK
+
+                        $interestIds[] = $interestId;
+                    }
+
             }
 
             $insertCvProfileSection($cvid, 'Interests', $request->interest_id, $interestIds);
@@ -248,19 +252,21 @@ class OnboadingController extends Controller
                     ->where('status', 1)
                     ->exists();
 
-                if (!$exists) {
-                    $id = DB::table('cv-languages')->insertGetId([
-                        'id' => $userId,
-                        'language' => $language,
-                        'readLanguage' => $read,
-                        'writeLanguage' => $write,
-                        'speakLanguage' => $speak,
-                        'refID' => $userId,
-                        'created' => now(),
-                        'status' => 1,
-                    ]);
-                    $languageIds[] = $id;
-                }
+                    if (!$exists) {
+                        $langId = DB::table('cv-languages')->insertGetId([
+                            'id'            => $userId,
+                            'language'      => $language,
+                            'readLanguage'  => $read,
+                            'writeLanguage' => $write,
+                            'speakLanguage' => $speak,
+                            'refID'         => $cvid,
+                            'created'       => now(),
+                            'status'        => 1,
+                        ], 'langid'); // return auto-increment PK
+
+                        $languageIds[] = $langId;
+                    }
+
             }
 
             $insertCvProfileSection($cvid, 'Spoken Languages', $request->language_id, $languageIds);
